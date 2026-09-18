@@ -1,0 +1,4017 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Gestion Flotte & Chauffeurs</title>
+  <meta name="description" content="Application web complète de gestion comptable des chauffeurs et de suivi des coûts de maintenance pour entreprise de transport routier.">
+  <meta property="og:title" content="Gestion Flotte & Chauffeurs">
+  <meta property="og:description" content="Application web complète de gestion comptable des chauffeurs et de suivi des coûts de maintenance pour entreprise de transport routier.">
+  <meta property="og:type" content="website">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --font-main: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
+      /* Palette Fintech Lumineuse */
+      --bg-body: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-surface-elevated: #f1f5f9;
+      --bg-subtle: #f8fafc;
+      --border-color: #e2e8f0;
+      --border-focus: #3b82f6;
+
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --text-subtle: #94a3b8;
+
+      --primary: #0284c7;
+      --primary-hover: #0369a1;
+      --primary-light: #e0f2fe;
+      --primary-text: #0369a1;
+
+      --success: #059669;
+      --success-light: #d1fae5;
+      --success-text: #065f46;
+
+      --danger: #e11d48;
+      --danger-light: #ffe4e6;
+      --danger-text: #9f1239;
+
+      --warning: #d97706;
+      --warning-light: #fef3c7;
+      --warning-text: #92400e;
+
+      --badge-neutral-bg: #e2e8f0;
+      --badge-neutral-text: #334155;
+
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.04);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-full: 9999px;
+    }
+
+    /* Mode Sombre (Automatique OS ou forcé par classe) */
+    @media (prefers-color-scheme: dark) {
+      :root:not(.light-mode) {
+        --bg-body: #0b0f17;
+        --bg-surface: #111827;
+        --bg-surface-elevated: #1f2937;
+        --bg-subtle: #161f30;
+        --border-color: #243046;
+        --border-focus: #38bdf8;
+
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --text-subtle: #64748b;
+
+        --primary: #38bdf8;
+        --primary-hover: #0284c7;
+        --primary-light: #082f49;
+        --primary-text: #7dd3fc;
+
+        --success: #10b981;
+        --success-light: #064e3b;
+        --success-text: #6ee7b7;
+
+        --danger: #f43f5e;
+        --danger-light: #4c0519;
+        --danger-text: #fda4af;
+
+        --warning: #f59e0b;
+        --warning-light: #451a03;
+        --warning-text: #fcd34d;
+
+        --badge-neutral-bg: #1e293b;
+        --badge-neutral-text: #cbd5e1;
+
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5);
+      }
+    }
+
+    /* Classe forcée pour le basculement manuel */
+    .dark-mode {
+      --bg-body: #0b0f17;
+      --bg-surface: #111827;
+      --bg-surface-elevated: #1f2937;
+      --bg-subtle: #161f30;
+      --border-color: #243046;
+      --border-focus: #38bdf8;
+
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-subtle: #64748b;
+
+      --primary: #38bdf8;
+      --primary-hover: #0284c7;
+      --primary-light: #082f49;
+      --primary-text: #7dd3fc;
+
+      --success: #10b981;
+      --success-light: #064e3b;
+      --success-text: #6ee7b7;
+
+      --danger: #f43f5e;
+      --danger-light: #4c0519;
+      --danger-text: #fda4af;
+
+      --warning: #f59e0b;
+      --warning-light: #451a03;
+      --warning-text: #fcd34d;
+
+      --badge-neutral-bg: #1e293b;
+      --badge-neutral-text: #cbd5e1;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font-main);
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-size: 15px;
+    }
+
+    /* Utilitaires typographiques */
+    .font-mono { font-family: var(--font-mono); }
+    .text-success { color: var(--success); }
+    .text-danger { color: var(--danger); }
+    .text-warning { color: var(--warning); }
+    .text-primary { color: var(--primary); }
+    .text-muted { color: var(--text-muted); }
+
+    /* En-tête persistant */
+    .app-header {
+      background-color: var(--bg-surface);
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      backdrop-filter: blur(8px);
+    }
+
+    .header-inner {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-logo {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      color: white;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.1rem;
+      letter-spacing: -0.5px;
+      box-shadow: 0 2px 4px rgba(2, 132, 199, 0.25);
+    }
+
+    .brand-text h1 {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      line-height: 1.2;
+    }
+
+    .brand-text p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .header-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .view-pill {
+      background-color: var(--primary-light);
+      color: var(--primary-text);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.65rem;
+      border-radius: var(--radius-full);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .user-tag {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: var(--radius-sm);
+      background: var(--bg-subtle);
+    }
+
+    /* Barre d'onglets de navigation */
+    .nav-bar {
+      background-color: var(--bg-surface);
+      border-bottom: 1px solid var(--border-color);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .nav-bar::-webkit-scrollbar { display: none; }
+
+    .nav-inner {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 0 1.25rem;
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .nav-tab {
+      padding: 0.75rem 0.9rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+
+    .nav-tab:hover {
+      color: var(--text-main);
+    }
+
+    .nav-tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    /* Boutons et Contrôles */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 0.5rem 1rem;
+      min-height: 40px;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .btn:active { transform: scale(0.98); }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: #ffffff;
+    }
+    .btn-primary:hover { background-color: var(--primary-hover); }
+
+    .btn-secondary {
+      background-color: var(--bg-surface);
+      border-color: var(--border-color);
+      color: var(--text-main);
+    }
+    .btn-secondary:hover {
+      background-color: var(--bg-surface-elevated);
+      border-color: var(--text-subtle);
+    }
+
+    .btn-danger {
+      background-color: var(--danger);
+      color: #ffffff;
+    }
+    .btn-danger:hover { opacity: 0.9; }
+
+    .btn-sm {
+      padding: 0.35rem 0.7rem;
+      min-height: 32px;
+      font-size: 0.8rem;
+    }
+
+    .btn-icon {
+      padding: 0.5rem;
+      min-height: 38px;
+      min-width: 38px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      cursor: pointer;
+    }
+
+    /* Conteneur principal */
+    .main-container {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 1.25rem;
+      width: 100%;
+      flex: 1;
+    }
+
+    /* Barre de filtres et d'actions */
+    .toolbar-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      margin-bottom: 1.25rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .toolbar-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .presets-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .preset-btn {
+      background-color: var(--bg-surface-elevated);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 0.35rem 0.65rem;
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .preset-btn:hover, .preset-btn.active {
+      background-color: var(--primary-light);
+      border-color: var(--primary);
+      color: var(--primary-text);
+    }
+
+    .date-pickers {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .date-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .date-input {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0.4rem 0.6rem;
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 0.8rem;
+    }
+
+    .date-input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    /* Cartes KPI Synthétiques */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .kpi-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--border-color);
+    }
+
+    .kpi-card.kpi-revenue::before { background: var(--success); }
+    .kpi-card.kpi-fuel::before { background: var(--warning); }
+    .kpi-card.kpi-maintenance::before { background: var(--danger); }
+    .kpi-card.kpi-net::before { background: var(--primary); }
+
+    .kpi-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .kpi-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Vector Icons */
+    .svg-icon {
+      display: inline-block;
+      width: 1.1em;
+      height: 1.1em;
+      vertical-align: -0.18em;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+    .svg-icon-sm {
+      width: 0.95em;
+      height: 0.95em;
+      vertical-align: -0.12em;
+    }
+    .svg-icon-lg {
+      width: 1.35em;
+      height: 1.35em;
+      vertical-align: -0.22em;
+    }
+    .kpi-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: var(--radius-sm);
+      background: var(--bg-surface-elevated);
+      color: var(--primary);
+    }
+    .kpi-icon svg {
+      width: 1.3rem;
+      height: 1.3rem;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .kpi-card.kpi-revenue .kpi-icon { color: var(--success); background: var(--success-light); }
+    .kpi-card.kpi-fuel .kpi-icon { color: var(--warning); background: var(--warning-light); }
+    .kpi-card.kpi-maintenance .kpi-icon { color: var(--danger); background: var(--danger-light); }
+    .kpi-card.kpi-net .kpi-icon { color: var(--primary); background: var(--primary-light); }
+
+    .timeline-badge svg {
+      width: 18px;
+      height: 18px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .animate-spin {
+      animation: spin 1s linear infinite;
+    }
+
+    .kpi-value {
+      font-size: 1.65rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 0.25rem;
+    }
+
+    .kpi-meta {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: var(--radius-full);
+      font-size: 0.725rem;
+      font-weight: 600;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .badge-success { background: var(--success-light); color: var(--success-text); }
+    .badge-danger { background: var(--danger-light); color: var(--danger-text); }
+    .badge-warning { background: var(--warning-light); color: var(--warning-text); }
+    .badge-primary { background: var(--primary-light); color: var(--primary-text); }
+    .badge-neutral { background: var(--badge-neutral-bg); color: var(--badge-neutral-text); }
+
+    /* Badges types d'intervention maintenance */
+    .badge-vidange { background: #fef3c7; color: #92400e; }
+    .badge-freins { background: #fee2e2; color: #991b1b; }
+    .badge-pneus { background: #e0e7ff; color: #3730a3; }
+    .badge-revision { background: #e0f2fe; color: #075985; }
+    .badge-panne { background: #ffe4e6; color: #9f1239; font-weight: 700; }
+    .badge-autre { background: #f1f5f9; color: #475569; }
+
+    /* Tables de données et Cartes adaptatives mobiles */
+    .data-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+
+    .data-card-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .data-card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.875rem;
+    }
+
+    table.data-table th {
+      background-color: var(--bg-surface-elevated);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border-color);
+      white-space: nowrap;
+    }
+
+    table.data-table td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border-color);
+      vertical-align: middle;
+    }
+
+    table.data-table tbody tr:hover {
+      background-color: var(--bg-subtle);
+    }
+
+    table.data-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Formulaires */
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+      color: var(--text-main);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.55rem 0.8rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-surface);
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.9rem;
+      min-height: 42px;
+      transition: border-color 0.15s;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    }
+
+    .form-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem;
+    }
+
+    /* Modal / Popup */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 620px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-lg);
+      transform: translateY(16px);
+      transition: transform 0.2s ease;
+      overflow: hidden;
+    }
+
+    .modal-backdrop.open .modal-card {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .modal-body {
+      padding: 1.25rem;
+      overflow-y: auto;
+    }
+
+    .modal-footer {
+      padding: 1rem 1.25rem;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      background-color: var(--bg-subtle);
+    }
+
+    /* Graphique SVG Interactif */
+    .chart-box {
+      width: 100%;
+      height: 240px;
+      position: relative;
+      margin: 1rem 0;
+    }
+
+    .chart-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    /* Liste chronologique unifiée (Chauffeur Account Timeline) */
+    .timeline-item {
+      display: flex;
+      gap: 1rem;
+      padding: 0.85rem 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .timeline-item:last-child {
+      border-bottom: none;
+    }
+
+    .timeline-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .timeline-content {
+      flex: 1;
+    }
+
+    .timeline-title {
+      font-weight: 600;
+      font-size: 0.925rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .timeline-meta {
+      font-size: 0.775rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    /* Toast Notification */
+    #toast-container {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      max-width: 380px;
+      pointer-events: none;
+    }
+
+    .toast {
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-sm);
+      background-color: var(--bg-surface);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-lg);
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      pointer-events: auto;
+      animation: slideIn 0.2s ease-out;
+    }
+
+    .toast-success { border-left: 4px solid var(--success); }
+    .toast-danger { border-left: 4px solid var(--danger); }
+    .toast-info { border-left: 4px solid var(--primary); }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* Écran de Connexion Authentique */
+    #login-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 150;
+      background: radial-gradient(circle at 50% 10%, var(--bg-surface-elevated), var(--bg-body));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+    }
+
+    .login-box {
+      width: 100%;
+      max-width: 420px;
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .login-logo {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      color: white;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    /* Grille des 10 camions */
+    .trucks-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .truck-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 0.75rem;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      cursor: pointer;
+    }
+
+    .truck-card:hover {
+      border-color: var(--primary);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* Grille des Chauffeurs & Fiches Chauffeurs */
+    .drivers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.15rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .driver-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 1rem;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+      cursor: pointer;
+    }
+
+    .driver-card:hover {
+      border-color: var(--primary);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .driver-card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .driver-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 1.15rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
+    }
+
+    .driver-card-metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      background: var(--bg-subtle);
+      border-radius: var(--radius-sm);
+      padding: 0.65rem 0.85rem;
+      border: 1px solid var(--border-color);
+    }
+
+    /* En-tête Dossier Chauffeur */
+    .driver-detail-hero {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.25rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .driver-actions-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      padding-top: 1rem;
+      margin-top: 1rem;
+      border-top: 1px dashed var(--border-color);
+    }
+
+    .driver-actions-bar .btn {
+      padding: 0.55rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 700;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .driver-period-btn {
+      padding: 0.35rem 0.75rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-surface-elevated);
+      color: var(--text-main);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .driver-period-btn:hover {
+      border-color: var(--primary);
+    }
+
+    .driver-period-btn.active {
+      background-color: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+
+    .driver-subtab-btn {
+      padding: 0.4rem 0.85rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
+      transition: all 0.15s;
+    }
+
+    .driver-subtab-btn:hover {
+      background: var(--bg-subtle);
+      color: var(--text-main);
+    }
+
+    .driver-subtab-btn.active {
+      background: var(--bg-surface-elevated);
+      color: var(--primary);
+      border-color: var(--border-color);
+    }
+
+    /* Inline editable row for drivers */
+    .inline-input {
+      background: transparent;
+      border: 1px solid transparent;
+      padding: 0.3rem 0.5rem;
+      border-radius: var(--radius-sm);
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.875rem;
+      width: 100%;
+    }
+
+    .inline-input:hover, .inline-input:focus {
+      background-color: var(--bg-surface);
+      border-color: var(--border-color);
+    }
+
+    .inline-select {
+      background: transparent;
+      border: 1px solid transparent;
+      padding: 0.3rem 0.5rem;
+      border-radius: var(--radius-sm);
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.875rem;
+      cursor: pointer;
+    }
+
+    .inline-select:hover, .inline-select:focus {
+      background-color: var(--bg-surface);
+      border-color: var(--border-color);
+    }
+
+    /* =========================================================================
+       RESPONSIVE & MOBILE-FIRST OPTIMIZATIONS (TABLE COLLAPSE TO STACKED CARDS)
+       ========================================================================= */
+    @media (max-width: 768px) {
+      .header-inner {
+        padding: 0.6rem 0.85rem;
+      }
+      .brand-text p { display: none; }
+      .user-tag span { display: none; }
+      
+      .main-container {
+        padding: 0.75rem;
+      }
+
+      .toolbar-card {
+        padding: 0.85rem;
+        gap: 0.75rem;
+      }
+
+      .form-grid-2 {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+      }
+
+      /* COLLAPSE TABLES INTO STACKED CARDS */
+      table.data-table.mobile-collapse {
+        display: block;
+      }
+
+      table.data-table.mobile-collapse thead {
+        display: none; /* Cacher l'en-tête de tableau sur mobile */
+      }
+
+      table.data-table.mobile-collapse tbody {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 0.75rem;
+      }
+
+      table.data-table.mobile-collapse tbody tr {
+        display: block;
+        background-color: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-sm);
+        padding: 0.85rem;
+        box-shadow: var(--shadow-sm);
+      }
+
+      table.data-table.mobile-collapse tbody tr:hover {
+        background-color: var(--bg-surface);
+      }
+
+      table.data-table.mobile-collapse td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.4rem 0;
+        border-bottom: 1px dashed var(--border-color);
+      }
+
+      table.data-table.mobile-collapse td:last-child {
+        border-bottom: none;
+        padding-top: 0.6rem;
+      }
+
+      table.data-table.mobile-collapse td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        letter-spacing: 0.3px;
+        margin-right: 0.75rem;
+      }
+
+      .btn {
+        width: 100%;
+      }
+      .toolbar-row .btn {
+        width: auto;
+      }
+    }
+
+    /* Boutons d'export professionnels */
+    .btn-pdf {
+      background-color: #e11d48 !important;
+      color: #ffffff !important;
+      border: none !important;
+      font-weight: 700;
+      transition: background-color 0.15s ease;
+    }
+    .btn-pdf:hover {
+      background-color: #be123c !important;
+    }
+
+    .btn-excel {
+      background-color: #059669 !important;
+      color: #ffffff !important;
+      border: none !important;
+      font-weight: 700;
+      transition: background-color 0.15s ease;
+    }
+    .btn-excel:hover {
+      background-color: #047857 !important;
+    }
+
+    /* Grille et cartes d'analyse */
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.25rem;
+      margin-top: 1.25rem;
+    }
+
+    @media (max-width: 900px) {
+      .analytics-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .chart-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chart-card-header {
+      padding: 0.85rem 1.25rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      background-color: var(--bg-subtle);
+    }
+
+    .chart-card-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .chart-card-body {
+      padding: 1.25rem;
+      position: relative;
+      flex: 1;
+      min-height: 270px;
+    }
+
+    .chart-card-body.chart-lg {
+      min-height: 330px;
+    }
+
+    /* Conteneur pour rendu PDF propre et net */
+    #pdf-render-zone {
+      position: fixed;
+      left: -9999px;
+      top: 0;
+      width: 794px; /* Largeur standard A4 à 96DPI */
+      background: #ffffff;
+      color: #0f172a;
+      padding: 28px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      box-sizing: border-box;
+      line-height: 1.4;
+    }
+
+    .pdf-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 2px solid #0284c7;
+      padding-bottom: 16px;
+      margin-bottom: 18px;
+    }
+
+    .pdf-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 0 0 4px 0;
+      text-transform: uppercase;
+      letter-spacing: -0.5px;
+    }
+
+    .pdf-meta {
+      font-size: 11px;
+      color: #475569;
+    }
+
+    .pdf-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+
+    .pdf-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .pdf-kpi-box {
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 10px;
+      background: #f8fafc;
+    }
+
+    .pdf-kpi-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #64748b;
+      margin-bottom: 4px;
+    }
+
+    .pdf-kpi-val {
+      font-size: 15px;
+      font-weight: 800;
+      font-family: monospace;
+    }
+
+    .pdf-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 18px;
+      font-size: 11px;
+    }
+
+    .pdf-table th {
+      background: #f1f5f9;
+      color: #1e293b;
+      font-weight: 700;
+      text-align: left;
+      padding: 7px 9px;
+      border: 1px solid #cbd5e1;
+      font-size: 10px;
+      text-transform: uppercase;
+    }
+
+    .pdf-table td {
+      padding: 6px 9px;
+      border: 1px solid #e2e8f0;
+      color: #334155;
+    }
+
+    .pdf-table tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+
+    .pdf-signatures {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+      padding-top: 15px;
+      border-top: 1px dashed #cbd5e1;
+    }
+
+    .pdf-signature-box {
+      width: 45%;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 12px;
+      min-height: 80px;
+      background: #fafafa;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== ÉCRAN DE CONNEXION ==================== -->
+  <div id="login-screen" style="display:flex;">
+    <div class="login-box">
+      <div class="login-logo">
+        <svg class="svg-icon svg-icon-lg" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+      </div>
+      <h2 style="font-size:1.2rem; font-weight:800; margin:0 0 0.3rem 0; color:var(--text-main);">TRANS-FLOTTE</h2>
+      <p style="color:var(--text-muted); font-size:0.85rem; margin:0 0 1.5rem 0;">Connectez-vous pour accéder à la comptabilité chauffeurs &amp; flotte</p>
+      <form id="login-form">
+        <div class="form-group">
+          <label class="form-label" for="login-username">Nom d'utilisateur</label>
+          <input class="form-control" id="login-username" name="username" type="text" autocomplete="username" required autofocus>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="login-password">Mot de passe</label>
+          <input class="form-control" id="login-password" name="password" type="password" autocomplete="current-password" required>
+        </div>
+        <div id="login-error" style="display:none; background: var(--danger-light); color: var(--danger-text); border-radius: var(--radius-sm); padding: 0.6rem 0.8rem; font-size: 0.82rem; font-weight: 600; margin-bottom: 1rem;"></div>
+        <button type="submit" class="btn btn-primary" id="login-submit-btn" style="width:100%; justify-content:center; font-weight:700;">Se connecter</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== EN-TÊTE PERSISTANT ==================== -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand-section">
+        <div class="brand-logo">TF</div>
+        <div class="brand-text">
+          <h1>TRANS-FLOTTE</h1>
+          <p>Comptabilité Chauffeurs & Flotte 10 Camions</p>
+        </div>
+      </div>
+
+      <div class="header-meta">
+        <div class="view-pill" id="current-view-badge">
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> <span id="current-view-name">Chauffeurs</span>
+        </div>
+
+        <!-- Basculeur Thème Sombre / Clair -->
+        <button id="theme-toggle" class="btn-icon" title="Basculer le mode sombre/clair" aria-label="Thème">
+          <span id="theme-icon"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
+        </button>
+
+        <!-- Badge Utilisateur -->
+        <div class="user-tag" id="user-badge" title="Utilisateur connecté">
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <strong id="session-username">—</strong>
+        </div>
+
+        <!-- Bouton Déconnexion -->
+        <button id="logout-btn" class="btn-icon" title="Se déconnecter" aria-label="Déconnexion">
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+
+        <!-- Bouton Actualiser -->
+        <button id="refresh-btn" class="btn btn-secondary btn-sm" title="Recharger les données">
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Actualiser
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== BARRE D'ONGLETS DU WORKFLOW ==================== -->
+  <nav class="nav-bar">
+    <div class="nav-inner">
+      <button class="nav-tab active" data-tab="drivers" id="nav-tab-drivers">
+        <svg class="svg-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> 1. Tous les Chauffeurs
+      </button>
+      <button class="nav-tab" data-tab="driver-detail" id="nav-tab-driver-workspace">
+        <svg class="svg-icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg> <span id="nav-active-driver-label">2. Chauffeur actif</span>
+      </button>
+      <button class="nav-tab" data-tab="dashboard" id="nav-tab-dashboard">
+        <svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 17v-4"/><path d="M12 17V7"/><path d="M17 17v-7"/></svg> 3. Tableau de bord général
+      </button>
+      <button class="nav-tab" data-tab="analytics" id="nav-tab-analytics">
+        <svg class="svg-icon" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> 4. Analyses & Graphiques
+      </button>
+      <button class="nav-tab" data-tab="trucks" id="nav-tab-trucks">
+        <svg class="svg-icon" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> Camions (10)
+      </button>
+    </div>
+  </nav>
+
+  <!-- ==================== CONTENU PRINCIPAL ==================== -->
+  <main class="main-container">
+
+    <!-- ==================== ONGLET PRINCIPAL 1 : CHAUFFEURS (ACCUEIL) ==================== -->
+    <section id="view-drivers" class="view-panel">
+      <!-- En-tête explicatif du workflow Chauffeur-First -->
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow-sm);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+              <span class="badge badge-primary" style="font-size: 0.75rem; font-weight: 800; padding: 0.25rem 0.6rem;">ACCUEIL</span>
+              <span style="font-size: 0.8rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.05em;">Sélection du chauffeur</span>
+            </div>
+            <h2 style="font-size: 1.5rem; font-weight: 900; margin: 0; color: var(--text-main); letter-spacing: -0.02em;">
+              Choisissez le chauffeur sur lequel travailler
+            </h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.4rem; max-width: 650px;">
+              Tous les chauffeurs de la flotte sont listés ci-dessous. Cliquez sur un chauffeur pour ouvrir son espace de travail, saisir ses voyages, son carburant, ses entretiens et suivre son solde.
+            </p>
+          </div>
+          <div style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">
+            <button id="add-driver-btn" class="btn btn-primary" style="font-weight: 700;">
+              <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> + Nouveau Chauffeur
+            </button>
+            <button id="btn-goto-dashboard" class="btn btn-secondary" title="Consulter le tableau de bord consolidé pour toute l'entreprise">
+              <svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 17v-4"/><path d="M12 17V7"/><path d="M17 17v-7"/></svg> Tableau de bord général →
+            </button>
+            <div style="display: flex; background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 2px;">
+              <button id="toggle-drivers-cards" class="btn btn-sm btn-ghost active" style="padding: 0.35rem 0.65rem;"><svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> Fiches</button>
+              <button id="toggle-drivers-table" class="btn btn-sm btn-ghost" style="padding: 0.35rem 0.65rem;"><svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg> Tableau</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barre de recherche et filtres rapides -->
+      <div style="margin-bottom: 1.25rem; display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+        <input type="text" id="driver-search-input" class="form-control" placeholder="Rechercher un chauffeur (nom, camion, tél)..." style="max-width: 360px;">
+        <div style="display: flex; gap: 0.35rem; align-items: center;">
+          <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted);">FILTRE :</span>
+          <button class="preset-btn driver-filter-btn active" data-filter="all">Tous (<span id="count-drivers-total">0</span>)</button>
+          <button class="preset-btn driver-filter-btn" data-filter="contractor">Sous-traitants</button>
+          <button class="preset-btn driver-filter-btn" data-filter="employee">Salariés</button>
+        </div>
+      </div>
+
+      <!-- Grille des fiches de chauffeurs -->
+      <div class="drivers-grid" id="drivers-cards-grid">
+        <!-- Cartes injectées par JS -->
+      </div>
+
+      <!-- Tableau d'édition en ligne alternatif -->
+      <div class="data-card" id="drivers-table-card" style="display: none;">
+        <div class="data-card-header">
+          <div class="data-card-title">
+            <svg class="svg-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Édition Rapide en Ligne des Chauffeurs
+          </div>
+        </div>
+        <div class="table-container">
+          <table class="data-table mobile-collapse" id="drivers-table">
+            <thead>
+              <tr>
+                <th>Nom du chauffeur</th>
+                <th>Camion assigné</th>
+                <th>Statut</th>
+                <th>Actif ?</th>
+                <th>Téléphone</th>
+                <th>Voyages</th>
+                <th>Solde Net</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="drivers-tbody">
+              <!-- Lignes injectées -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Bandeau d'accès secondaire au Tableau de bord général -->
+      <div style="margin-top: 2rem; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; box-shadow: var(--shadow-sm);">
+        <div>
+          <h4 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+            <svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 17v-4"/><path d="M12 17V7"/><path d="M17 17v-7"/></svg> Vue générale de l'ensemble de l'entreprise
+          </h4>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem;">
+            Consultez les totaux financiers consolidés pour toute l'entreprise (10 camions, tous les chauffeurs, graphique mensuel).
+          </p>
+        </div>
+        <button id="btn-bottom-goto-dashboard" class="btn btn-secondary" style="font-weight: 700;">
+          Consulter le tableau de bord général (Tous) →
+        </button>
+      </div>
+    </section>
+
+    <!-- ==================== DOSSIER INDIVIDUEL DU CHAUFFEUR ==================== -->
+    <section id="view-driver-detail" class="view-panel" style="display: none;">
+      <!-- En-tête Chauffeur & Actions rapides -->
+      <div class="driver-detail-hero">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+          <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+            <button id="back-to-drivers-btn" class="btn btn-secondary" style="display: flex; align-items: center; gap: 0.4rem; font-weight: 700;">
+              <svg class="svg-icon" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> ← Changer de chauffeur
+            </button>
+            <div class="driver-avatar" id="detail-driver-avatar">--</div>
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                <span class="badge badge-primary" style="font-size: 0.7rem; font-weight: 800;">ESPACE DE TRAVAIL ACTIF</span>
+                <h2 id="detail-driver-name" style="font-size: 1.4rem; font-weight: 800; margin: 0;">Nom du chauffeur</h2>
+                <span id="detail-driver-status-badge" class="badge badge-primary">Salarié</span>
+                <span id="detail-driver-active-badge" class="badge badge-success">Actif</span>
+              </div>
+              <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;" id="detail-driver-meta">
+                Camion assigné : TR-01 • Téléphone : --
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+            <button id="btn-driver-to-dashboard" class="btn btn-secondary btn-sm" style="font-weight: 700;">
+              <svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 17v-4"/><path d="M12 17V7"/><path d="M17 17v-7"/></svg> Tableau de bord général
+            </button>
+            <button id="export-driver-detail-csv" class="btn btn-secondary btn-sm">
+              <svg class="svg-icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Exporter relevé (CSV)
+            </button>
+          </div>
+        </div>
+
+        <!-- BARRE D'ACTIONS DIRECTES POUR CE CHAUFFEUR (PRE-REQUIS USER) -->
+        <div class="driver-actions-bar">
+          <span style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-right: 0.5rem;">
+            SAISIES POUR CE CHAUFFEUR :
+          </span>
+          <button id="driver-add-trip-btn" class="btn btn-primary btn-sm" style="font-weight: 700;">
+            <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> + Enregistrer un voyage
+          </button>
+          <button id="driver-add-fuel-btn" class="btn btn-warning btn-sm" style="background-color: #d97706; color: white; border: none; font-weight: 700;">
+            <svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 22V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v17"/><path d="M13 10h4a2 2 0 0 1 2 2v8a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V9.5a1.5 1.5 0 0 0-2.56-1.06L19 10"/><rect x="5" y="6" width="6" height="5" rx="1"/><path d="M3 22h10"/></svg> + Facture carburant
+          </button>
+          <button id="driver-add-maint-btn" class="btn btn-danger btn-sm" style="background-color: #e11d48; color: white; border: none; font-weight: 700;">
+            <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> + Noter un entretien
+          </button>
+        </div>
+      </div>
+
+      <!-- BARRE DE PÉRIODE DU DOSSIER CHAUFFEUR -->
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.75rem 1.25rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+          <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted);">PÉRIODE DU DOSSIER :</span>
+          <button class="driver-period-btn active" data-preset="month">Ce mois-ci</button>
+          <button class="driver-period-btn" data-preset="week">Cette semaine</button>
+          <button class="driver-period-btn" data-preset="30days">30 jours</button>
+          <button class="driver-period-btn" data-preset="all">Tout l'historique</button>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted);">
+          Recettes, carburant, entretien et solde calculés sur la période choisie.
+        </div>
+      </div>
+
+      <!-- 4 Cartes KPI Financières du Chauffeur -->
+      <div class="kpi-grid">
+        <div class="kpi-card kpi-revenue">
+          <div class="kpi-header">
+            <span class="kpi-title">Recettes Voyages</span>
+            <span class="kpi-icon"><svg class="svg-icon" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><line x1="6" y1="12" x2="6.01" y2="12"/><line x1="18" y1="12" x2="18.01" y2="12"/></svg></span>
+          </div>
+          <div class="kpi-value text-success font-mono" id="detail-driver-revenue">0 FCFA</div>
+          <div class="kpi-meta"><span id="detail-driver-trips-count">0</span> voyages effectués</div>
+        </div>
+
+        <div class="kpi-card kpi-fuel">
+          <div class="kpi-header">
+            <span class="kpi-title">Dépenses Carburant</span>
+            <span class="kpi-icon"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 22V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v17"/><path d="M13 10h4a2 2 0 0 1 2 2v8a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V9.5a1.5 1.5 0 0 0-2.56-1.06L19 10"/><rect x="5" y="6" width="6" height="5" rx="1"/><path d="M3 22h10"/></svg></span>
+          </div>
+          <div class="kpi-value text-warning font-mono" id="detail-driver-fuel">0 FCFA</div>
+          <div class="kpi-meta"><span id="detail-driver-fuel-liters">0</span> L gasoil (<span id="detail-driver-fuel-count">0</span> pleins)</div>
+        </div>
+
+        <div class="kpi-card kpi-maintenance">
+          <div class="kpi-header">
+            <span class="kpi-title">Entretien & Réparations</span>
+            <span class="kpi-icon"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
+          </div>
+          <div class="kpi-value text-danger font-mono" id="detail-driver-maint">0 FCFA</div>
+          <div class="kpi-meta"><span id="detail-driver-maint-count">0</span> interventions d'atelier</div>
+        </div>
+
+        <div class="kpi-card kpi-net">
+          <div class="kpi-header">
+            <span class="kpi-title">Solde Net Comptable</span>
+            <span class="kpi-icon"><svg class="svg-icon" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
+          </div>
+          <div class="kpi-value font-mono" id="detail-driver-net">0 FCFA</div>
+          <div class="kpi-meta">Recettes - Carburant - Entretien</div>
+        </div>
+      </div>
+
+      <!-- Onglets & Tableaux détaillés du chauffeur -->
+      <div class="data-card" style="margin-top: 1.25rem;">
+        <div class="data-card-header" style="border-bottom: 1px solid var(--border-color); padding: 0.6rem 1rem;">
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button class="driver-subtab-btn active" data-subtab="timeline"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> Relevé chronologique</button>
+            <button class="driver-subtab-btn" data-subtab="trips"><svg class="svg-icon" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg> Ses Voyages (<span id="badge-subtab-trips">0</span>)</button>
+            <button class="driver-subtab-btn" data-subtab="fuel"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 22V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v17"/><path d="M13 10h4a2 2 0 0 1 2 2v8a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V9.5a1.5 1.5 0 0 0-2.56-1.06L19 10"/><rect x="5" y="6" width="6" height="5" rx="1"/><path d="M3 22h10"/></svg> Ses Pleins Carburant (<span id="badge-subtab-fuel">0</span>)</button>
+            <button class="driver-subtab-btn" data-subtab="maint"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> Ses Entretiens (<span id="badge-subtab-maint">0</span>)</button>
+          </div>
+        </div>
+
+        <!-- Sous-panneau 1 : Timeline -->
+        <div id="subpanel-timeline" class="driver-subpanel" style="padding: 1.25rem;">
+          <div id="detail-timeline-list"></div>
+        </div>
+
+        <!-- Sous-panneau 2 : Voyages -->
+        <div id="subpanel-trips" class="driver-subpanel" style="display: none; padding: 0;">
+          <div class="table-container">
+            <table class="data-table mobile-collapse">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Trajet</th>
+                  <th>Camion</th>
+                  <th>Marchandise</th>
+                  <th>Montant reçu</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="detail-trips-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Sous-panneau 3 : Carburant -->
+        <div id="subpanel-fuel" class="driver-subpanel" style="display: none; padding: 0;">
+          <div class="table-container">
+            <table class="data-table mobile-collapse">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Volume (L)</th>
+                  <th>Montant payé</th>
+                  <th>Station</th>
+                  <th>Kilométrage</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="detail-fuel-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Sous-panneau 4 : Entretien -->
+        <div id="subpanel-maint" class="driver-subpanel" style="display: none; padding: 0;">
+          <div class="table-container">
+            <table class="data-table mobile-collapse">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Type</th>
+                  <th>Description</th>
+                  <th>Garage</th>
+                  <th>Kilométrage</th>
+                  <th>Montant payé</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="detail-maint-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bas de page dossier chauffeur : navigation claire -->
+      <div style="margin-top: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; padding: 1.25rem; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-md);">
+        <button id="btn-bottom-change-driver" class="btn btn-secondary" style="font-weight: 700;">
+          <svg class="svg-icon" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> ← Changer de chauffeur (Retour à la liste)
+        </button>
+        <button id="btn-bottom-driver-to-dash" class="btn btn-secondary" style="font-weight: 700;">
+          <svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 17v-4"/><path d="M12 17V7"/><path d="M17 17v-7"/></svg> Consulter le tableau de bord général (Tous) →
+        </button>
+      </div>
+    </section>
+
+    <!-- ==================== TABLEAU DE BORD GÉNÉRAL (POUR TOUTE LA FLOTTE) ==================== -->
+    <section id="view-dashboard" class="view-panel" style="display: none;">
+      <!-- En-tête et retour aux Chauffeurs -->
+      <div style="margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+          <button id="btn-back-to-drivers-from-dash" class="btn btn-secondary" style="display: flex; align-items: center; gap: 0.35rem; font-weight: 700;">
+            <svg class="svg-icon" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> ← Retour au choix des Chauffeurs
+          </button>
+          <div>
+            <h2 style="font-size: 1.35rem; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+              <svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 17v-4"/><path d="M12 17V7"/><path d="M17 17v-7"/></svg> Tableau de bord général de la flotte
+            </h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem;">
+              Consolidation financière de toute l'entreprise (10 camions et tous les chauffeurs).
+            </p>
+          </div>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+          <button id="export-csv-btn" class="btn btn-secondary btn-sm" title="Exporter les données filtrées en CSV">
+            <svg class="svg-icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Exporter CSV
+          </button>
+        </div>
+      </div>
+
+      <!-- BARRE DE PÉRIODE POUR LE TABLEAU DE BORD GÉNÉRAL -->
+      <div class="toolbar-card" style="margin-bottom: 1.5rem;">
+        <div class="toolbar-row">
+          <div class="presets-group">
+            <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); align-self: center; margin-right: 0.25rem;">PÉRIODE :</span>
+            <button class="preset-btn" data-preset="week">Cette semaine</button>
+            <button class="preset-btn active" data-preset="month">Ce mois-ci</button>
+            <button class="preset-btn" data-preset="7days">7 derniers jours</button>
+            <button class="preset-btn" data-preset="30days">30 derniers jours</button>
+            <button class="preset-btn" data-preset="all">Tout l'historique</button>
+          </div>
+          <div class="date-pickers">
+            <div class="date-input-wrap">
+              <span>Du</span>
+              <input type="date" id="filter-start-date" class="date-input">
+            </div>
+            <div class="date-input-wrap">
+              <span>Au</span>
+              <input type="date" id="filter-end-date" class="date-input">
+            </div>
+            <button id="apply-date-filter" class="btn btn-secondary btn-sm">Filtrer</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 Cartes KPI Entreprise -->
+      <div class="kpi-grid">
+        <div class="kpi-card kpi-revenue">
+          <div class="kpi-header">
+            <span class="kpi-title">Recettes Voyages Flotte</span>
+            <span class="kpi-icon"><svg class="svg-icon" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><line x1="6" y1="12" x2="6.01" y2="12"/><line x1="18" y1="12" x2="18.01" y2="12"/></svg></span>
+          </div>
+          <div class="kpi-value text-success font-mono" id="dash-revenue">0 FCFA</div>
+          <div class="kpi-meta">
+            <span id="dash-trips-count">0</span> voyages effectués sur la période
+          </div>
+        </div>
+
+        <div class="kpi-card kpi-fuel">
+          <div class="kpi-header">
+            <span class="kpi-title">Dépenses Carburant Flotte</span>
+            <span class="kpi-icon"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 22V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v17"/><path d="M13 10h4a2 2 0 0 1 2 2v8a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V9.5a1.5 1.5 0 0 0-2.56-1.06L19 10"/><rect x="5" y="6" width="6" height="5" rx="1"/><path d="M3 22h10"/></svg></span>
+          </div>
+          <div class="kpi-value text-warning font-mono" id="dash-fuel">0 FCFA</div>
+          <div class="kpi-meta">
+            <span id="dash-fuel-liters">0</span> L consommés (<span id="dash-fuel-count">0</span> pleins)
+          </div>
+        </div>
+
+        <div class="kpi-card kpi-maintenance">
+          <div class="kpi-header">
+            <span class="kpi-title">Entretien & Réparations Flotte</span>
+            <span class="kpi-icon"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
+          </div>
+          <div class="kpi-value text-danger font-mono" id="dash-maintenance">0 FCFA</div>
+          <div class="kpi-meta">
+            <span id="dash-maint-count">0</span> interventions d'atelier
+          </div>
+        </div>
+
+        <div class="kpi-card kpi-net">
+          <div class="kpi-header">
+            <span class="kpi-title">Bénéfice Net Flotte</span>
+            <span class="kpi-icon"><svg class="svg-icon" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
+          </div>
+          <div class="kpi-value font-mono" id="dash-net">0 FCFA</div>
+          <div class="kpi-meta">
+            Marge opérationnelle : <strong id="dash-margin">0%</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Graphique Comparatif Barres / Lignes -->
+      <div class="data-card">
+        <div class="data-card-header">
+          <div class="data-card-title">
+            <svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 17v-4"/><path d="M12 17V7"/><path d="M17 17v-7"/></svg> Évolution Financière Mensuelle de la Flotte (Recettes vs Charges vs Solde Net)
+          </div>
+          <span class="badge badge-neutral">En FCFA</span>
+        </div>
+        <div style="padding: 1rem 1.25rem;">
+          <div class="chart-box" id="dashboard-chart-container">
+            <!-- Rendu SVG dynamique injecté par JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Tableau comparatif des 10 camions sur la période -->
+      <div class="data-card">
+        <div class="data-card-header">
+          <div class="data-card-title">
+            <svg class="svg-icon" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> Bilan Financier Consolidé par Camion sur la Période
+          </div>
+          <span class="badge badge-primary">10 Camions</span>
+        </div>
+        <div class="table-container">
+          <table class="data-table mobile-collapse" id="dash-trucks-table">
+            <thead>
+              <tr>
+                <th>Camion</th>
+                <th>Modèle / Immat.</th>
+                <th>Statut</th>
+                <th>Voyages</th>
+                <th>Recettes</th>
+                <th>Carburant</th>
+                <th>Entretien</th>
+                <th>Bénéfice Net</th>
+              </tr>
+            </thead>
+            <tbody id="dash-trucks-tbody">
+              <!-- Lignes injectées -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tableau comparatif des Chauffeurs sur la période -->
+      <div class="data-card" style="margin-top: 1.5rem;">
+        <div class="data-card-header">
+          <div class="data-card-title">
+            <svg class="svg-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Bilan Financier Consolidé par Chauffeur sur la Période
+          </div>
+          <span class="badge badge-primary">Chauffeurs</span>
+        </div>
+        <div class="table-container">
+          <table class="data-table mobile-collapse" id="dash-drivers-table">
+            <thead>
+              <tr>
+                <th>Chauffeur</th>
+                <th>Camion</th>
+                <th>Statut</th>
+                <th>Voyages</th>
+                <th>Recettes</th>
+                <th>Carburant</th>
+                <th>Entretien</th>
+                <th>Solde Net</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="dash-drivers-tbody">
+              <!-- Lignes injectées -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== ONGLET 3 : CAMIONS & ENTRETIEN ==================== -->
+    <section id="view-trucks" class="view-panel" style="display: none;">
+      <div class="trucks-grid" id="trucks-cards-grid">
+        <!-- 10 cartes de camions injectées -->
+      </div>
+    </section>
+
+    <!-- ==================== ONGLET 4 : VOYAGES (TRIPS) ==================== -->
+    <section id="view-trips" class="view-panel" style="display: none;">
+      <div class="data-card">
+        <div class="data-card-header">
+          <div class="data-card-title">
+            <svg class="svg-icon" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg> Journal des Voyages & Recettes (FCFA)
+          </div>
+          <button id="add-trip-btn" class="btn btn-primary btn-sm">
+            <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Enregistrer un voyage
+          </button>
+        </div>
+        <div class="table-container">
+          <table class="data-table mobile-collapse" id="trips-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Chauffeur</th>
+                <th>Camion</th>
+                <th>Trajet / Destination</th>
+                <th>Marchandise</th>
+                <th>Montant reçu</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="trips-tbody">
+              <!-- Voyages injectés -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== ONGLET 5 : CARBURANT ==================== -->
+    <section id="view-fuel" class="view-panel" style="display: none;">
+      <div class="data-card">
+        <div class="data-card-header">
+          <div class="data-card-title">
+            <svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 22V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v17"/><path d="M13 10h4a2 2 0 0 1 2 2v8a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V9.5a1.5 1.5 0 0 0-2.56-1.06L19 10"/><rect x="5" y="6" width="6" height="5" rx="1"/><path d="M3 22h10"/></svg> Dépenses de Carburant & Pleins
+          </div>
+          <button id="add-fuel-btn" class="btn btn-primary btn-sm">
+            <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Enregistrer un plein
+          </button>
+        </div>
+        <div class="table-container">
+          <table class="data-table mobile-collapse" id="fuel-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Chauffeur</th>
+                <th>Camion</th>
+                <th>Volume (L)</th>
+                <th>Montant payé</th>
+                <th>Station / Lieu</th>
+                <th>Kilométrage</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="fuel-tbody">
+              <!-- Pleins injectés -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== ONGLET 6 : ENTRETIEN & RÉPARATIONS ==================== -->
+    <section id="view-maintenance" class="view-panel" style="display: none;">
+      <div class="data-card">
+        <div class="data-card-header">
+          <div class="data-card-title">
+            <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> Interventions d'Atelier, Pièces & Réparations
+          </div>
+          <button id="add-maintenance-btn" class="btn btn-primary btn-sm">
+            <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Noter une intervention
+          </button>
+        </div>
+        <div class="table-container">
+          <table class="data-table mobile-collapse" id="maint-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Camion</th>
+                <th>Chauffeur</th>
+                <th>Intervention</th>
+                <th>Description</th>
+                <th>Garage / Prestataire</th>
+                <th>Kilométrage</th>
+                <th>Coût (FCFA)</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="maint-tbody">
+              <!-- Entretiens injectés -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== MODAL : COMPTE INDIVIDUEL CHAUFFEUR ==================== -->
+  <div id="modal-driver-account" class="modal-backdrop">
+    <div class="modal-card" style="max-width: 780px;">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="driver-acc-name">Compte Chauffeur</h3>
+          <p style="font-size: 0.8rem; color: var(--text-muted);" id="driver-acc-meta">Camion assigné • Statut</p>
+        </div>
+        <button class="btn-icon close-modal-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <!-- 4 Petits KPIs Chauffeur -->
+        <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.65rem; margin-bottom: 1.25rem;">
+          <div class="kpi-card" style="padding: 0.85rem;">
+            <div class="kpi-title" style="font-size: 0.7rem;">Voyages</div>
+            <div class="kpi-value font-mono text-primary" style="font-size: 1.25rem;" id="acc-trips-count">0</div>
+          </div>
+          <div class="kpi-card" style="padding: 0.85rem;">
+            <div class="kpi-title" style="font-size: 0.7rem;">Recettes</div>
+            <div class="kpi-value font-mono text-success" style="font-size: 1.25rem;" id="acc-revenue">0 FCFA</div>
+          </div>
+          <div class="kpi-card" style="padding: 0.85rem;">
+            <div class="kpi-title" style="font-size: 0.7rem;">Carburant</div>
+            <div class="kpi-value font-mono text-warning" style="font-size: 1.25rem;" id="acc-fuel">0 FCFA</div>
+          </div>
+          <div class="kpi-card" style="padding: 0.85rem;">
+            <div class="kpi-title" style="font-size: 0.7rem;">Entretien</div>
+            <div class="kpi-value font-mono text-danger" style="font-size: 1.25rem;" id="acc-maint">0 FCFA</div>
+          </div>
+        </div>
+
+        <!-- SOLDE NET DU CHAUFFEUR MISE EN AVANT -->
+        <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+          <div>
+            <div style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--text-muted);">
+              Solde Net Comptable (Recettes - Carburant - Entretien)
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">Calculé selon la période sélectionnée</div>
+          </div>
+          <div class="font-mono" style="font-size: 1.65rem; font-weight: 800;" id="acc-net-balance">
+            0 FCFA
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+          <h4 style="font-size: 0.925rem; font-weight: 700;">Historique Chronologique des Opérations</h4>
+          <button id="export-driver-csv-btn" class="btn btn-secondary btn-sm">
+            <svg class="svg-icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Exporter ce compte (CSV)
+          </button>
+        </div>
+
+        <!-- Flux chronologique unifié -->
+        <div id="driver-timeline-list" style="max-height: 380px; overflow-y: auto; padding-right: 0.35rem;">
+          <!-- Items injectés -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary close-modal-btn">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL : HISTORIQUE D'ENTRETIEN CAMION ==================== -->
+  <div id="modal-truck-history" class="modal-backdrop">
+    <div class="modal-card" style="max-width: 780px;">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="truck-hist-title">Fiche Camion</h3>
+          <p style="font-size: 0.8rem; color: var(--text-muted);" id="truck-hist-subtitle">Modèle • Immatriculation</p>
+        </div>
+        <button class="btn-icon close-modal-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <!-- Résumé Coût Total de Possession (TCO) -->
+        <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.65rem; margin-bottom: 1.25rem;">
+          <div class="kpi-card" style="padding: 0.85rem;">
+            <div class="kpi-title" style="font-size: 0.7rem;">Entretien Total</div>
+            <div class="kpi-value font-mono text-danger" style="font-size: 1.25rem;" id="truck-total-maint">0 FCFA</div>
+            <div class="kpi-meta"><span id="truck-maint-count">0</span> réparations</div>
+          </div>
+          <div class="kpi-card" style="padding: 0.85rem;">
+            <div class="kpi-title" style="font-size: 0.7rem;">Carburant Total</div>
+            <div class="kpi-value font-mono text-warning" style="font-size: 1.25rem;" id="truck-total-fuel">0 FCFA</div>
+            <div class="kpi-meta"><span id="truck-fuel-liters">0</span> L gasoil</div>
+          </div>
+          <div class="kpi-card" style="padding: 0.85rem;">
+            <div class="kpi-title" style="font-size: 0.7rem;">Recettes Générées</div>
+            <div class="kpi-value font-mono text-success" style="font-size: 1.25rem;" id="truck-total-revenue">0 FCFA</div>
+          </div>
+          <div class="kpi-card" style="padding: 0.85rem;">
+            <div class="kpi-title" style="font-size: 0.7rem;">Bénéfice Net Camion</div>
+            <div class="kpi-value font-mono" style="font-size: 1.25rem;" id="truck-net-profit">0 FCFA</div>
+          </div>
+        </div>
+
+        <h4 style="font-size: 0.925rem; font-weight: 700; margin-bottom: 0.65rem;">
+          Répartition des Travaux d'Entretien
+        </h4>
+        <div id="truck-type-breakdown" style="display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 1.25rem;">
+          <!-- Badges de répartition -->
+        </div>
+
+        <h4 style="font-size: 0.925rem; font-weight: 700; margin-bottom: 0.65rem;">
+          Historique Complet des Réparations
+        </h4>
+        <div class="table-container">
+          <table class="data-table mobile-collapse">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Garage</th>
+                <th>Km</th>
+                <th>Montant</th>
+              </tr>
+            </thead>
+            <tbody id="truck-records-tbody">
+              <!-- Lignes injectées -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary close-modal-btn">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL DE SAISIE : VOYAGE ==================== -->
+  <div id="modal-trip-form" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title" id="trip-modal-title">Enregistrer un voyage</h3>
+        <button class="btn-icon close-modal-btn">&times;</button>
+      </div>
+      <form id="form-trip">
+        <input type="hidden" id="trip-id" value="">
+        <div class="modal-body">
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="trip-driver">Chauffeur *</label>
+              <select id="trip-driver" class="form-control" required>
+                <!-- Options injectées -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="trip-truck">Camion *</label>
+              <select id="trip-truck" class="form-control" required>
+                <!-- Options injectées -->
+              </select>
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="trip-date">Date du voyage *</label>
+              <input type="date" id="trip-date" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="trip-amount">Montant reçu (FCFA) *</label>
+              <input type="number" id="trip-amount" class="form-control" placeholder="ex: 450000" min="0" required inputmode="numeric">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="trip-route">Trajet / Destination *</label>
+            <input type="text" id="trip-route" class="form-control" placeholder="ex: Douala - Yaoundé ou Abidjan - Bouaké" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="trip-cargo">Marchandise transportée</label>
+            <input type="text" id="trip-cargo" class="form-control" placeholder="ex: Conteneur 40ft, Ciment, Bois, Denrées...">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="trip-notes">Notes / Observations</label>
+            <textarea id="trip-notes" class="form-control" rows="2" placeholder="Numéro de bon de livraison, météo, retards..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary close-modal-btn">Annuler</button>
+          <button type="submit" class="btn btn-primary">Enregistrer le voyage</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL DE SAISIE : CARBURANT ==================== -->
+  <div id="modal-fuel-form" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title" id="fuel-modal-title">Enregistrer un plein de carburant</h3>
+        <button class="btn-icon close-modal-btn">&times;</button>
+      </div>
+      <form id="form-fuel">
+        <input type="hidden" id="fuel-id" value="">
+        <div class="modal-body">
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="fuel-driver">Chauffeur *</label>
+              <select id="fuel-driver" class="form-control" required>
+                <!-- Options -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="fuel-truck">Camion *</label>
+              <select id="fuel-truck" class="form-control" required>
+                <!-- Options -->
+              </select>
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="fuel-date">Date du plein *</label>
+              <input type="date" id="fuel-date" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="fuel-liters">Volume en litres *</label>
+              <input type="number" step="0.1" id="fuel-liters" class="form-control" placeholder="ex: 180" min="1" required inputmode="decimal">
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="fuel-amount">Montant payé (FCFA) *</label>
+              <input type="number" id="fuel-amount" class="form-control" placeholder="ex: 153000" min="0" required inputmode="numeric">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="fuel-km">Kilométrage compteur</label>
+              <input type="number" id="fuel-km" class="form-control" placeholder="ex: 215400" min="0" inputmode="numeric">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="fuel-station">Station service / Lieu *</label>
+            <input type="text" id="fuel-station" class="form-control" placeholder="ex: TotalEnergies Ndokoti, Tradex Yassa..." required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="fuel-notes">Notes</label>
+            <input type="text" id="fuel-notes" class="form-control" placeholder="Numéro de reçu ou ticket station">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary close-modal-btn">Annuler</button>
+          <button type="submit" class="btn btn-primary">Valider le plein</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL DE SAISIE : ENTRETIEN ==================== -->
+  <div id="modal-maint-form" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title" id="maint-modal-title">Noter une intervention d'entretien</h3>
+        <button class="btn-icon close-modal-btn">&times;</button>
+      </div>
+      <form id="form-maint">
+        <input type="hidden" id="maint-id" value="">
+        <div class="modal-body">
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="maint-truck">Camion *</label>
+              <select id="maint-truck" class="form-control" required>
+                <!-- Options -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="maint-driver">Chauffeur responsable (si applicable)</label>
+              <select id="maint-driver" class="form-control">
+                <option value="">-- Non assigné / Atelier --</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="maint-date">Date de l'intervention *</label>
+              <input type="date" id="maint-date" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="maint-type-select">Type d'intervention *</label>
+              <select id="maint-type-select" class="form-control" required>
+                <option value="vidange">Vidange & Filtres</option>
+                <option value="freins">Freins (plaquettes, garnitures)</option>
+                <option value="pneus">Pneus (changement, géométrie)</option>
+                <option value="révision">Révision générale préventive</option>
+                <option value="panne">Panne mécanique urgente</option>
+                <option value="moteur">Moteur & Injection</option>
+                <option value="électricité">Électricité & Batterie</option>
+                <option value="autre">Autre (personnalisé)...</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Champ custom si type = 'autre' ou saisie libre -->
+          <div class="form-group" id="custom-type-group" style="display: none;">
+            <label class="form-label" for="maint-type-custom">Préciser le type d'intervention</label>
+            <input type="text" id="maint-type-custom" class="form-control" placeholder="ex: Carrosserie sellette, Suspension à air...">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="maint-desc">Description de ce qui a été fait *</label>
+            <textarea id="maint-desc" class="form-control" rows="2" placeholder="Détail précis des pièces remplacées et de la main d'œuvre..." required></textarea>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="maint-amount">Montant payé (FCFA) *</label>
+              <input type="number" id="maint-amount" class="form-control" placeholder="ex: 185000" min="0" required inputmode="numeric">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="maint-km">Kilométrage au compteur</label>
+              <input type="number" id="maint-km" class="form-control" placeholder="ex: 214800" min="0" inputmode="numeric">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="maint-garage">Garage ou Prestataire *</label>
+            <input type="text" id="maint-garage" class="form-control" placeholder="ex: Garage Central Tractafric, Atelier Mécanique..." required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary close-modal-btn">Annuler</button>
+          <button type="submit" class="btn btn-primary">Enregistrer l'entretien</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL DE SAISIE : NOUVEAU CHAUFFEUR ==================== -->
+  <div id="modal-driver-form" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Ajouter un nouveau chauffeur</h3>
+        <button class="btn-icon close-modal-btn">&times;</button>
+      </div>
+      <form id="form-add-driver">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="new-driver-name">Nom complet *</label>
+            <input type="text" id="new-driver-name" class="form-control" placeholder="ex: Mamadou Diallo" required>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="new-driver-truck">Camion assigné</label>
+              <select id="new-driver-truck" class="form-control">
+                <option value="">-- Aucun camion --</option>
+                <!-- Options TR-01 à TR-10 -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="new-driver-status">Statut de contrat</label>
+              <select id="new-driver-status" class="form-control">
+                <option value="0">Salarié permanent</option>
+                <option value="1">Sous-traitant</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="new-driver-phone">Numéro de téléphone</label>
+            <input type="tel" id="new-driver-phone" class="form-control" placeholder="ex: +237 699 12 34 56">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary close-modal-btn">Annuler</button>
+          <button type="submit" class="btn btn-primary">Créer le chauffeur</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Conteneur Toast pour retours utilisateurs fluides -->
+  <div id="toast-container"></div>
+
+  <!-- ==================== LOGIQUE VANILLA JS (FRONTEND) ==================== -->
+  <script>
+    // Bibliothèque d'icônes SVG (style Feather) utilisée dans toute l'application
+    const VECTORS = {
+      check: '<svg class="svg-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>',
+      alert: '<svg class="svg-icon" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+      info: '<svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+      sun: '<svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>',
+      moon: '<svg class="svg-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
+      loading: '<svg class="svg-icon animate-spin" viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>',
+      trash: '<svg class="svg-icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>',
+      user: '<svg class="svg-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+      truck: '<svg class="svg-icon" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>',
+      money: '<svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+      fuel: '<svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>',
+      maintenance: '<svg class="svg-icon" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
+      dashboard: '<svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>',
+      folder: '<svg class="svg-icon" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>',
+      trips: '<svg class="svg-icon" viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>'
+    };
+
+    // Intercepteur global : si une session expire en cours d'usage, l'API
+    // renverra 401 — on recharge alors la page pour réafficher l'écran de connexion.
+    const _nativeFetch = window.fetch.bind(window);
+    window.fetch = async function (...args) {
+      const res = await _nativeFetch(...args);
+      const url = String(args[0] || '');
+      if (res.status === 401 && !url.includes('/api/auth/')) {
+        window.location.reload();
+      }
+      return res;
+    };
+
+    // État applicatif global
+    const state = {
+      user: null,
+      currentTab: 'drivers',
+      datePreset: 'month',
+      startDate: '',
+      endDate: '',
+      drivers: [],
+      trucks: [],
+      selectedDriverId: null,
+      driverFilter: 'all',
+      driverSearch: '',
+      driverViewMode: 'cards',
+      activeDriverIdForAccount: null
+    };
+
+    // Formatteur FCFA standard
+    function formatFCFA(num) {
+      if (num === null || num === undefined || isNaN(num)) return '0 FCFA';
+      return Math.round(num).toLocaleString('fr-FR').replace(/\s/g, ' ') + ' FCFA';
+    }
+
+    // Affichage notification Toast
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      const icon = type === 'success' ? VECTORS.check : (type === 'danger' ? VECTORS.alert : VECTORS.info);
+      toast.innerHTML = `<span>${icon}</span> <div>${message}</div>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // Calcul des dates selon les préréglages
+    function applyPreset(preset) {
+      state.datePreset = preset;
+      const today = new Date();
+      const y = today.getFullYear();
+      const m = today.getMonth();
+      const d = today.getDate();
+
+      const formatD = date => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+
+      if (preset === 'week') {
+        const dayOfWeek = today.getDay() || 7; // 1 (lundi) à 7 (dimanche)
+        const monday = new Date(today);
+        monday.setDate(today.getDate() - dayOfWeek + 1);
+        state.startDate = formatD(monday);
+        state.endDate = formatD(today);
+      } else if (preset === 'month') {
+        const firstDay = new Date(y, m, 1);
+        state.startDate = formatD(firstDay);
+        state.endDate = formatD(today);
+      } else if (preset === '7days') {
+        const past7 = new Date(today);
+        past7.setDate(today.getDate() - 7);
+        state.startDate = formatD(past7);
+        state.endDate = formatD(today);
+      } else if (preset === '30days') {
+        const past30 = new Date(today);
+        past30.setDate(today.getDate() - 30);
+        state.startDate = formatD(past30);
+        state.endDate = formatD(today);
+      } else if (preset === 'all') {
+        state.startDate = '';
+        state.endDate = '';
+      }
+
+      document.getElementById('filter-start-date').value = state.startDate;
+      document.getElementById('filter-end-date').value = state.endDate;
+
+      document.querySelectorAll('.preset-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.preset === preset);
+      });
+
+      // Rafraîchir les données de l'onglet actif
+      loadCurrentTabData();
+    }
+
+    // Gestion du basculement Thème Clair / Sombre
+    function initTheme() {
+      const savedTheme = localStorage.getItem('theme_preference');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+        document.documentElement.classList.add('dark-mode');
+        document.getElementById('theme-icon').innerHTML = VECTORS.sun;
+      } else {
+        document.documentElement.classList.remove('dark-mode');
+        document.documentElement.classList.add('light-mode');
+        document.getElementById('theme-icon').innerHTML = VECTORS.moon;
+      }
+
+      document.getElementById('theme-toggle').addEventListener('click', () => {
+        const isDark = document.documentElement.classList.contains('dark-mode');
+        if (isDark) {
+          document.documentElement.classList.remove('dark-mode');
+          document.documentElement.classList.add('light-mode');
+          localStorage.setItem('theme_preference', 'light');
+          document.getElementById('theme-icon').innerHTML = VECTORS.moon;
+        } else {
+          document.documentElement.classList.remove('light-mode');
+          document.documentElement.classList.add('dark-mode');
+          localStorage.setItem('theme_preference', 'dark');
+          document.getElementById('theme-icon').innerHTML = VECTORS.sun;
+        }
+      });
+    }
+
+    // Vérifie la session auprès du serveur ; affiche l'écran de connexion
+    // si l'utilisateur n'est pas authentifié, sinon démarre l'application.
+    async function checkAuthAndStart() {
+      try {
+        const res = await fetch('/api/auth/me');
+        if (res.ok) {
+          const data = await res.json();
+          showApp(data.user);
+        } else {
+          showLoginScreen();
+        }
+      } catch (err) {
+        showLoginScreen();
+      }
+    }
+
+    function showLoginScreen() {
+      document.getElementById('login-screen').style.display = 'flex';
+    }
+
+    function showApp(user) {
+      document.getElementById('login-screen').style.display = 'none';
+      startApp(user);
+    }
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errorBox = document.getElementById('login-error');
+      const submitBtn = document.getElementById('login-submit-btn');
+      errorBox.style.display = 'none';
+      submitBtn.disabled = true;
+      const originalLabel = submitBtn.textContent;
+      submitBtn.textContent = 'Connexion...';
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: document.getElementById('login-username').value,
+            password: document.getElementById('login-password').value
+          })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          document.getElementById('login-form').reset();
+          showApp(data.user);
+        } else {
+          errorBox.textContent = data.error || "Nom d'utilisateur ou mot de passe incorrect.";
+          errorBox.style.display = 'block';
+        }
+      } catch (err) {
+        errorBox.textContent = 'Impossible de contacter le serveur.';
+        errorBox.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalLabel;
+      }
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      try { await fetch('/api/auth/logout', { method: 'POST' }); } catch (err) {}
+      window.location.reload();
+    });
+
+    // Initialisation directe de l'application (Accueil Chauffeurs First)
+    async function startApp(user) {
+      state.user = user || { username: 'Utilisateur' };
+      const userEl = document.getElementById('session-username');
+      if (userEl) userEl.textContent = state.user.username;
+
+      try {
+        await loadInitialData();
+        // Atterrissage direct sur la liste des Chauffeurs
+        switchTab('drivers');
+        applyPreset('month');
+      } catch (err) {
+        console.error('Erreur de chargement initial:', err);
+        showToast('Chargement des données en cours...', 'info');
+      }
+    }
+
+    // Bouton d'actualisation rapide des données
+    const refreshBtn = document.getElementById('refresh-btn');
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', async () => {
+        refreshBtn.disabled = true;
+        refreshBtn.innerHTML = `${VECTORS.loading} Chargement...`;
+        try {
+          await loadInitialData();
+          loadCurrentTabData();
+          showToast('Données et statistiques actualisées.', 'info');
+        } catch (e) {
+          showToast('Erreur lors de l\'actualisation', 'danger');
+        } finally {
+          refreshBtn.disabled = false;
+          refreshBtn.innerHTML = '<svg class="svg-icon" viewBox="0 0 24 24"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Actualiser';
+        }
+      });
+    }
+
+    // Navigation entre onglets
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const target = tab.dataset.tab;
+        switchTab(target);
+      });
+    });
+
+    function switchTab(tabId) {
+      if (tabId === 'driver-detail' && !state.selectedDriverId) {
+        showToast('Veuillez d\'abord choisir un chauffeur dans la liste ci-dessous.', 'info');
+        tabId = 'drivers';
+      }
+
+      state.currentTab = tabId;
+      document.querySelectorAll('.nav-tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.tab === tabId);
+      });
+
+      document.querySelectorAll('.view-panel').forEach(p => {
+        p.style.display = p.id === `view-${tabId}` ? 'block' : 'none';
+      });
+
+      const tabNames = {
+        drivers: { name: '1. Tous les Chauffeurs', icon: VECTORS.user, btn: 'Nouveau chauffeur' },
+        'driver-detail': { name: '2. Chauffeur actif', icon: VECTORS.user, btn: 'Nouveau voyage' },
+        dashboard: { name: '3. Tableau de bord général', icon: VECTORS.dashboard, btn: 'Nouveau voyage' },
+        trucks: { name: 'Camions (10)', icon: VECTORS.truck, btn: 'Noter entretien' },
+        trips: { name: 'Tous les Voyages', icon: VECTORS.trips, btn: 'Nouveau voyage' },
+        fuel: { name: 'Tout le Carburant', icon: VECTORS.fuel, btn: 'Plein carburant' },
+        maintenance: { name: 'Tout l\'Entretien', icon: VECTORS.maintenance, btn: 'Noter entretien' }
+      };
+
+      const info = tabNames[tabId] || tabNames.drivers;
+      const viewBadge = document.getElementById('current-view-badge');
+      if (viewBadge) {
+        if (tabId === 'driver-detail' && state.selectedDriverId) {
+          const d = (state.drivers || []).find(x => x.id == state.selectedDriverId);
+          const dName = d ? d.name : 'Chauffeur';
+          viewBadge.innerHTML = `<span>${VECTORS.user}</span> <span>Chauffeur actif : ${dName}</span>`;
+        } else {
+          viewBadge.innerHTML = `<span>${info.icon}</span> <span>${info.name}</span>`;
+        }
+      }
+
+      const quickLabel = document.getElementById('quick-action-label');
+      if (quickLabel && info.btn) {
+        quickLabel.textContent = info.btn;
+      }
+
+      loadCurrentTabData();
+    }
+
+    // Préréglages de dates
+    document.querySelectorAll('.preset-btn').forEach(btn => {
+      if (btn.classList.contains('driver-filter-btn')) return; // Évite interférence avec filtres chauffeurs
+      btn.addEventListener('click', () => {
+        applyPreset(btn.dataset.preset);
+      });
+    });
+
+    // Bouton Filtrer manuel
+    const applyDateFilterBtn = document.getElementById('apply-date-filter');
+    if (applyDateFilterBtn) {
+      applyDateFilterBtn.addEventListener('click', () => {
+        state.startDate = document.getElementById('filter-start-date').value;
+        state.endDate = document.getElementById('filter-end-date').value;
+        document.querySelectorAll('.preset-btn:not(.driver-filter-btn)').forEach(b => b.classList.remove('active'));
+        loadCurrentTabData();
+      });
+    }
+
+    // Bouton Action Rapide Top Toolbar (si présent)
+    const quickActionBtn = document.getElementById('quick-action-btn');
+    if (quickActionBtn) {
+      quickActionBtn.addEventListener('click', () => {
+        if (state.currentTab === 'drivers') {
+          openModal('modal-driver-form');
+        } else if (state.currentTab === 'driver-detail') {
+          if (state.selectedDriverId) {
+            const d = (state.drivers || []).find(x => x.id == state.selectedDriverId);
+            openTripModalForDriver(state.selectedDriverId, d ? d.assigned_truck : '');
+          } else {
+            openModal('modal-trip-form');
+          }
+        } else if (state.currentTab === 'fuel') {
+          openModal('modal-fuel-form');
+        } else if (state.currentTab === 'maintenance' || state.currentTab === 'trucks') {
+          openModal('modal-maint-form');
+        } else {
+          openModal('modal-trip-form');
+        }
+      });
+    }
+
+    // Export CSV global
+    document.getElementById('export-csv-btn').addEventListener('click', () => {
+      let exportType = 'trips';
+      if (state.currentTab === 'driver-detail' && state.selectedDriverId) {
+        let url = `/api/export/csv?type=driver_account&driver_id=${state.selectedDriverId}`;
+        if (state.startDate) url += `&startDate=${state.startDate}`;
+        if (state.endDate) url += `&endDate=${state.endDate}`;
+        window.location.href = url;
+        return;
+      }
+      if (state.currentTab === 'fuel') exportType = 'fuel';
+      else if (state.currentTab === 'maintenance' || state.currentTab === 'trucks') exportType = 'maintenance';
+
+      let url = `/api/export/csv?type=${exportType}`;
+      if (state.startDate) url += `&startDate=${state.startDate}`;
+      if (state.endDate) url += `&endDate=${state.endDate}`;
+
+      window.location.href = url;
+    });
+
+    // Fermeture des modales
+    document.querySelectorAll('.close-modal-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('open'));
+      });
+    });
+
+    window.addEventListener('click', e => {
+      if (e.target.classList.contains('modal-backdrop')) {
+        e.target.classList.remove('open');
+      }
+    });
+
+    function openModal(id) {
+      const modal = document.getElementById(id);
+      if (modal) modal.classList.add('open');
+    }
+
+    // Gestion affichage champ personnalisé type d'intervention
+    document.getElementById('maint-type-select').addEventListener('change', e => {
+      const isCustom = e.target.value === 'autre';
+      document.getElementById('custom-type-group').style.display = isCustom ? 'block' : 'none';
+      if (isCustom) document.getElementById('maint-type-custom').focus();
+    });
+
+    // Initialisation des listes déroulantes Chauffeurs & Camions
+    async function loadInitialData() {
+      try {
+        const [driversRes, trucksRes] = await Promise.all([
+          fetch('/api/drivers'),
+          fetch('/api/trucks')
+        ]);
+        state.drivers = await driversRes.json();
+        state.trucks = await trucksRes.json();
+
+        populateSelectOptions();
+      } catch (err) {
+        console.error('Erreur initial data:', err);
+      }
+    }
+
+    function populateSelectOptions() {
+      const driverSelects = ['trip-driver', 'fuel-driver', 'maint-driver'];
+      driverSelects.forEach(id => {
+        const sel = document.getElementById(id);
+        if (!sel) return;
+        const currentVal = sel.value;
+        sel.innerHTML = id === 'maint-driver' ? '<option value="">-- Non assigné / Atelier --</option>' : '';
+        state.drivers.forEach(d => {
+          const opt = document.createElement('option');
+          opt.value = d.id;
+          opt.textContent = `${d.name} (${d.assigned_truck || 'Sans camion'}${d.is_contractor ? ' - Sous-traitant' : ''})`;
+          sel.appendChild(opt);
+        });
+        if (currentVal) sel.value = currentVal;
+      });
+
+      const truckSelects = ['trip-truck', 'fuel-truck', 'maint-truck', 'new-driver-truck'];
+      truckSelects.forEach(id => {
+        const sel = document.getElementById(id);
+        if (!sel) return;
+        const currentVal = sel.value;
+        sel.innerHTML = id === 'new-driver-truck' ? '<option value="">-- Aucun camion --</option>' : '';
+        state.trucks.forEach(t => {
+          const opt = document.createElement('option');
+          opt.value = t.code;
+          opt.textContent = `${t.code} - ${t.brand_model} (${t.license_plate})`;
+          sel.appendChild(opt);
+        });
+        if (currentVal) sel.value = currentVal;
+      });
+
+      // Pré-remplir les dates par défaut sur aujourd'hui dans les formulaires
+      const today = new Date().toISOString().slice(0, 10);
+      ['trip-date', 'fuel-date', 'maint-date'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el && !el.value) el.value = today;
+      });
+    }
+
+    // Dispatcher de chargement selon onglet actif
+    function loadCurrentTabData() {
+      if (state.currentTab === 'dashboard') loadDashboard();
+      else if (state.currentTab === 'drivers') loadDrivers();
+      else if (state.currentTab === 'driver-detail') {
+        if (state.selectedDriverId) openDriverDetail(state.selectedDriverId);
+        else switchTab('drivers');
+      }
+      else if (state.currentTab === 'trucks') loadTrucks();
+      else if (state.currentTab === 'trips') loadTrips();
+      else if (state.currentTab === 'fuel') loadFuel();
+      else if (state.currentTab === 'maintenance') loadMaintenance();
+    }
+
+    // ----------------------------------------------------
+    // CHARGEMENT DU TABLEAU DE BORD
+    // ----------------------------------------------------
+    async function loadDashboard() {
+      let url = '/api/dashboard/stats?';
+      if (state.startDate) url += `&startDate=${state.startDate}`;
+      if (state.endDate) url += `&endDate=${state.endDate}`;
+
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+
+        // Remplissage KPIs
+        document.getElementById('dash-revenue').textContent = formatFCFA(data.summary.totalRevenue);
+        document.getElementById('dash-trips-count').textContent = data.summary.tripsCount;
+
+        document.getElementById('dash-fuel').textContent = formatFCFA(data.summary.totalFuel);
+        document.getElementById('dash-fuel-liters').textContent = Math.round(data.summary.totalLiters).toLocaleString('fr-FR');
+        document.getElementById('dash-fuel-count').textContent = data.summary.fuelCount;
+
+        document.getElementById('dash-maintenance').textContent = formatFCFA(data.summary.totalMaintenance);
+        document.getElementById('dash-maint-count').textContent = data.summary.maintenanceCount;
+
+        const netEl = document.getElementById('dash-net');
+        netEl.textContent = formatFCFA(data.summary.netProfit);
+        netEl.className = `kpi-value font-mono ${data.summary.netProfit >= 0 ? 'text-success' : 'text-danger'}`;
+        document.getElementById('dash-margin').textContent = `${data.summary.profitMargin}%`;
+
+        // Rendu Graphique SVG
+        renderMonthlyChart(data.monthlyTimeline || []);
+
+        // Tableau des camions
+        const tbody = document.getElementById('dash-trucks-tbody');
+        tbody.innerHTML = '';
+        data.truckComparison.forEach(t => {
+          const tr = document.createElement('tr');
+          const isNetPos = t.netProfit >= 0;
+          tr.innerHTML = `
+            <td data-label="Camion"><strong style="color: var(--primary); cursor: pointer;" onclick="openTruckHistory('${t.code}')">${t.code}</strong></td>
+            <td data-label="Modèle">${t.model} <br><span class="font-mono text-muted" style="font-size: 0.75rem;">${t.plate}</span></td>
+            <td data-label="Statut"><span class="badge ${t.status === 'actif' ? 'badge-success' : 'badge-danger'}">${t.status}</span></td>
+            <td data-label="Voyages">${t.tripsCount}</td>
+            <td data-label="Recettes" class="font-mono text-success">${formatFCFA(t.revenue)}</td>
+            <td data-label="Carburant" class="font-mono text-warning">${formatFCFA(t.fuel)}</td>
+            <td data-label="Entretien" class="font-mono text-danger">${formatFCFA(t.maintenance)}</td>
+            <td data-label="Bénéfice Net" class="font-mono ${isNetPos ? 'text-success' : 'text-danger'}"><strong>${formatFCFA(t.netProfit)}</strong></td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        // Tableau comparatif des chauffeurs sur le tableau de bord
+        const dBody = document.getElementById('dash-drivers-tbody');
+        if (dBody) {
+          dBody.innerHTML = '';
+          const driversList = data.driverComparison || [];
+          if (driversList.length === 0) {
+            dBody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Aucun chauffeur trouvé.</td></tr>';
+          } else {
+            driversList.forEach(d => {
+              const tr = document.createElement('tr');
+              const isNetPos = d.netProfit >= 0;
+              tr.innerHTML = `
+                <td data-label="Chauffeur">
+                  <strong style="color: var(--primary); cursor: pointer;" onclick="openDriverDetail(${d.id})">${d.name}</strong>
+                </td>
+                <td data-label="Camion">
+                  <span class="badge badge-primary font-mono">${d.assigned_truck || 'Non assigné'}</span>
+                </td>
+                <td data-label="Statut">
+                  <span class="badge ${d.is_contractor ? 'badge-neutral' : 'badge-primary'}">${d.is_contractor ? 'Sous-traitant' : 'Salarié'}</span>
+                </td>
+                <td data-label="Voyages">${d.tripsCount}</td>
+                <td data-label="Recettes" class="font-mono text-success">${formatFCFA(d.revenue)}</td>
+                <td data-label="Carburant" class="font-mono text-warning">${formatFCFA(d.fuel)}</td>
+                <td data-label="Entretien" class="font-mono text-danger">${formatFCFA(d.maintenance)}</td>
+                <td data-label="Solde Net" class="font-mono ${isNetPos ? 'text-success' : 'text-danger'}"><strong>${formatFCFA(d.netProfit)}</strong></td>
+                <td data-label="Action">
+                  <button class="btn btn-primary btn-sm" style="padding: 0.35rem 0.75rem;" onclick="openDriverDetail(${d.id})">
+                    Entrer dans le dossier →
+                  </button>
+                </td>
+              `;
+              dBody.appendChild(tr);
+            });
+          }
+        }
+
+      } catch (err) {
+        console.error('Erreur load dashboard:', err);
+      }
+    }
+
+    // Graphique SVG Mensuel Moderne
+    function renderMonthlyChart(timeline) {
+      const container = document.getElementById('dashboard-chart-container');
+      if (!timeline || timeline.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding-top: 5rem;">Aucune donnée sur les mois récents.</div>';
+        return;
+      }
+
+      const maxVal = Math.max(...timeline.map(d => Math.max(d.revenue, d.costs, Math.abs(d.netProfit))), 100000);
+      const width = container.clientWidth || 800;
+      const height = 230;
+      const padding = { top: 20, right: 30, bottom: 35, left: 75 };
+      const chartW = width - padding.left - padding.right;
+      const chartH = height - padding.top - padding.bottom;
+
+      const barGroupW = chartW / timeline.length;
+      const barW = Math.max(barGroupW / 4.2, 8);
+
+      let barsHtml = '';
+      let labelsHtml = '';
+
+      timeline.forEach((item, i) => {
+        const xCenter = padding.left + i * barGroupW + barGroupW / 2;
+
+        const hRev = (item.revenue / maxVal) * chartH;
+        const hCost = (item.costs / maxVal) * chartH;
+        const hNet = (Math.max(0, item.netProfit) / maxVal) * chartH;
+
+        const yRev = padding.top + chartH - hRev;
+        const yCost = padding.top + chartH - hCost;
+        const yNet = padding.top + chartH - hNet;
+
+        // 3 barres par mois : Recettes (vert), Charges (orange/rouge), Bénéfice Net (bleu)
+        barsHtml += `
+          <!-- Recettes -->
+          <rect x="${xCenter - barW * 1.5}" y="${yRev}" width="${barW}" height="${hRev}" fill="#10b981" rx="3">
+            <title>${item.month} - Recettes: ${formatFCFA(item.revenue)}</title>
+          </rect>
+          <!-- Charges -->
+          <rect x="${xCenter - barW * 0.5}" y="${yCost}" width="${barW}" height="${hCost}" fill="#f59e0b" rx="3">
+            <title>${item.month} - Charges (Carburant+Atelier): ${formatFCFA(item.costs)}</title>
+          </rect>
+          <!-- Net -->
+          <rect x="${xCenter + barW * 0.5}" y="${yNet}" width="${barW}" height="${hNet}" fill="#0284c7" rx="3">
+            <title>${item.month} - Net: ${formatFCFA(item.netProfit)}</title>
+          </rect>
+        `;
+
+        labelsHtml += `
+          <text x="${xCenter}" y="${height - 10}" text-anchor="middle" font-size="11" fill="var(--text-muted)" font-family="var(--font-main)">
+            ${item.month}
+          </text>
+        `;
+      });
+
+      // Lignes de guidage horizontales
+      let gridLines = '';
+      for (let s = 0; s <= 3; s++) {
+        const y = padding.top + (chartH / 3) * s;
+        const val = Math.round(maxVal - (maxVal / 3) * s);
+        gridLines += `
+          <line x1="${padding.left}" y1="${y}" x2="${width - padding.right}" y2="${y}" stroke="var(--border-color)" stroke-dasharray="3 3"/>
+          <text x="${padding.left - 8}" y="${y + 4}" text-anchor="end" font-size="10" fill="var(--text-muted)" font-family="var(--font-mono)">
+            ${(val / 1000).toLocaleString('fr-FR')} k
+          </text>
+        `;
+      }
+
+      container.innerHTML = `
+        <svg class="chart-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
+          ${gridLines}
+          ${barsHtml}
+          ${labelsHtml}
+        </svg>
+        <div style="display: flex; justify-content: center; gap: 1.25rem; font-size: 0.75rem; margin-top: 0.25rem;">
+          <span style="display: flex; align-items: center; gap: 0.35rem;"><span style="width: 10px; height: 10px; background: #10b981; border-radius: 2px;"></span> Recettes</span>
+          <span style="display: flex; align-items: center; gap: 0.35rem;"><span style="width: 10px; height: 10px; background: #f59e0b; border-radius: 2px;"></span> Carburant + Entretien</span>
+          <span style="display: flex; align-items: center; gap: 0.35rem;"><span style="width: 10px; height: 10px; background: #0284c7; border-radius: 2px;"></span> Bénéfice Net</span>
+        </div>
+      `;
+    }
+
+    // ----------------------------------------------------
+    // CHARGEMENT DE LA FLOTTE DES CHAUFFEURS (FICHES & TABLEAU)
+    // ----------------------------------------------------
+    async function loadDrivers() {
+      try {
+        const res = await fetch('/api/drivers');
+        state.drivers = await res.json();
+        renderFilteredDrivers();
+      } catch (err) {
+        console.error('Erreur load drivers:', err);
+      }
+    }
+
+    // Filtrage et rendu des fiches / tableaux des chauffeurs
+    function renderFilteredDrivers() {
+      const q = (state.driverSearch || '').trim().toLowerCase();
+      let list = state.drivers || [];
+
+      if (state.driverFilter === 'contractor') {
+        list = list.filter(d => d.is_contractor);
+      } else if (state.driverFilter === 'employee') {
+        list = list.filter(d => !d.is_contractor);
+      }
+
+      if (q) {
+        list = list.filter(d => 
+          (d.name && d.name.toLowerCase().includes(q)) ||
+          (d.assigned_truck && d.assigned_truck.toLowerCase().includes(q)) ||
+          (d.phone && d.phone.toLowerCase().includes(q))
+        );
+      }
+
+      const countEl = document.getElementById('count-drivers-total');
+      if (countEl) countEl.textContent = state.drivers.length;
+
+      // 1. Rendu Grille des Fiches Chauffeurs
+      const grid = document.getElementById('drivers-cards-grid');
+      grid.innerHTML = '';
+
+      if (list.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 3rem 1rem; background: var(--bg-surface); border: 1px dashed var(--border-color); border-radius: var(--radius-md);">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem; display: flex; justify-content: center; color: var(--text-muted);"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+            <h3 style="font-size: 1.1rem; font-weight: 700;">Aucun chauffeur trouvé</h3>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem;">Modifiez votre recherche ou ajoutez un nouveau chauffeur.</p>
+            <button class="btn btn-primary btn-sm" onclick="openModal('modal-driver-form')" style="margin-top: 0.75rem;">
+              <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Nouveau chauffeur
+            </button>
+          </div>
+        `;
+      } else {
+        list.forEach(d => {
+          const card = document.createElement('div');
+          card.className = 'driver-card';
+          card.onclick = () => openDriverDetail(d.id);
+
+          const isNetPos = d.net_balance >= 0;
+          const initials = (d.name || 'CH').split(' ').filter(Boolean).map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+          card.innerHTML = `
+            <div>
+              <div class="driver-card-header">
+                <div class="driver-avatar">${initials}</div>
+                <div style="flex: 1; min-width: 0;">
+                  <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem;">
+                    <h3 style="font-size: 1.15rem; font-weight: 800; margin: 0; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${d.name}">
+                      ${d.name}
+                    </h3>
+                    <span class="badge ${d.is_active ? 'badge-success' : 'badge-danger'}" style="font-size: 0.65rem;">
+                      ${d.is_active ? 'Actif' : 'Inactif'}
+                    </span>
+                  </div>
+                  <div style="display: flex; gap: 0.4rem; margin-top: 0.35rem; align-items: center; flex-wrap: wrap;">
+                    <span class="badge badge-primary font-mono" style="font-size: 0.75rem;">
+                      ${VECTORS.truck} ${d.assigned_truck || 'Non assigné'}
+                    </span>
+                    <span class="badge badge-neutral" style="font-size: 0.7rem;">
+                      ${d.is_contractor ? 'Sous-traitant' : 'Salarié'}
+                    </span>
+                  </div>
+                  <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.25rem;">
+                    ${d.phone ? `Tél : ${d.phone}` : 'Tél : Non renseigné'}
+                  </div>
+                </div>
+              </div>
+
+              <div style="margin-top: 0.85rem;" class="driver-card-metrics">
+                <div>
+                  <span class="text-muted" style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase;">Voyages</span>
+                  <div class="font-mono" style="font-weight: 700; font-size: 0.95rem;">${d.total_trips || 0}</div>
+                </div>
+                <div>
+                  <span class="text-muted" style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase;">Solde Net</span>
+                  <div class="font-mono ${isNetPos ? 'text-success' : 'text-danger'}" style="font-weight: 800; font-size: 0.95rem;">
+                    ${formatFCFA(d.net_balance)}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ACTIONS DIRECTES POUR CE CHAUFFEUR -->
+            <div style="display: flex; flex-direction: column; gap: 0.5rem; border-top: 1px dashed var(--border-color); padding-top: 0.75rem; margin-top: 0.25rem;">
+              <button class="btn btn-primary" style="width: 100%; justify-content: center; font-weight: 700;" onclick="event.stopPropagation(); openDriverDetail(${d.id});">
+                ${VECTORS.folder} Entrer dans le dossier chauffeur →
+              </button>
+              <div style="display: flex; gap: 0.35rem; justify-content: space-between;">
+                <button class="btn btn-secondary btn-sm" style="flex: 1; font-size: 0.75rem; padding: 0.3rem 0.4rem; justify-content: center;" onclick="event.stopPropagation(); openTripModalForDriver(${d.id}, '${d.assigned_truck || ''}');" title="Ajouter un voyage pour ce chauffeur">
+                  ${VECTORS.trips} + Voyage
+                </button>
+                <button class="btn btn-secondary btn-sm" style="flex: 1; font-size: 0.75rem; padding: 0.3rem 0.4rem; justify-content: center;" onclick="event.stopPropagation(); openFuelModalForDriver(${d.id}, '${d.assigned_truck || ''}');" title="Facture carburant">
+                  ${VECTORS.fuel} + Carburant
+                </button>
+                <button class="btn btn-secondary btn-sm" style="flex: 1; font-size: 0.75rem; padding: 0.3rem 0.4rem; justify-content: center;" onclick="event.stopPropagation(); openMaintModalForDriver(${d.id}, '${d.assigned_truck || ''}');" title="Noter un entretien">
+                  ${VECTORS.maintenance} + Entretien
+                </button>
+                <button class="btn btn-secondary btn-sm" style="padding: 0.3rem 0.5rem;" onclick="event.stopPropagation(); deleteDriver(${d.id});" title="Supprimer ce chauffeur">
+                  ${VECTORS.trash}
+                </button>
+              </div>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+      }
+
+      // 2. Rendu Tableau d'édition en ligne
+      const tbody = document.getElementById('drivers-tbody');
+      tbody.innerHTML = '';
+
+      list.forEach(d => {
+        const tr = document.createElement('tr');
+        const isNetPos = d.net_balance >= 0;
+
+        let truckOptions = `<option value="">Non assigné</option>`;
+        state.trucks.forEach(t => {
+          truckOptions += `<option value="${t.code}" ${d.assigned_truck === t.code ? 'selected' : ''}>${t.code}</option>`;
+        });
+
+        tr.innerHTML = `
+          <td data-label="Nom">
+            <input type="text" class="inline-input font-bold" value="${d.name}" onchange="updateDriverInline(${d.id}, 'name', this.value)" style="font-weight: 700;">
+          </td>
+          <td data-label="Camion assigné">
+            <select class="inline-select" onchange="updateDriverInline(${d.id}, 'assigned_truck', this.value)">
+              ${truckOptions}
+            </select>
+          </td>
+          <td data-label="Statut">
+            <select class="inline-select" onchange="updateDriverInline(${d.id}, 'is_contractor', this.value === '1')">
+              <option value="0" ${!d.is_contractor ? 'selected' : ''}>Salarié</option>
+              <option value="1" ${d.is_contractor ? 'selected' : ''}>Sous-traitant</option>
+            </select>
+          </td>
+          <td data-label="Actif ?">
+            <input type="checkbox" ${d.is_active ? 'checked' : ''} onchange="updateDriverInline(${d.id}, 'is_active', this.checked)" style="transform: scale(1.2); cursor: pointer;">
+          </td>
+          <td data-label="Téléphone">
+            <input type="tel" class="inline-input font-mono" value="${d.phone || ''}" placeholder="+237 ..." onchange="updateDriverInline(${d.id}, 'phone', this.value)">
+          </td>
+          <td data-label="Voyages">${d.total_trips || 0}</td>
+          <td data-label="Solde Net" class="font-mono ${isNetPos ? 'text-success' : 'text-danger'}">
+            <strong>${formatFCFA(d.net_balance)}</strong>
+          </td>
+          <td data-label="Actions">
+            <div style="display: flex; gap: 0.35rem;">
+              <button class="btn btn-primary btn-sm" onclick="openDriverDetail(${d.id})">
+                Dossier
+              </button>
+              <button class="btn btn-danger btn-sm" onclick="deleteDriver(${d.id})" title="Supprimer">
+                ${VECTORS.trash}
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Mise à jour inline d'un chauffeur (sans prompt)
+    window.updateDriverInline = async function(id, field, value) {
+      try {
+        const body = { [field]: value };
+        const res = await fetch(`/api/drivers/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        if (res.ok) {
+          showToast('Chauffeur mis à jour avec succès.');
+          await loadInitialData();
+        } else {
+          showToast('Erreur lors de la mise à jour.', 'danger');
+        }
+      } catch (err) {
+        showToast('Erreur réseau.', 'danger');
+      }
+    };
+
+    window.deleteDriver = async function(id) {
+      if (!confirm('Êtes-vous sûr de vouloir supprimer ce chauffeur ?')) return;
+      try {
+        const res = await fetch(`/api/drivers/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          showToast('Chauffeur supprimé.');
+          if (state.selectedDriverId === id) {
+            switchTab('drivers');
+          } else {
+            loadDrivers();
+          }
+          loadInitialData();
+        }
+      } catch (err) {
+        showToast('Erreur de suppression.', 'danger');
+      }
+    };
+
+    // ----------------------------------------------------
+    // DOSSIER INDIVIDUEL COMPLET DU CHAUFFEUR
+    // (Accès direct à la fiche, ajouts de voyage, carburant, entretiens)
+    // ----------------------------------------------------
+    window.openDriverDetail = async function(driverId) {
+      state.selectedDriverId = driverId;
+      state.activeDriverIdForAccount = driverId;
+      state.currentTab = 'driver-detail';
+
+      // Afficher le panneau de détail chauffeur et masquer les autres
+      document.querySelectorAll('.view-panel').forEach(p => {
+        p.style.display = p.id === 'view-driver-detail' ? 'block' : 'none';
+      });
+
+      // Mettre à jour l'en-tête du badge de vue et onglet actif
+      document.querySelectorAll('.nav-tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.tab === 'driver-detail');
+      });
+
+      let url = `/api/drivers/${driverId}/account?`;
+      if (state.startDate) url += `&startDate=${state.startDate}`;
+      if (state.endDate) url += `&endDate=${state.endDate}`;
+
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+
+        const driver = data.driver;
+        const initials = (driver.name || 'CH').split(' ').filter(Boolean).map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+        const navLabel = document.getElementById('nav-active-driver-label');
+        if (navLabel) {
+          navLabel.textContent = `2. Chauffeur : ${driver.name.split(' ')[0]}`;
+        }
+
+        const viewBadge = document.getElementById('current-view-badge');
+        if (viewBadge) {
+          viewBadge.innerHTML = `${VECTORS.user} <span>Chauffeur actif : ${driver.name}</span>`;
+        }
+
+        const qal = document.getElementById('quick-action-label');
+        if (qal) {
+          qal.textContent = 'Nouveau voyage';
+        }
+
+        // En-tête Dossier
+        document.getElementById('detail-driver-avatar').textContent = initials;
+        document.getElementById('detail-driver-name').textContent = driver.name;
+        
+        const statusBadge = document.getElementById('detail-driver-status-badge');
+        statusBadge.textContent = driver.is_contractor ? 'Sous-traitant' : 'Salarié permanent';
+        statusBadge.className = `badge ${driver.is_contractor ? 'badge-neutral' : 'badge-primary'}`;
+
+        const activeBadge = document.getElementById('detail-driver-active-badge');
+        activeBadge.textContent = driver.is_active ? 'Actif' : 'Inactif';
+        activeBadge.className = `badge ${driver.is_active ? 'badge-success' : 'badge-danger'}`;
+
+        document.getElementById('detail-driver-meta').textContent = 
+          `Camion assigné : ${driver.assigned_truck || 'Non assigné'} • Téléphone : ${driver.phone || 'Non renseigné'}`;
+
+        // Liaison des boutons d'actions directes pré-remplis pour ce chauffeur
+        document.getElementById('driver-add-trip-btn').onclick = () => {
+          openTripModalForDriver(driver.id, driver.assigned_truck);
+        };
+        document.getElementById('driver-add-fuel-btn').onclick = () => {
+          openFuelModalForDriver(driver.id, driver.assigned_truck);
+        };
+        document.getElementById('driver-add-maint-btn').onclick = () => {
+          openMaintModalForDriver(driver.id, driver.assigned_truck);
+        };
+        document.getElementById('export-driver-detail-csv').onclick = () => {
+          let csvUrl = `/api/export/csv?type=driver_account&driver_id=${driver.id}`;
+          if (state.startDate) csvUrl += `&startDate=${state.startDate}`;
+          if (state.endDate) csvUrl += `&endDate=${state.endDate}`;
+          window.location.href = csvUrl;
+        };
+
+        // 4 KPIs
+        document.getElementById('detail-driver-revenue').textContent = formatFCFA(data.summary.totalRevenue);
+        document.getElementById('detail-driver-trips-count').textContent = data.summary.totalTripsCount;
+
+        document.getElementById('detail-driver-fuel').textContent = formatFCFA(data.summary.totalFuel);
+        document.getElementById('detail-driver-fuel-liters').textContent = Math.round(data.summary.totalFuelLiters).toLocaleString('fr-FR');
+        document.getElementById('detail-driver-fuel-count').textContent = (data.fuel || []).length;
+
+        document.getElementById('detail-driver-maint').textContent = formatFCFA(data.summary.totalMaintenance);
+        document.getElementById('detail-driver-maint-count').textContent = (data.maintenance || []).length;
+
+        const netEl = document.getElementById('detail-driver-net');
+        netEl.textContent = formatFCFA(data.summary.netBalance);
+        netEl.className = `kpi-value font-mono ${data.summary.netBalance >= 0 ? 'text-success' : 'text-danger'}`;
+
+        // Badges des sous-onglets
+        document.getElementById('badge-subtab-trips').textContent = (data.trips || []).length;
+        document.getElementById('badge-subtab-fuel').textContent = (data.fuel || []).length;
+        document.getElementById('badge-subtab-maint').textContent = (data.maintenance || []).length;
+
+        // Sous-panneau 1 : Relevé chronologique unifié
+        const timelineList = document.getElementById('detail-timeline-list');
+        timelineList.innerHTML = '';
+        if (!data.timeline || data.timeline.length === 0) {
+          timelineList.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 2rem;">Aucune opération enregistrée pour ce chauffeur sur la période.</div>';
+        } else {
+          data.timeline.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'timeline-item';
+            const icon = item.type === 'trip' ? VECTORS.money : (item.type === 'fuel' ? VECTORS.fuel : VECTORS.maintenance);
+            const sign = item.isCredit ? '+' : '-';
+            const colorClass = item.isCredit ? 'text-success' : (item.type === 'fuel' ? 'text-warning' : 'text-danger');
+
+            div.innerHTML = `
+              <div class="timeline-badge" style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color);">
+                ${icon}
+              </div>
+              <div class="timeline-content">
+                <div class="timeline-title">
+                  <span>${item.title}</span>
+                  <span class="font-mono ${colorClass}" style="font-weight: 700;">${sign} ${formatFCFA(item.amount)}</span>
+                </div>
+                <div class="timeline-meta">
+                  <span class="badge badge-neutral" style="font-size: 0.65rem;">${item.typeLabel}</span>
+                  <span>${item.date}</span> • <span>${item.subtitle}</span>
+                </div>
+              </div>
+            `;
+            timelineList.appendChild(div);
+          });
+        }
+
+        // Sous-panneau 2 : Ses Voyages
+        const tripsTbody = document.getElementById('detail-trips-tbody');
+        tripsTbody.innerHTML = '';
+        if (!data.trips || data.trips.length === 0) {
+          tripsTbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Aucun voyage enregistré pour ce chauffeur.</td></tr>';
+        } else {
+          data.trips.forEach(t => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td data-label="Date">${t.trip_date}</td>
+              <td data-label="Trajet"><strong>${t.route}</strong></td>
+              <td data-label="Camion"><span class="badge badge-primary font-mono">${t.truck_id}</span></td>
+              <td data-label="Marchandise" class="text-muted">${t.cargo || '-'}</td>
+              <td data-label="Montant reçu" class="font-mono text-success"><strong>${formatFCFA(t.amount_fcfa)}</strong></td>
+              <td data-label="Actions">
+                <button class="btn btn-danger btn-sm" onclick="deleteTripFromDetail(${t.id})" title="Supprimer ce voyage">${VECTORS.trash}</button>
+              </td>
+            `;
+            tripsTbody.appendChild(tr);
+          });
+        }
+
+        // Sous-panneau 3 : Ses Pleins Carburant
+        const fuelTbody = document.getElementById('detail-fuel-tbody');
+        fuelTbody.innerHTML = '';
+        if (!data.fuel || data.fuel.length === 0) {
+          fuelTbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Aucun plein enregistré pour ce chauffeur.</td></tr>';
+        } else {
+          data.fuel.forEach(f => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td data-label="Date">${f.expense_date}</td>
+              <td data-label="Volume (L)" class="font-mono">${f.liters} L</td>
+              <td data-label="Montant payé" class="font-mono text-warning"><strong>${formatFCFA(f.amount_fcfa)}</strong></td>
+              <td data-label="Station">${f.station || '-'}</td>
+              <td data-label="Kilométrage" class="font-mono">${f.km_at_fill ? f.km_at_fill.toLocaleString('fr-FR') + ' km' : '-'}</td>
+              <td data-label="Actions">
+                <button class="btn btn-danger btn-sm" onclick="deleteFuelFromDetail(${f.id})" title="Supprimer ce plein">${VECTORS.trash}</button>
+              </td>
+            `;
+            fuelTbody.appendChild(tr);
+          });
+        }
+
+        // Sous-panneau 4 : Ses Entretiens
+        const maintTbody = document.getElementById('detail-maint-tbody');
+        maintTbody.innerHTML = '';
+        if (!data.maintenance || data.maintenance.length === 0) {
+          maintTbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Aucune intervention atelier enregistrée pour ce chauffeur.</td></tr>';
+        } else {
+          data.maintenance.forEach(m => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td data-label="Date">${m.record_date}</td>
+              <td data-label="Type"><span class="badge badge-${m.service_type.toLowerCase()}">${m.service_type}</span></td>
+              <td data-label="Description">${m.description}</td>
+              <td data-label="Garage">${m.garage || '-'}</td>
+              <td data-label="Kilométrage" class="font-mono">${m.km ? m.km.toLocaleString('fr-FR') + ' km' : '-'}</td>
+              <td data-label="Montant payé" class="font-mono text-danger"><strong>${formatFCFA(m.amount_fcfa)}</strong></td>
+              <td data-label="Actions">
+                <button class="btn btn-danger btn-sm" onclick="deleteMaintFromDetail(${m.id})" title="Supprimer cette intervention">${VECTORS.trash}</button>
+              </td>
+            `;
+            maintTbody.appendChild(tr);
+          });
+        }
+
+      } catch (err) {
+        console.error('Erreur openDriverDetail:', err);
+        showToast('Impossible de charger le dossier du chauffeur.', 'danger');
+      }
+    };
+
+    // Pré-remplissage et ouverture rapide des formulaires pour un chauffeur précis
+    window.openTripModalForDriver = function(driverId, truckCode) {
+      openModal('modal-trip-form');
+      document.getElementById('trip-id').value = '';
+      document.getElementById('trip-date').value = new Date().toISOString().split('T')[0];
+      if (driverId) document.getElementById('trip-driver').value = driverId;
+      if (truckCode) document.getElementById('trip-truck').value = truckCode;
+    };
+
+    window.openFuelModalForDriver = function(driverId, truckCode) {
+      openModal('modal-fuel-form');
+      document.getElementById('fuel-id').value = '';
+      document.getElementById('fuel-date').value = new Date().toISOString().split('T')[0];
+      if (driverId) document.getElementById('fuel-driver').value = driverId;
+      if (truckCode) document.getElementById('fuel-truck').value = truckCode;
+    };
+
+    window.openMaintModalForDriver = function(driverId, truckCode) {
+      openModal('modal-maint-form');
+      document.getElementById('maint-id').value = '';
+      document.getElementById('maint-date').value = new Date().toISOString().split('T')[0];
+      if (driverId) document.getElementById('maint-driver').value = driverId;
+      if (truckCode) document.getElementById('maint-truck').value = truckCode;
+    };
+
+    // Suppressions depuis la vue détaillée
+    window.deleteTripFromDetail = async function(id) {
+      if (!confirm('Supprimer ce voyage ?')) return;
+      await fetch(`/api/trips/${id}`, { method: 'DELETE' });
+      showToast('Voyage supprimé.');
+      if (state.selectedDriverId) openDriverDetail(state.selectedDriverId);
+    };
+
+    window.deleteFuelFromDetail = async function(id) {
+      if (!confirm('Supprimer ce plein de carburant ?')) return;
+      await fetch(`/api/fuel/${id}`, { method: 'DELETE' });
+      showToast('Plein supprimé.');
+      if (state.selectedDriverId) openDriverDetail(state.selectedDriverId);
+    };
+
+    window.deleteMaintFromDetail = async function(id) {
+      if (!confirm('Supprimer cette intervention ?')) return;
+      await fetch(`/api/maintenance/${id}`, { method: 'DELETE' });
+      showToast('Intervention supprimée.');
+      if (state.selectedDriverId) openDriverDetail(state.selectedDriverId);
+    };
+
+    // Boutons de retour vers la liste de tous les chauffeurs (Étape 1)
+    ['back-to-drivers-btn', 'btn-bottom-change-driver', 'btn-back-to-drivers-from-dash'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('click', () => switchTab('drivers'));
+    });
+
+    // Boutons vers le tableau de bord général (Flotte consolidée)
+    ['btn-goto-dashboard', 'btn-bottom-goto-dashboard', 'btn-driver-to-dashboard', 'btn-bottom-driver-to-dash'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('click', () => switchTab('dashboard'));
+    });
+
+    // Boutons de période du dossier chauffeur individuel
+    document.querySelectorAll('.driver-period-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.driver-period-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        applyPreset(btn.dataset.preset);
+        if (state.selectedDriverId) {
+          openDriverDetail(state.selectedDriverId);
+        }
+      });
+    });
+
+    // Filtres & Recherche de chauffeurs
+    const searchInput = document.getElementById('driver-search-input');
+    if (searchInput) {
+      searchInput.addEventListener('input', e => {
+        state.driverSearch = e.target.value;
+        renderFilteredDrivers();
+      });
+    }
+
+    document.querySelectorAll('.driver-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.driver-filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.driverFilter = btn.dataset.filter;
+        renderFilteredDrivers();
+      });
+    });
+
+    // Basculement Affichage Chauffeurs : Fiches vs Tableau
+    const toggleCardsBtn = document.getElementById('toggle-drivers-cards');
+    const toggleTableBtn = document.getElementById('toggle-drivers-table');
+    const cardsGridEl = document.getElementById('drivers-cards-grid');
+    const tableCardEl = document.getElementById('drivers-table-card');
+
+    if (toggleCardsBtn && toggleTableBtn) {
+      toggleCardsBtn.addEventListener('click', () => {
+        toggleCardsBtn.classList.add('active');
+        toggleTableBtn.classList.remove('active');
+        cardsGridEl.style.display = 'grid';
+        tableCardEl.style.display = 'none';
+      });
+
+      toggleTableBtn.addEventListener('click', () => {
+        toggleTableBtn.classList.add('active');
+        toggleCardsBtn.classList.remove('active');
+        cardsGridEl.style.display = 'none';
+        tableCardEl.style.display = 'block';
+      });
+    }
+
+    // Gestion des sous-onglets dans le dossier individuel du chauffeur
+    document.querySelectorAll('.driver-subtab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.driver-subtab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const target = btn.dataset.subtab;
+        document.querySelectorAll('.driver-subpanel').forEach(p => {
+          p.style.display = p.id === `subpanel-${target}` ? 'block' : 'none';
+        });
+      });
+    });
+
+    // Ancienne modale (conservée pour rétro-compatibilité)
+    window.openDriverAccount = function(driverId) {
+      openDriverDetail(driverId);
+    };
+
+    const expDriverBtn = document.getElementById('export-driver-csv-btn');
+    if (expDriverBtn) {
+      expDriverBtn.addEventListener('click', () => {
+        if (!state.activeDriverIdForAccount) return;
+        let url = `/api/export/csv?type=driver_account&driver_id=${state.activeDriverIdForAccount}`;
+        if (state.startDate) url += `&startDate=${state.startDate}`;
+        if (state.endDate) url += `&endDate=${state.endDate}`;
+        window.location.href = url;
+      });
+    }
+
+    // ----------------------------------------------------
+    // CHARGEMENT ONGLET CAMIONS & ENTRETIEN (10 CAMIONS)
+    // ----------------------------------------------------
+    async function loadTrucks() {
+      try {
+        const res = await fetch('/api/trucks');
+        state.trucks = await res.json();
+        const grid = document.getElementById('trucks-cards-grid');
+        grid.innerHTML = '';
+
+        state.trucks.forEach(t => {
+          const card = document.createElement('div');
+          card.className = 'truck-card';
+          card.onclick = () => openTruckHistory(t.code);
+
+          const isNetPos = t.net_profit >= 0;
+          card.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div>
+                <span class="badge badge-primary font-mono" style="font-size: 0.85rem; font-weight: 700;">${t.code}</span>
+                <h4 style="font-size: 1rem; font-weight: 700; margin-top: 0.35rem;">${t.brand_model}</h4>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">${t.license_plate} ${t.year ? '• ' + t.year : ''}</div>
+              </div>
+              <span class="badge ${t.status === 'actif' ? 'badge-success' : 'badge-danger'}">
+                ${t.status}
+              </span>
+            </div>
+
+            <div style="background: var(--bg-subtle); padding: 0.65rem; border-radius: var(--radius-sm); font-size: 0.8rem;">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                <span class="text-muted">Chauffeur assigné :</span>
+                <strong>${t.driver_name || 'Aucun'}</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span class="text-muted">Kilométrage :</span>
+                <span class="font-mono">${(t.current_km || 0).toLocaleString('fr-FR')} km</span>
+              </div>
+            </div>
+
+            <div style="border-top: 1px dashed var(--border-color); padding-top: 0.65rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.8rem;">
+              <div>
+                <div class="text-muted" style="font-size: 0.7rem;">Entretien total</div>
+                <div class="font-mono text-danger" style="font-weight: 700;">${formatFCFA(t.total_maintenance)}</div>
+              </div>
+              <div>
+                <div class="text-muted" style="font-size: 0.7rem;">Bénéfice Net</div>
+                <div class="font-mono ${isNetPos ? 'text-success' : 'text-danger'}" style="font-weight: 700;">${formatFCFA(t.net_profit)}</div>
+              </div>
+            </div>
+
+            <button class="btn btn-secondary btn-sm" style="width: 100%; margin-top: 0.25rem;">
+              ${VECTORS.maintenance} Voir historique d'entretien
+            </button>
+          `;
+          grid.appendChild(card);
+        });
+
+      } catch (err) {
+        console.error('Erreur load trucks:', err);
+      }
+    }
+
+    // Fiche complète d'historique d'entretien d'un camion
+    window.openTruckHistory = async function(truckCode) {
+      try {
+        const res = await fetch(`/api/trucks/${truckCode}/maintenance`);
+        const data = await res.json();
+
+        document.getElementById('truck-hist-title').textContent = `${data.truck.code} - ${data.truck.brand_model}`;
+        document.getElementById('truck-hist-subtitle').textContent = `Immat: ${data.truck.license_plate} • Année: ${data.truck.year || 'N/A'} • Chauffeur habituel: ${data.truck.driver_name || 'Aucun'} • Compteur: ${(data.truck.current_km || 0).toLocaleString('fr-FR')} km`;
+
+        document.getElementById('truck-total-maint').textContent = formatFCFA(data.summary.totalMaintenanceCost);
+        document.getElementById('truck-maint-count').textContent = data.summary.maintenanceCount;
+
+        document.getElementById('truck-total-fuel').textContent = formatFCFA(data.summary.totalFuelCost);
+        document.getElementById('truck-fuel-liters').textContent = Math.round(data.summary.totalFuelLiters).toLocaleString('fr-FR');
+
+        document.getElementById('truck-total-revenue').textContent = formatFCFA(data.summary.totalRevenue);
+
+        const netEl = document.getElementById('truck-net-profit');
+        netEl.textContent = formatFCFA(data.summary.netProfit);
+        netEl.style.color = data.summary.netProfit >= 0 ? 'var(--success)' : 'var(--danger)';
+
+        // Badges types
+        const typeContainer = document.getElementById('truck-type-breakdown');
+        typeContainer.innerHTML = '';
+        if (data.summary.byType.length === 0) {
+          typeContainer.innerHTML = '<span class="text-muted" style="font-size: 0.8rem;">Aucune intervention enregistrée.</span>';
+        } else {
+          data.summary.byType.forEach(b => {
+            const span = document.createElement('span');
+            span.className = `badge badge-${b.type}`;
+            span.textContent = `${b.type.toUpperCase()}: ${formatFCFA(b.total_fcfa)} (${b.count})`;
+            typeContainer.appendChild(span);
+          });
+        }
+
+        // Table des entretiens
+        const tbody = document.getElementById('truck-records-tbody');
+        tbody.innerHTML = '';
+        if (data.records.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Aucune réparation pour ce camion.</td></tr>';
+        } else {
+          data.records.forEach(r => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td data-label="Date">${r.record_date}</td>
+              <td data-label="Type"><span class="badge badge-${r.service_type.toLowerCase()}">${r.service_type}</span></td>
+              <td data-label="Description">${r.description}</td>
+              <td data-label="Garage">${r.garage}</td>
+              <td data-label="Km" class="font-mono">${r.km ? r.km.toLocaleString('fr-FR') + ' km' : '-'}</td>
+              <td data-label="Montant" class="font-mono text-danger"><strong>${formatFCFA(r.amount_fcfa)}</strong></td>
+            `;
+            tbody.appendChild(tr);
+          });
+        }
+
+        openModal('modal-truck-history');
+
+      } catch (err) {
+        showToast('Erreur lors du chargement de la fiche camion.', 'danger');
+      }
+    };
+
+    // ----------------------------------------------------
+    // CHARGEMENT ONGLET VOYAGES
+    // ----------------------------------------------------
+    async function loadTrips() {
+      let url = '/api/trips?';
+      if (state.startDate) url += `&startDate=${state.startDate}`;
+      if (state.endDate) url += `&endDate=${state.endDate}`;
+
+      try {
+        const res = await fetch(url);
+        const trips = await res.json();
+        const tbody = document.getElementById('trips-tbody');
+        tbody.innerHTML = '';
+
+        if (trips.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Aucun voyage enregistré sur la période.</td></tr>';
+          return;
+        }
+
+        trips.forEach(t => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td data-label="Date">${t.trip_date}</td>
+            <td data-label="Chauffeur"><strong>${t.driver_name}</strong></td>
+            <td data-label="Camion"><span class="badge badge-primary font-mono">${t.truck_id}</span></td>
+            <td data-label="Trajet">${t.route}</td>
+            <td data-label="Marchandise" class="text-muted">${t.cargo || '-'}</td>
+            <td data-label="Montant reçu" class="font-mono text-success"><strong>${formatFCFA(t.amount_fcfa)}</strong></td>
+            <td data-label="Actions">
+              <button class="btn btn-danger btn-sm" onclick="deleteTrip(${t.id})" title="Supprimer">${VECTORS.trash}</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+      } catch (err) {
+        console.error('Erreur load trips:', err);
+      }
+    }
+
+    window.deleteTrip = async function(id) {
+      if (!confirm('Supprimer ce voyage ?')) return;
+      await fetch(`/api/trips/${id}`, { method: 'DELETE' });
+      showToast('Voyage supprimé.');
+      loadTrips();
+    };
+
+    // ----------------------------------------------------
+    // CHARGEMENT ONGLET CARBURANT
+    // ----------------------------------------------------
+    async function loadFuel() {
+      let url = '/api/fuel?';
+      if (state.startDate) url += `&startDate=${state.startDate}`;
+      if (state.endDate) url += `&endDate=${state.endDate}`;
+
+      try {
+        const res = await fetch(url);
+        const records = await res.json();
+        const tbody = document.getElementById('fuel-tbody');
+        tbody.innerHTML = '';
+
+        if (records.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Aucun plein enregistré sur la période.</td></tr>';
+          return;
+        }
+
+        records.forEach(f => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td data-label="Date">${f.expense_date}</td>
+            <td data-label="Chauffeur"><strong>${f.driver_name}</strong></td>
+            <td data-label="Camion"><span class="badge badge-primary font-mono">${f.truck_id}</span></td>
+            <td data-label="Volume (L)" class="font-mono">${f.liters} L</td>
+            <td data-label="Montant payé" class="font-mono text-warning"><strong>${formatFCFA(f.amount_fcfa)}</strong></td>
+            <td data-label="Station">${f.station}</td>
+            <td data-label="Kilométrage" class="font-mono">${f.km_at_fill ? f.km_at_fill.toLocaleString('fr-FR') + ' km' : '-'}</td>
+            <td data-label="Actions">
+              <button class="btn btn-danger btn-sm" onclick="deleteFuel(${f.id})" title="Supprimer">${VECTORS.trash}</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+      } catch (err) {
+        console.error('Erreur load fuel:', err);
+      }
+    }
+
+    window.deleteFuel = async function(id) {
+      if (!confirm('Supprimer cet enregistrement de carburant ?')) return;
+      await fetch(`/api/fuel/${id}`, { method: 'DELETE' });
+      showToast('Enregistrement supprimé.');
+      loadFuel();
+    };
+
+    // ----------------------------------------------------
+    // CHARGEMENT ONGLET ENTRETIEN
+    // ----------------------------------------------------
+    async function loadMaintenance() {
+      let url = '/api/maintenance?';
+      if (state.startDate) url += `&startDate=${state.startDate}`;
+      if (state.endDate) url += `&endDate=${state.endDate}`;
+
+      try {
+        const res = await fetch(url);
+        const records = await res.json();
+        const tbody = document.getElementById('maint-tbody');
+        tbody.innerHTML = '';
+
+        if (records.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Aucune intervention enregistrée sur la période.</td></tr>';
+          return;
+        }
+
+        records.forEach(m => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td data-label="Date">${m.record_date}</td>
+            <td data-label="Camion"><span class="badge badge-primary font-mono">${m.truck_id}</span></td>
+            <td data-label="Chauffeur">${m.driver_name || '<span class="text-muted">Atelier</span>'}</td>
+            <td data-label="Intervention"><span class="badge badge-${m.service_type.toLowerCase()}">${m.service_type}</span></td>
+            <td data-label="Description">${m.description}</td>
+            <td data-label="Garage">${m.garage}</td>
+            <td data-label="Kilométrage" class="font-mono">${m.km ? m.km.toLocaleString('fr-FR') + ' km' : '-'}</td>
+            <td data-label="Coût (FCFA)" class="font-mono text-danger"><strong>${formatFCFA(m.amount_fcfa)}</strong></td>
+            <td data-label="Actions">
+              <button class="btn btn-danger btn-sm" onclick="deleteMaint(${m.id})" title="Supprimer">${VECTORS.trash}</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+      } catch (err) {
+        console.error('Erreur load maintenance:', err);
+      }
+    }
+
+    window.deleteMaint = async function(id) {
+      if (!confirm('Supprimer cette intervention ?')) return;
+      await fetch(`/api/maintenance/${id}`, { method: 'DELETE' });
+      showToast('Intervention supprimée.');
+      loadMaintenance();
+    };
+
+    // ----------------------------------------------------
+    // SOUMISSION DES FORMULAIRES DE CRÉATION
+    // ----------------------------------------------------
+
+    // 1. Nouveau voyage
+    document.getElementById('form-trip').addEventListener('submit', async e => {
+      e.preventDefault();
+      const body = {
+        driver_id: document.getElementById('trip-driver').value,
+        truck_id: document.getElementById('trip-truck').value,
+        trip_date: document.getElementById('trip-date').value,
+        route: document.getElementById('trip-route').value,
+        amount_fcfa: document.getElementById('trip-amount').value,
+        cargo: document.getElementById('trip-cargo').value,
+        notes: document.getElementById('trip-notes').value
+      };
+
+      try {
+        const res = await fetch('/api/trips', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        if (res.ok) {
+          showToast('Voyage enregistré avec succès !');
+          document.getElementById('modal-trip-form').classList.remove('open');
+          document.getElementById('form-trip').reset();
+          loadCurrentTabData();
+          loadDrivers();
+        } else {
+          const err = await res.json();
+          showToast(err.error || 'Erreur lors de l\'enregistrement', 'danger');
+        }
+      } catch (err) {
+        showToast('Erreur serveur', 'danger');
+      }
+    });
+
+    // 2. Nouveau plein de carburant
+    document.getElementById('form-fuel').addEventListener('submit', async e => {
+      e.preventDefault();
+      const body = {
+        driver_id: document.getElementById('fuel-driver').value,
+        truck_id: document.getElementById('fuel-truck').value,
+        expense_date: document.getElementById('fuel-date').value,
+        liters: document.getElementById('fuel-liters').value,
+        amount_fcfa: document.getElementById('fuel-amount').value,
+        station: document.getElementById('fuel-station').value,
+        km_at_fill: document.getElementById('fuel-km').value,
+        notes: document.getElementById('fuel-notes').value
+      };
+
+      try {
+        const res = await fetch('/api/fuel', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        if (res.ok) {
+          showToast('Plein de carburant enregistré !');
+          document.getElementById('modal-fuel-form').classList.remove('open');
+          document.getElementById('form-fuel').reset();
+          loadCurrentTabData();
+          loadDrivers();
+        } else {
+          const err = await res.json();
+          showToast(err.error || 'Erreur lors de l\'enregistrement', 'danger');
+        }
+      } catch (err) {
+        showToast('Erreur serveur', 'danger');
+      }
+    });
+
+    // 3. Nouvelle intervention entretien
+    document.getElementById('form-maint').addEventListener('submit', async e => {
+      e.preventDefault();
+      const selectType = document.getElementById('maint-type-select').value;
+      const customType = document.getElementById('maint-type-custom').value;
+      const finalType = (selectType === 'autre' && customType.trim()) ? customType.trim() : selectType;
+
+      const body = {
+        truck_id: document.getElementById('maint-truck').value,
+        driver_id: document.getElementById('maint-driver').value || null,
+        record_date: document.getElementById('maint-date').value,
+        service_type: finalType,
+        description: document.getElementById('maint-desc').value,
+        amount_fcfa: document.getElementById('maint-amount').value,
+        garage: document.getElementById('maint-garage').value,
+        km: document.getElementById('maint-km').value
+      };
+
+      try {
+        const res = await fetch('/api/maintenance', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        if (res.ok) {
+          showToast('Intervention d\'entretien notée avec succès !');
+          document.getElementById('modal-maint-form').classList.remove('open');
+          document.getElementById('form-maint').reset();
+          document.getElementById('custom-type-group').style.display = 'none';
+          loadCurrentTabData();
+          loadDrivers();
+        } else {
+          const err = await res.json();
+          showToast(err.error || 'Erreur lors de l\'enregistrement', 'danger');
+        }
+      } catch (err) {
+        showToast('Erreur serveur', 'danger');
+      }
+    });
+
+    // 4. Nouveau chauffeur
+    document.getElementById('form-add-driver').addEventListener('submit', async e => {
+      e.preventDefault();
+      const body = {
+        name: document.getElementById('new-driver-name').value,
+        assigned_truck: document.getElementById('new-driver-truck').value || null,
+        is_contractor: document.getElementById('new-driver-status').value === '1',
+        phone: document.getElementById('new-driver-phone').value
+      };
+
+      try {
+        const res = await fetch('/api/drivers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        if (res.ok) {
+          showToast('Nouveau chauffeur créé avec succès !');
+          document.getElementById('modal-driver-form').classList.remove('open');
+          document.getElementById('form-add-driver').reset();
+          await loadInitialData();
+          loadDrivers();
+        } else {
+          const err = await res.json();
+          showToast(err.error || 'Erreur lors de la création', 'danger');
+        }
+      } catch (err) {
+        showToast('Erreur serveur', 'danger');
+      }
+    });
+
+    // Bouton ajouter chauffeur et raccourcis modales
+    const btnAddDriver = document.getElementById('add-driver-btn');
+    if (btnAddDriver) btnAddDriver.addEventListener('click', () => openModal('modal-driver-form'));
+
+    const btnAddTrip = document.getElementById('add-trip-btn');
+    if (btnAddTrip) btnAddTrip.addEventListener('click', () => openModal('modal-trip-form'));
+
+    const btnAddFuel = document.getElementById('add-fuel-btn');
+    if (btnAddFuel) btnAddFuel.addEventListener('click', () => openModal('modal-fuel-form'));
+
+    const btnAddMaint = document.getElementById('add-maintenance-btn');
+    if (btnAddMaint) btnAddMaint.addEventListener('click', () => openModal('modal-maint-form'));
+
+    // Démarrage de l'application
+    initTheme();
+    checkAuthAndStart();
+  </script>
+</body>
+</html>
