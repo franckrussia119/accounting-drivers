@@ -100,6 +100,8 @@ export function initDatabase() {
       route TEXT NOT NULL,                 -- ex: 'Douala - Yaoundé'
       amount_fcfa INTEGER NOT NULL,        -- Montant reçu pour ce voyage en FCFA
       cargo TEXT,                          -- Marchandise transportée (ex: 'Conteneurs 40ft')
+      bl_number TEXT,                      -- Numéro de BL / connaissement
+      container_number TEXT,               -- Numéro de conteneur
       notes TEXT,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY(driver_id) REFERENCES drivers(id) ON DELETE CASCADE
@@ -150,4 +152,22 @@ export function initDatabase() {
       FOREIGN KEY(driver_id) REFERENCES drivers(id) ON DELETE SET NULL
     );
   `);
+
+  migrateAddColumnIfMissing('trips', 'bl_number', 'TEXT');
+  migrateAddColumnIfMissing('trips', 'container_number', 'TEXT');
+}
+
+/**
+ * Ajoute une colonne à une table existante si elle n'existe pas déjà —
+ * nécessaire car CREATE TABLE IF NOT EXISTS n'ajoute pas de nouvelles
+ * colonnes à une table deja presente sur une base de donnees existante
+ * (deploiements anterieurs a l'ajout du champ).
+ */
+function migrateAddColumnIfMissing(table, column, type) {
+  const columns = db.prepare(`PRAGMA table_info(${table})`).all();
+  const exists = columns.some((c) => c.name === column);
+  if (!exists) {
+    db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${type}`);
+    console.log(`[Base de données] Migration: colonne "${column}" ajoutée à "${table}".`);
+  }
 }

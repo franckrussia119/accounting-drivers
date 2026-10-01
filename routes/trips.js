@@ -57,7 +57,7 @@ tripsRouter.get('/', (req, res) => {
 // Création d'un voyage
 tripsRouter.post('/', (req, res) => {
   try {
-    const { driver_id, truck_id, trip_date, route, amount_fcfa, cargo, notes } = req.body || {};
+    const { driver_id, truck_id, trip_date, route, amount_fcfa, cargo, bl_number, container_number, notes } = req.body || {};
 
     if (!driver_id || !truck_id || !trip_date || !route || amount_fcfa === undefined) {
       return res.status(400).json({ error: 'Chauffeur, camion, date, trajet et montant (FCFA) sont obligatoires.' });
@@ -69,8 +69,8 @@ tripsRouter.post('/', (req, res) => {
     }
 
     const stmt = db.prepare(`
-      INSERT INTO trips (driver_id, truck_id, trip_date, route, amount_fcfa, cargo, notes)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO trips (driver_id, truck_id, trip_date, route, amount_fcfa, cargo, bl_number, container_number, notes)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     const result = stmt.run(
@@ -80,6 +80,8 @@ tripsRouter.post('/', (req, res) => {
       route.trim(),
       amount,
       cargo ? cargo.trim() : null,
+      bl_number ? bl_number.trim().toUpperCase() : null,
+      container_number ? container_number.trim().toUpperCase() : null,
       notes ? notes.trim() : null
     );
 
@@ -106,11 +108,11 @@ tripsRouter.put('/:id', (req, res) => {
       return res.status(404).json({ error: 'Voyage introuvable.' });
     }
 
-    const { driver_id, truck_id, trip_date, route, amount_fcfa, cargo, notes } = req.body || {};
+    const { driver_id, truck_id, trip_date, route, amount_fcfa, cargo, bl_number, container_number, notes } = req.body || {};
 
     db.prepare(`
       UPDATE trips 
-      SET driver_id = ?, truck_id = ?, trip_date = ?, route = ?, amount_fcfa = ?, cargo = ?, notes = ?
+      SET driver_id = ?, truck_id = ?, trip_date = ?, route = ?, amount_fcfa = ?, cargo = ?, bl_number = ?, container_number = ?, notes = ?
       WHERE id = ?
     `).run(
       driver_id ? parseInt(driver_id, 10) : existing.driver_id,
@@ -119,6 +121,8 @@ tripsRouter.put('/:id', (req, res) => {
       route ? route.trim() : existing.route,
       amount_fcfa !== undefined ? parseInt(amount_fcfa, 10) : existing.amount_fcfa,
       cargo !== undefined ? (cargo ? cargo.trim() : null) : existing.cargo,
+      bl_number !== undefined ? (bl_number ? bl_number.trim().toUpperCase() : null) : existing.bl_number,
+      container_number !== undefined ? (container_number ? container_number.trim().toUpperCase() : null) : existing.container_number,
       notes !== undefined ? (notes ? notes.trim() : null) : existing.notes,
       id
     );

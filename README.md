@@ -39,12 +39,13 @@ Conçue avec une interface moderne inspirée des applications Fintech, 100% en F
    - Tableau comparatif des 10 camions avec décomposition des coûts et bénéfice par véhicule.
 
 3. **Camions & Entretien (10 Camions)** :
+   - Ajout et modification de camions directement depuis l'interface (bouton "+ Ajouter un camion").
    - Fiche d'identité par camion (code, modèle, immatriculation, kilométrage compteur, chauffeur habituel, statut).
    - Coût total de possession (TCO) et historique complet de toutes les réparations par camion.
    - Répartition des coûts par type d'intervention (Vidange, Freins, Pneus, Révision, Panne, etc.).
 
 4. **Voyages (Trips)** :
-   - Enregistrement des trajets (chauffeur, camion, date, itinéraire, marchandise, montant reçu en FCFA, notes).
+   - Enregistrement des trajets (chauffeur, camion, date, itinéraire, marchandise, N° BL, N° Conteneur, montant reçu en FCFA, notes).
 
 5. **Carburant (Fuel)** :
    - Saisie des pleins (chauffeur, camion, date, litres, montant payé en FCFA, station/lieu, kilométrage).

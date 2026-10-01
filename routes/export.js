@@ -40,7 +40,7 @@ exportRouter.get('/csv', (req, res) => {
       query += ' ORDER BY t.trip_date DESC';
 
       const rows = db.prepare(query).all(...params);
-      csvContent += 'ID;Date;Chauffeur;Camion;Trajet;Montant (FCFA);Marchandise;Notes\n';
+      csvContent += 'ID;Date;Chauffeur;Camion;Trajet;Montant (FCFA);Marchandise;N BL;N Conteneur;Notes\n';
       for (const r of rows) {
         csvContent += [
           r.id,
@@ -50,6 +50,8 @@ exportRouter.get('/csv', (req, res) => {
           sanitizeCsv(r.route),
           r.amount_fcfa,
           sanitizeCsv(r.cargo || ''),
+          sanitizeCsv(r.bl_number || ''),
+          sanitizeCsv(r.container_number || ''),
           sanitizeCsv(r.notes || '')
         ].join(';') + '\n';
       }
@@ -172,7 +174,7 @@ exportRouter.get('/csv', (req, res) => {
         dExpenseWhere += ' AND expense_date BETWEEN ? AND ?'; dExpenseParams.push(startDate, endDate);
       }
 
-      const trips = db.prepare(`SELECT 'Voyage' as cat, trip_date as date, truck_id, route as desc, amount_fcfa as credit, 0 as debit FROM trips ${dTripWhere}`).all(...dTripParams);
+      const trips = db.prepare(`SELECT 'Voyage' as cat, trip_date as date, truck_id, (route || CASE WHEN container_number IS NOT NULL THEN ' [Conteneur: ' || container_number || ']' ELSE '' END || CASE WHEN bl_number IS NOT NULL THEN ' [BL: ' || bl_number || ']' ELSE '' END) as desc, amount_fcfa as credit, 0 as debit FROM trips ${dTripWhere}`).all(...dTripParams);
       const fuel = db.prepare(`SELECT 'Carburant' as cat, expense_date as date, truck_id, (station || ' (' || liters || 'L)') as desc, 0 as credit, amount_fcfa as debit FROM fuel_expenses ${dFuelWhere}`).all(...dFuelParams);
       const maint = db.prepare(`SELECT ('Entretien (' || service_type || ')') as cat, record_date as date, truck_id, description as desc, 0 as credit, amount_fcfa as debit FROM maintenance_records ${dMaintWhere}`).all(...dMaintParams);
       const expenses = db.prepare(`SELECT ('Depense (' || category || ')') as cat, expense_date as date, truck_id, description as desc, 0 as credit, amount_fcfa as debit FROM other_expenses ${dExpenseWhere}`).all(...dExpenseParams);

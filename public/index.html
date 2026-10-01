@@ -1732,6 +1732,8 @@
                   <th>Trajet</th>
                   <th>Camion</th>
                   <th>Marchandise</th>
+                  <th>N° BL</th>
+                  <th>N° Conteneur</th>
                   <th>Montant reçu</th>
                   <th>Actions</th>
                 </tr>
@@ -1984,8 +1986,16 @@
 
     <!-- ==================== ONGLET 3 : CAMIONS & ENTRETIEN ==================== -->
     <section id="view-trucks" class="view-panel" style="display: none;">
+      <div class="data-card-header" style="margin-bottom: 1rem; padding: 0;">
+        <div class="data-card-title">
+          <svg class="svg-icon" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> Flotte de Camions
+        </div>
+        <button id="add-truck-btn" class="btn btn-primary btn-sm">
+          <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Ajouter un camion
+        </button>
+      </div>
       <div class="trucks-grid" id="trucks-cards-grid">
-        <!-- 10 cartes de camions injectées -->
+        <!-- Camions injectés -->
       </div>
     </section>
 
@@ -2009,6 +2019,8 @@
                 <th>Camion</th>
                 <th>Trajet / Destination</th>
                 <th>Marchandise</th>
+                <th>N° BL</th>
+                <th>N° Conteneur</th>
                 <th>Montant reçu</th>
                 <th>Actions</th>
               </tr>
@@ -2152,6 +2164,60 @@
     </div>
   </div>
 
+  <!-- ==================== MODAL DE SAISIE : AJOUTER / MODIFIER UN CAMION ==================== -->
+  <div id="modal-truck-form" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title" id="truck-modal-title">Ajouter un camion</h3>
+        <button class="btn-icon close-modal-btn">&times;</button>
+      </div>
+      <form id="form-truck">
+        <input type="hidden" id="truck-id" value="">
+        <div class="modal-body">
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="truck-code">Code camion *</label>
+              <input type="text" id="truck-code" class="form-control" placeholder="ex: TR-01" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="truck-plate">Immatriculation *</label>
+              <input type="text" id="truck-plate" class="form-control" placeholder="ex: LT-842-AB" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="truck-model">Modèle *</label>
+            <input type="text" id="truck-model" class="form-control" placeholder="ex: Mercedes-Benz Actros 1845" required>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="truck-year">Année</label>
+              <input type="number" id="truck-year" class="form-control" placeholder="ex: 2021" min="1980" max="2100" inputmode="numeric">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="truck-km">Kilométrage actuel</label>
+              <input type="number" id="truck-km" class="form-control" placeholder="ex: 150000" min="0" inputmode="numeric">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="truck-status">Statut</label>
+            <select id="truck-status" class="form-control">
+              <option value="actif">Actif</option>
+              <option value="en_maintenance">En maintenance</option>
+              <option value="inactif">Inactif</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary close-modal-btn">Annuler</button>
+          <button type="submit" class="btn btn-primary" id="truck-submit-btn">Ajouter le camion</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- ==================== MODAL : HISTORIQUE D'ENTRETIEN CAMION ==================== -->
   <div id="modal-truck-history" class="modal-backdrop">
     <div class="modal-card" style="max-width: 780px;">
@@ -2263,6 +2329,17 @@
           <div class="form-group">
             <label class="form-label" for="trip-cargo">Marchandise transportée</label>
             <input type="text" id="trip-cargo" class="form-control" placeholder="ex: Conteneur 40ft, Ciment, Bois, Denrées...">
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="trip-bl">N° BL (connaissement)</label>
+              <input type="text" id="trip-bl" class="form-control" placeholder="ex: MAEU123456789">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="trip-container">N° Conteneur</label>
+              <input type="text" id="trip-container" class="form-control" placeholder="ex: MSKU1234567">
+            </div>
           </div>
 
           <div class="form-group">
@@ -3722,7 +3799,7 @@
         const tripsTbody = document.getElementById('detail-trips-tbody');
         tripsTbody.innerHTML = '';
         if (!data.trips || data.trips.length === 0) {
-          tripsTbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Aucun voyage enregistré pour ce chauffeur.</td></tr>';
+          tripsTbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Aucun voyage enregistré pour ce chauffeur.</td></tr>';
         } else {
           data.trips.forEach(t => {
             const tr = document.createElement('tr');
@@ -3731,6 +3808,8 @@
               <td data-label="Trajet"><strong>${t.route}</strong></td>
               <td data-label="Camion"><span class="badge badge-primary font-mono">${t.truck_id}</span></td>
               <td data-label="Marchandise" class="text-muted">${t.cargo || '-'}</td>
+              <td data-label="N° BL" class="font-mono">${t.bl_number || '-'}</td>
+              <td data-label="N° Conteneur" class="font-mono">${t.container_number || '-'}</td>
               <td data-label="Montant reçu" class="font-mono text-success"><strong>${formatFCFA(t.amount_fcfa)}</strong></td>
               <td data-label="Actions">
                 <button class="btn btn-danger btn-sm" onclick="deleteTripFromDetail(${t.id})" title="Supprimer ce voyage">${VECTORS.trash}</button>
@@ -3971,6 +4050,65 @@
     // ----------------------------------------------------
     // CHARGEMENT ONGLET CAMIONS & ENTRETIEN (10 CAMIONS)
     // ----------------------------------------------------
+    // Ouvre le formulaire en mode "Ajout"
+    function openAddTruckModal() {
+      document.getElementById('truck-modal-title').textContent = 'Ajouter un camion';
+      document.getElementById('truck-submit-btn').textContent = 'Ajouter le camion';
+      document.getElementById('form-truck').reset();
+      document.getElementById('truck-id').value = '';
+      document.getElementById('truck-status').value = 'actif';
+      openModal('modal-truck-form');
+    }
+
+    // Ouvre le formulaire en mode "Modification", pré-rempli avec le camion existant
+    window.openEditTruckModal = function(id) {
+      const truck = state.trucks.find(t => String(t.id) === String(id));
+      if (!truck) return;
+      document.getElementById('truck-modal-title').textContent = `Modifier ${truck.code}`;
+      document.getElementById('truck-submit-btn').textContent = 'Enregistrer les modifications';
+      document.getElementById('truck-id').value = truck.id;
+      document.getElementById('truck-code').value = truck.code;
+      document.getElementById('truck-plate').value = truck.license_plate;
+      document.getElementById('truck-model').value = truck.brand_model;
+      document.getElementById('truck-year').value = truck.year || '';
+      document.getElementById('truck-km').value = truck.current_km || 0;
+      document.getElementById('truck-status').value = truck.status || 'actif';
+      openModal('modal-truck-form');
+    };
+
+    document.getElementById('form-truck').addEventListener('submit', async e => {
+      e.preventDefault();
+      const id = document.getElementById('truck-id').value;
+      const body = {
+        code: document.getElementById('truck-code').value,
+        brand_model: document.getElementById('truck-model').value,
+        license_plate: document.getElementById('truck-plate').value,
+        year: document.getElementById('truck-year').value || null,
+        current_km: document.getElementById('truck-km').value || 0,
+        status: document.getElementById('truck-status').value
+      };
+
+      try {
+        const res = await fetch(id ? `/api/trucks/${id}` : '/api/trucks', {
+          method: id ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        if (res.ok) {
+          showToast(id ? 'Camion mis à jour avec succès !' : 'Camion ajouté avec succès !');
+          document.getElementById('modal-truck-form').classList.remove('open');
+          document.getElementById('form-truck').reset();
+          loadCurrentTabData();
+          populateSelectOptions();
+        } else {
+          const err = await res.json();
+          showToast(err.error || 'Erreur lors de l\'enregistrement', 'danger');
+        }
+      } catch (err) {
+        showToast('Erreur serveur', 'danger');
+      }
+    });
+
     async function loadTrucks() {
       try {
         const res = await fetch('/api/trucks');
@@ -4018,9 +4156,14 @@
               </div>
             </div>
 
-            <button class="btn btn-secondary btn-sm" style="width: 100%; margin-top: 0.25rem;">
-              ${VECTORS.maintenance} Voir historique d'entretien
-            </button>
+            <div style="display: flex; gap: 0.5rem; margin-top: 0.25rem;">
+              <button class="btn btn-secondary btn-sm" style="flex: 1;" onclick="event.stopPropagation(); openEditTruckModal(${t.id});" title="Modifier ce camion">
+                ${VECTORS.folder} Modifier
+              </button>
+              <button class="btn btn-secondary btn-sm" style="flex: 1;" onclick="event.stopPropagation(); openTruckHistory('${t.code}');" title="Voir l'historique d'entretien">
+                ${VECTORS.maintenance} Historique
+              </button>
+            </div>
           `;
           grid.appendChild(card);
         });
@@ -4107,7 +4250,7 @@
         tbody.innerHTML = '';
 
         if (trips.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Aucun voyage enregistré sur la période.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Aucun voyage enregistré sur la période.</td></tr>';
           return;
         }
 
@@ -4119,6 +4262,8 @@
             <td data-label="Camion"><span class="badge badge-primary font-mono">${t.truck_id}</span></td>
             <td data-label="Trajet">${t.route}</td>
             <td data-label="Marchandise" class="text-muted">${t.cargo || '-'}</td>
+            <td data-label="N° BL" class="font-mono">${t.bl_number || '-'}</td>
+            <td data-label="N° Conteneur" class="font-mono">${t.container_number || '-'}</td>
             <td data-label="Montant reçu" class="font-mono text-success"><strong>${formatFCFA(t.amount_fcfa)}</strong></td>
             <td data-label="Actions">
               <button class="btn btn-danger btn-sm" onclick="deleteTrip(${t.id})" title="Supprimer">${VECTORS.trash}</button>
@@ -4250,6 +4395,8 @@
         route: document.getElementById('trip-route').value,
         amount_fcfa: document.getElementById('trip-amount').value,
         cargo: document.getElementById('trip-cargo').value,
+        bl_number: document.getElementById('trip-bl').value,
+        container_number: document.getElementById('trip-container').value,
         notes: document.getElementById('trip-notes').value
       };
 
@@ -4431,6 +4578,9 @@
 
     const btnAddMaint = document.getElementById('add-maintenance-btn');
     if (btnAddMaint) btnAddMaint.addEventListener('click', () => openModal('modal-maint-form'));
+
+    const btnAddTruck = document.getElementById('add-truck-btn');
+    if (btnAddTruck) btnAddTruck.addEventListener('click', () => openAddTruckModal());
 
     // Démarrage de l'application
     initTheme();

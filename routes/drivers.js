@@ -206,7 +206,7 @@ driversRouter.get('/:id/account', (req, res) => {
 
     // 1. Tous les voyages du chauffeur
     const trips = db.prepare(`
-      SELECT id, trip_date, trip_date as date, route, amount_fcfa, truck_id, cargo, notes
+      SELECT id, trip_date, trip_date as date, route, amount_fcfa, truck_id, cargo, bl_number, container_number, notes
       FROM trips
       WHERE driver_id = ? ${dateTripFilter}
       ORDER BY trip_date DESC
@@ -306,7 +306,7 @@ driversRouter.get('/:id/account', (req, res) => {
         id: t.id,
         date: t.date,
         title: t.route,
-        subtitle: `Camion: ${t.truck_id}${t.cargo ? ' • ' + t.cargo : ''}`,
+        subtitle: `Camion: ${t.truck_id}${t.cargo ? ' • ' + t.cargo : ''}${t.container_number ? ' • Conteneur: ' + t.container_number : ''}${t.bl_number ? ' • BL: ' + t.bl_number : ''}`,
         amount: Number(t.amount_fcfa),
         isCredit: true, // Revenu
         details: t.notes || ''
