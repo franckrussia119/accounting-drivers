@@ -23,7 +23,12 @@ driversRouter.get('/', (req, res) => {
           SELECT COALESCE(SUM(m.amount_fcfa), 0) 
           FROM maintenance_records m 
           WHERE m.driver_id = d.id
-        ) as total_maintenance
+        ) as total_maintenance,
+        (
+          SELECT COALESCE(SUM(e.amount_fcfa), 0) 
+          FROM other_expenses e 
+          WHERE e.driver_id = d.id
+        ) as total_other_expenses
       FROM drivers d
       LEFT JOIN trips t ON t.driver_id = d.id
       GROUP BY d.id
@@ -34,7 +39,7 @@ driversRouter.get('/', (req, res) => {
       ...d,
       is_contractor: Boolean(d.is_contractor),
       is_active: Boolean(d.is_active),
-      net_balance: (d.total_revenue || 0) - (d.total_fuel || 0) - (d.total_maintenance || 0)
+      net_balance: (d.total_revenue || 0) - (d.total_fuel || 0) - (d.total_maintenance || 0) - (d.total_other_expenses || 0)
     }));
 
     res.json(result);
@@ -155,9 +160,11 @@ driversRouter.get('/:id/account', (req, res) => {
     let dateTripFilter = '';
     let dateFuelFilter = '';
     let dateMaintFilter = '';
+    let dateExpenseFilter = '';
     const paramsTrip = [id];
     const paramsFuel = [id];
     const paramsMaint = [id];
+    const paramsExpense = [id];
 
     if (startDate && endDate) {
       dateTripFilter = ' AND trip_date BETWEEN ? AND ?';
@@ -168,6 +175,9 @@ driversRouter.get('/:id/account', (req, res) => {
 
       dateMaintFilter = ' AND record_date BETWEEN ? AND ?';
       paramsMaint.push(startDate, endDate);
+
+      dateExpenseFilter = ' AND expense_date BETWEEN ? AND ?';
+      paramsExpense.push(startDate, endDate);
     } else if (startDate) {
       dateTripFilter = ' AND trip_date >= ?';
       paramsTrip.push(startDate);
@@ -177,6 +187,9 @@ driversRouter.get('/:id/account', (req, res) => {
 
       dateMaintFilter = ' AND record_date >= ?';
       paramsMaint.push(startDate);
+
+      dateExpenseFilter = ' AND expense_date >= ?';
+      paramsExpense.push(startDate);
     } else if (endDate) {
       dateTripFilter = ' AND trip_date <= ?';
       paramsTrip.push(endDate);
@@ -186,6 +199,9 @@ driversRouter.get('/:id/account', (req, res) => {
 
       dateMaintFilter = ' AND record_date <= ?';
       paramsMaint.push(endDate);
+
+      dateExpenseFilter = ' AND expense_date <= ?';
+      paramsExpense.push(endDate);
     }
 
     // 1. Tous les voyages du chauffeur
@@ -238,15 +254,50 @@ driversRouter.get('/:id/account', (req, res) => {
 
     const maintenance = db.prepare(maintQuery).all(...maintParams);
 
+    // 4. Toutes les "autres dépenses" (péage, amende, assurance, etc.) liées
+    // au chauffeur ou à son camion assigné
+    let expenseQuery = '';
+    const expenseParams = [];
+    if (driver.assigned_truck) {
+      expenseQuery = `
+        SELECT id, expense_date, expense_date as date, category, description, amount_fcfa, truck_id, notes
+        FROM other_expenses
+        WHERE (driver_id = ? OR truck_id = ?)
+      `;
+      expenseParams.push(id, driver.assigned_truck);
+    } else {
+      expenseQuery = `
+        SELECT id, expense_date, expense_date as date, category, description, amount_fcfa, truck_id, notes
+        FROM other_expenses
+        WHERE driver_id = ?
+      `;
+      expenseParams.push(id);
+    }
+
+    if (startDate && endDate) {
+      expenseQuery += ' AND expense_date BETWEEN ? AND ?';
+      expenseParams.push(startDate, endDate);
+    } else if (startDate) {
+      expenseQuery += ' AND expense_date >= ?';
+      expenseParams.push(startDate);
+    } else if (endDate) {
+      expenseQuery += ' AND expense_date <= ?';
+      expenseParams.push(endDate);
+    }
+    expenseQuery += ' ORDER BY expense_date DESC';
+
+    const otherExpenses = db.prepare(expenseQuery).all(...expenseParams);
+
     // Totaux
     const totalTripsCount = trips.length;
     const totalRevenue = trips.reduce((sum, t) => sum + Number(t.amount_fcfa || 0), 0);
     const totalFuel = fuel.reduce((sum, f) => sum + Number(f.amount_fcfa || 0), 0);
     const totalFuelLiters = fuel.reduce((sum, f) => sum + Number(f.liters || 0), 0);
     const totalMaintenance = maintenance.reduce((sum, m) => sum + Number(m.amount_fcfa || 0), 0);
-    const netBalance = totalRevenue - totalFuel - totalMaintenance;
+    const totalOtherExpenses = otherExpenses.reduce((sum, e) => sum + Number(e.amount_fcfa || 0), 0);
+    const netBalance = totalRevenue - totalFuel - totalMaintenance - totalOtherExpenses;
 
-    // Flux chronologique unifié (Trips + Fuel + Maintenance)
+    // Flux chronologique unifié (Trips + Fuel + Maintenance + Autres Dépenses)
     const timeline = [
       ...trips.map(t => ({
         type: 'trip',
@@ -283,6 +334,18 @@ driversRouter.get('/:id/account', (req, res) => {
         amount: Number(m.amount_fcfa),
         isCredit: false, // Dépense
         details: `Type: ${m.service_type}`
+      })),
+      ...otherExpenses.map(e => ({
+        type: 'expense',
+        typeLabel: e.category.toUpperCase(),
+        badgeColor: 'violet',
+        id: e.id,
+        date: e.date,
+        title: e.description,
+        subtitle: `${e.truck_id ? 'Camion: ' + e.truck_id : 'Dépense générale'}`,
+        amount: Number(e.amount_fcfa),
+        isCredit: false, // Dépense
+        details: e.notes || ''
       }))
     ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
@@ -302,12 +365,14 @@ driversRouter.get('/:id/account', (req, res) => {
         totalFuel,
         totalFuelLiters,
         totalMaintenance,
+        totalOtherExpenses,
         netBalance
       },
       timeline,
       trips,
       fuel,
-      maintenance
+      maintenance,
+      otherExpenses
     });
   } catch (err) {
     console.error('Erreur get driver account:', err);

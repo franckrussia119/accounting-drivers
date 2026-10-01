@@ -134,5 +134,20 @@ export function initDatabase() {
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY(driver_id) REFERENCES drivers(id) ON DELETE SET NULL
     );
+
+    -- Table des autres dépenses liées à un chauffeur/camion (péage, amende,
+    -- assurance, parking, etc.) — tout ce qui n'est ni carburant ni entretien
+    CREATE TABLE IF NOT EXISTS other_expenses (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      driver_id INTEGER,
+      truck_id TEXT,
+      expense_date TEXT NOT NULL,          -- YYYY-MM-DD
+      category TEXT NOT NULL,              -- 'péage', 'amende', 'assurance', 'parking', 'autre', ...
+      description TEXT NOT NULL,
+      amount_fcfa INTEGER NOT NULL,
+      notes TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY(driver_id) REFERENCES drivers(id) ON DELETE SET NULL
+    );
   `);
 }

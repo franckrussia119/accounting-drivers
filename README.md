@@ -26,12 +26,15 @@ Conçue avec une interface moderne inspirée des applications Fintech, 100% en F
      - Total des recettes perçues (FCFA).
      - Total dépensé en carburant (FCFA et litres).
      - Total dépensé en réparations & entretiens sur le(s) camion(s) conduit(s).
-     - **Solde Net** mis en évidence : `Recettes - Carburant - Entretien`.
+     - Total des **autres dépenses** (péage, amende, assurance, parking, douane, etc.).
+     - **Solde Net** mis en évidence : `Recettes - Carburant - Entretien - Autres Dépenses`.
      - Flux chronologique unifié de toutes les opérations.
+     - **Analyse graphique** : évolution mensuelle recettes vs dépenses, et répartition des coûts par catégorie.
      - Export CSV individuel du relevé de compte.
+     - **Export PDF** du relevé de compte (bouton "Exporter en PDF", utilise l'impression du navigateur — fonctionne sur ordinateur comme sur mobile, sans dépendance externe).
 
 2. **Tableau de Bord Entreprise (Dashboard)** :
-   - 4 indicateurs clés : Recettes totales, Carburant total, Entretien total, Bénéfice Net de la flotte et Marge opérationnelle.
+   - Indicateurs clés : Recettes totales, Carburant total, Entretien total, Autres Dépenses, Bénéfice Net de la flotte et Marge opérationnelle.
    - Graphique interactif mensuel (Recettes vs Charges vs Solde Net).
    - Tableau comparatif des 10 camions avec décomposition des coûts et bénéfice par véhicule.
 
@@ -50,10 +53,15 @@ Conçue avec une interface moderne inspirée des applications Fintech, 100% en F
 6. **Entretien & Réparations** :
    - Enregistrement des interventions d'atelier (camion, chauffeur, date, type sélectionnable ou personnalisé, description des pièces et travaux, garage, montant en FCFA, kilométrage).
 
-7. **Filtres de dates & Exports CSV** :
+7. **Autres Dépenses** (péage, amende, assurance, parking, douane, chargement, ou catégorie personnalisée) :
+   - Permet d'enregistrer toute dépense liée à un chauffeur ou un camion qui n'est ni carburant ni entretien atelier, avec date, description et montant.
+   - Incluses automatiquement dans le solde net du chauffeur et dans le tableau de bord entreprise.
+
+8. **Filtres de dates & Exports** :
    - Préréglages rapides : *Cette semaine*, *Ce mois-ci*, *7 derniers jours*, *30 derniers jours*, *Tout afficher*.
    - Sélecteurs personnalisés *Du / Au*.
    - Export CSV compatible Microsoft Excel (encodage UTF-8 BOM et séparateur point-virgule `;`).
+   - Export PDF du relevé de compte chauffeur (via impression navigateur).
 
 ---
 

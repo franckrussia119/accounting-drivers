@@ -118,6 +118,36 @@ exportRouter.get('/csv', (req, res) => {
           r.km || ''
         ].join(';') + '\n';
       }
+    } else if (type === 'expenses') {
+      filename = `autres_depenses_${nowStr}.csv`;
+      let query = `
+        SELECT e.*, d.name as driver_name 
+        FROM other_expenses e 
+        LEFT JOIN drivers d ON d.id = e.driver_id 
+        WHERE 1=1
+      `;
+      const params = [];
+      if (driver_id) { query += ' AND e.driver_id = ?'; params.push(driver_id); }
+      if (truck_id) { query += ' AND e.truck_id = ?'; params.push(truck_id); }
+      if (startDate && endDate) { query += ' AND e.expense_date BETWEEN ? AND ?'; params.push(startDate, endDate); }
+      else if (startDate) { query += ' AND e.expense_date >= ?'; params.push(startDate); }
+      else if (endDate) { query += ' AND e.expense_date <= ?'; params.push(endDate); }
+      query += ' ORDER BY e.expense_date DESC';
+
+      const rows = db.prepare(query).all(...params);
+      csvContent += 'ID;Date;Chauffeur;Camion;Categorie;Description;Montant (FCFA);Notes\n';
+      for (const r of rows) {
+        csvContent += [
+          r.id,
+          r.expense_date,
+          sanitizeCsv(r.driver_name || 'Non assigné'),
+          r.truck_id || '',
+          sanitizeCsv(r.category),
+          sanitizeCsv(r.description),
+          r.amount_fcfa,
+          sanitizeCsv(r.notes || '')
+        ].join(';') + '\n';
+      }
     } else if (type === 'driver_account') {
       if (!driver_id) {
         return res.status(400).send('ID chauffeur manquant');
@@ -125,25 +155,29 @@ exportRouter.get('/csv', (req, res) => {
       const driver = db.prepare('SELECT * FROM drivers WHERE id = ?').get(driver_id);
       filename = `compte_chauffeur_${sanitizeCsv(driver?.name || driver_id)}_${nowStr}.csv`;
 
-      // Récupération voyages, carburant et entretien
+      // Récupération voyages, carburant, entretien et autres dépenses
       let dTripWhere = 'WHERE driver_id = ?';
       let dFuelWhere = 'WHERE driver_id = ?';
       let dMaintWhere = driver.assigned_truck ? 'WHERE (driver_id = ? OR truck_id = ?)' : 'WHERE driver_id = ?';
+      let dExpenseWhere = driver.assigned_truck ? 'WHERE (driver_id = ? OR truck_id = ?)' : 'WHERE driver_id = ?';
       const dTripParams = [driver_id];
       const dFuelParams = [driver_id];
       const dMaintParams = driver.assigned_truck ? [driver_id, driver.assigned_truck] : [driver_id];
+      const dExpenseParams = driver.assigned_truck ? [driver_id, driver.assigned_truck] : [driver_id];
 
       if (startDate && endDate) {
         dTripWhere += ' AND trip_date BETWEEN ? AND ?'; dTripParams.push(startDate, endDate);
         dFuelWhere += ' AND expense_date BETWEEN ? AND ?'; dFuelParams.push(startDate, endDate);
         dMaintWhere += ' AND record_date BETWEEN ? AND ?'; dMaintParams.push(startDate, endDate);
+        dExpenseWhere += ' AND expense_date BETWEEN ? AND ?'; dExpenseParams.push(startDate, endDate);
       }
 
       const trips = db.prepare(`SELECT 'Voyage' as cat, trip_date as date, truck_id, route as desc, amount_fcfa as credit, 0 as debit FROM trips ${dTripWhere}`).all(...dTripParams);
       const fuel = db.prepare(`SELECT 'Carburant' as cat, expense_date as date, truck_id, (station || ' (' || liters || 'L)') as desc, 0 as credit, amount_fcfa as debit FROM fuel_expenses ${dFuelWhere}`).all(...dFuelParams);
       const maint = db.prepare(`SELECT ('Entretien (' || service_type || ')') as cat, record_date as date, truck_id, description as desc, 0 as credit, amount_fcfa as debit FROM maintenance_records ${dMaintWhere}`).all(...dMaintParams);
+      const expenses = db.prepare(`SELECT ('Depense (' || category || ')') as cat, expense_date as date, truck_id, description as desc, 0 as credit, amount_fcfa as debit FROM other_expenses ${dExpenseWhere}`).all(...dExpenseParams);
 
-      const allOps = [...trips, ...fuel, ...maint].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      const allOps = [...trips, ...fuel, ...maint, ...expenses].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
       csvContent += `Relevé de compte du chauffeur: ${sanitizeCsv(driver?.name)};Camion: ${driver?.assigned_truck || 'N/A'};Statut: ${driver?.is_contractor ? 'Sous-traitant' : 'Salarié'}\n`;
       csvContent += `Période: ${startDate || 'Origine'} au ${endDate || 'Ce jour'}\n\n`;

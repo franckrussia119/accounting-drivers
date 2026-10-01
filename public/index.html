@@ -46,6 +46,9 @@
       --warning: #d97706;
       --warning-light: #fef3c7;
       --warning-text: #92400e;
+      --violet: #7c3aed;
+      --violet-light: #ede9fe;
+      --violet-text: #5b21b6;
 
       --badge-neutral-bg: #e2e8f0;
       --badge-neutral-text: #334155;
@@ -89,6 +92,9 @@
         --warning: #f59e0b;
         --warning-light: #451a03;
         --warning-text: #fcd34d;
+        --violet: #a78bfa;
+        --violet-light: #2e1065;
+        --violet-text: #c4b5fd;
 
         --badge-neutral-bg: #1e293b;
         --badge-neutral-text: #cbd5e1;
@@ -128,6 +134,9 @@
       --warning: #f59e0b;
       --warning-light: #451a03;
       --warning-text: #fcd34d;
+      --violet: #7c3aed;
+      --violet-light: #ede9fe;
+      --violet-text: #5b21b6;
 
       --badge-neutral-bg: #1e293b;
       --badge-neutral-text: #cbd5e1;
@@ -156,6 +165,7 @@
     .text-success { color: var(--success); }
     .text-danger { color: var(--danger); }
     .text-warning { color: var(--warning); }
+    .text-violet { color: var(--violet); }
     .text-primary { color: var(--primary); }
     .text-muted { color: var(--text-muted); }
 
@@ -462,6 +472,7 @@
     .kpi-card.kpi-fuel::before { background: var(--warning); }
     .kpi-card.kpi-maintenance::before { background: var(--danger); }
     .kpi-card.kpi-net::before { background: var(--primary); }
+    .kpi-card.kpi-expense::before { background: var(--violet); }
 
     .kpi-header {
       display: flex;
@@ -524,6 +535,7 @@
     .kpi-card.kpi-fuel .kpi-icon { color: var(--warning); background: var(--warning-light); }
     .kpi-card.kpi-maintenance .kpi-icon { color: var(--danger); background: var(--danger-light); }
     .kpi-card.kpi-net .kpi-icon { color: var(--primary); background: var(--primary-light); }
+    .kpi-card.kpi-expense .kpi-icon { color: var(--violet); background: var(--violet-light); }
 
     .timeline-badge svg {
       width: 18px;
@@ -1245,6 +1257,7 @@
 
     /* Conteneur pour rendu PDF propre et net */
     #pdf-render-zone {
+      display: none;
       position: fixed;
       left: -9999px;
       top: 0;
@@ -1255,6 +1268,20 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       box-sizing: border-box;
       line-height: 1.4;
+    }
+
+    /* Mode impression : on affiche uniquement le rapport, tout le reste est masqué */
+    body.printing-report #pdf-render-zone {
+      display: block;
+      position: static;
+      left: auto;
+    }
+    body.printing-report > *:not(#pdf-render-zone) {
+      display: none !important;
+    }
+    @media print {
+      #pdf-render-zone { width: auto; padding: 0; }
+      @page { margin: 14mm; }
     }
 
     .pdf-header {
@@ -1575,6 +1602,9 @@
             <button id="export-driver-detail-csv" class="btn btn-secondary btn-sm">
               <svg class="svg-icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Exporter relevé (CSV)
             </button>
+            <button id="export-driver-detail-pdf" class="btn btn-secondary btn-sm">
+              <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/><line x1="9" y1="11" x2="12" y2="11"/></svg> Exporter en PDF
+            </button>
           </div>
         </div>
 
@@ -1591,6 +1621,9 @@
           </button>
           <button id="driver-add-maint-btn" class="btn btn-danger btn-sm" style="background-color: #e11d48; color: white; border: none; font-weight: 700;">
             <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> + Noter un entretien
+          </button>
+          <button id="driver-add-expense-btn" class="btn btn-secondary btn-sm" style="background-color: #7c3aed; color: white; border: none; font-weight: 700;">
+            <svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 10h18M7 15h1m4 0h5M5 6h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/></svg> + Autre dépense
           </button>
         </div>
       </div>
@@ -1638,13 +1671,37 @@
           <div class="kpi-meta"><span id="detail-driver-maint-count">0</span> interventions d'atelier</div>
         </div>
 
+        <div class="kpi-card kpi-expense">
+          <div class="kpi-header">
+            <span class="kpi-title">Autres Dépenses</span>
+            <span class="kpi-icon"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 10h18M7 15h1m4 0h5M5 6h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/></svg></span>
+          </div>
+          <div class="kpi-value text-violet font-mono" id="detail-driver-expenses">0 FCFA</div>
+          <div class="kpi-meta"><span id="detail-driver-expenses-count">0</span> dépenses (péage, amende...)</div>
+        </div>
+
         <div class="kpi-card kpi-net">
           <div class="kpi-header">
             <span class="kpi-title">Solde Net Comptable</span>
             <span class="kpi-icon"><svg class="svg-icon" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
           </div>
           <div class="kpi-value font-mono" id="detail-driver-net">0 FCFA</div>
-          <div class="kpi-meta">Recettes - Carburant - Entretien</div>
+          <div class="kpi-meta">Recettes - Carburant - Entretien - Autres dépenses</div>
+        </div>
+      </div>
+
+      <!-- Analyse graphique du chauffeur -->
+      <div class="data-card" style="margin-top: 1.25rem;">
+        <div class="data-card-header" style="padding: 1rem 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+          <h3 style="margin: 0; font-size: 0.95rem; font-weight: 800;">
+            <span style="color: var(--accent-color); vertical-align: middle;" id="driver-chart-icon-slot"></span>
+            Analyse graphique — Recettes vs Dépenses par mois
+          </h3>
+        </div>
+        <div class="chart-card-body" id="driver-monthly-chart-container" style="padding: 1rem 1.25rem; min-height: 230px;"></div>
+        <div style="padding: 0 1.25rem 1.25rem 1.25rem;">
+          <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase;">Répartition des dépenses par type</div>
+          <div id="driver-cost-breakdown"></div>
         </div>
       </div>
 
@@ -1656,6 +1713,7 @@
             <button class="driver-subtab-btn" data-subtab="trips"><svg class="svg-icon" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg> Ses Voyages (<span id="badge-subtab-trips">0</span>)</button>
             <button class="driver-subtab-btn" data-subtab="fuel"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 22V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v17"/><path d="M13 10h4a2 2 0 0 1 2 2v8a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V9.5a1.5 1.5 0 0 0-2.56-1.06L19 10"/><rect x="5" y="6" width="6" height="5" rx="1"/><path d="M3 22h10"/></svg> Ses Pleins Carburant (<span id="badge-subtab-fuel">0</span>)</button>
             <button class="driver-subtab-btn" data-subtab="maint"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> Ses Entretiens (<span id="badge-subtab-maint">0</span>)</button>
+            <button class="driver-subtab-btn" data-subtab="expenses"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 10h18M7 15h1m4 0h5M5 6h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/></svg> Ses Autres Dépenses (<span id="badge-subtab-expenses">0</span>)</button>
           </div>
         </div>
 
@@ -1718,6 +1776,25 @@
                 </tr>
               </thead>
               <tbody id="detail-maint-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Sous-panneau 5 : Autres Dépenses -->
+        <div id="subpanel-expenses" class="driver-subpanel" style="display: none; padding: 0;">
+          <div class="table-container">
+            <table class="data-table mobile-collapse">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Catégorie</th>
+                  <th>Description</th>
+                  <th>Camion</th>
+                  <th>Montant payé</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="detail-expenses-tbody"></tbody>
             </table>
           </div>
         </div>
@@ -2346,6 +2423,80 @@
     </div>
   </div>
 
+  <!-- ==================== MODAL DE SAISIE : AUTRE DÉPENSE ==================== -->
+  <div id="modal-expense-form" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Enregistrer une dépense</h3>
+        <button class="btn-icon close-modal-btn">&times;</button>
+      </div>
+      <form id="form-expense">
+        <input type="hidden" id="expense-id" value="">
+        <div class="modal-body">
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="expense-driver">Chauffeur</label>
+              <select id="expense-driver" class="form-control">
+                <option value="">-- Dépense générale / Non assignée --</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="expense-truck">Camion</label>
+              <select id="expense-truck" class="form-control">
+                <option value="">-- Aucun camion --</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="expense-date">Date de la dépense *</label>
+              <input type="date" id="expense-date" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="expense-type-select">Catégorie *</label>
+              <select id="expense-type-select" class="form-control" required>
+                <option value="péage">Péage</option>
+                <option value="amende">Amende</option>
+                <option value="assurance">Assurance</option>
+                <option value="parking">Parking / Stationnement</option>
+                <option value="douane">Douane / Dédouanement</option>
+                <option value="chargement">Frais de chargement / déchargement</option>
+                <option value="autre">Autre (personnalisé)...</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Champ custom si catégorie = 'autre' -->
+          <div class="form-group" id="expense-custom-type-group" style="display: none;">
+            <label class="form-label" for="expense-type-custom">Préciser la catégorie</label>
+            <input type="text" id="expense-type-custom" class="form-control" placeholder="ex: Frais de route, Pourboire manutention...">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="expense-desc">Description *</label>
+            <textarea id="expense-desc" class="form-control" rows="2" placeholder="Détail de la dépense..." required></textarea>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="expense-amount">Montant payé (FCFA) *</label>
+              <input type="number" id="expense-amount" class="form-control" placeholder="ex: 15000" min="0" required inputmode="numeric">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="expense-notes">Notes</label>
+              <input type="text" id="expense-notes" class="form-control" placeholder="Référence, reçu...">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary close-modal-btn">Annuler</button>
+          <button type="submit" class="btn btn-primary">Enregistrer la dépense</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- ==================== MODAL DE SAISIE : NOUVEAU CHAUFFEUR ==================== -->
   <div id="modal-driver-form" class="modal-backdrop">
     <div class="modal-card">
@@ -2393,6 +2544,10 @@
   <!-- Conteneur Toast pour retours utilisateurs fluides -->
   <div id="toast-container"></div>
 
+  <!-- Zone de rendu pour export PDF (via impression navigateur) : masquée à
+       l'écran, affichée uniquement pendant l'impression via body.printing-report -->
+  <div id="pdf-render-zone"></div>
+
   <!-- ==================== LOGIQUE VANILLA JS (FRONTEND) ==================== -->
   <script>
     // Bibliothèque d'icônes SVG (style Feather) utilisée dans toute l'application
@@ -2411,7 +2566,10 @@
       maintenance: '<svg class="svg-icon" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
       dashboard: '<svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>',
       folder: '<svg class="svg-icon" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>',
-      trips: '<svg class="svg-icon" viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>'
+      trips: '<svg class="svg-icon" viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>',
+      expense: '<svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 10h18M7 15h1m4 0h5M5 6h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/></svg>',
+      chart: '<svg class="svg-icon" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
+      pdf: '<svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/><line x1="9" y1="11" x2="12" y2="11"/></svg>'
     };
 
     // Intercepteur global : si une session expire en cours d'usage, l'API
@@ -2784,6 +2942,13 @@
       if (isCustom) document.getElementById('maint-type-custom').focus();
     });
 
+    // Gestion affichage champ personnalisé catégorie de dépense
+    document.getElementById('expense-type-select').addEventListener('change', e => {
+      const isCustom = e.target.value === 'autre';
+      document.getElementById('expense-custom-type-group').style.display = isCustom ? 'block' : 'none';
+      if (isCustom) document.getElementById('expense-type-custom').focus();
+    });
+
     // Initialisation des listes déroulantes Chauffeurs & Camions
     async function loadInitialData() {
       try {
@@ -2801,12 +2966,12 @@
     }
 
     function populateSelectOptions() {
-      const driverSelects = ['trip-driver', 'fuel-driver', 'maint-driver'];
+      const driverSelects = ['trip-driver', 'fuel-driver', 'maint-driver', 'expense-driver'];
       driverSelects.forEach(id => {
         const sel = document.getElementById(id);
         if (!sel) return;
         const currentVal = sel.value;
-        sel.innerHTML = id === 'maint-driver' ? '<option value="">-- Non assigné / Atelier --</option>' : '';
+        sel.innerHTML = (id === 'maint-driver' || id === 'expense-driver') ? '<option value="">-- Non assigné / Dépense générale --</option>' : '';
         state.drivers.forEach(d => {
           const opt = document.createElement('option');
           opt.value = d.id;
@@ -2816,12 +2981,12 @@
         if (currentVal) sel.value = currentVal;
       });
 
-      const truckSelects = ['trip-truck', 'fuel-truck', 'maint-truck', 'new-driver-truck'];
+      const truckSelects = ['trip-truck', 'fuel-truck', 'maint-truck', 'expense-truck', 'new-driver-truck'];
       truckSelects.forEach(id => {
         const sel = document.getElementById(id);
         if (!sel) return;
         const currentVal = sel.value;
-        sel.innerHTML = id === 'new-driver-truck' ? '<option value="">-- Aucun camion --</option>' : '';
+        sel.innerHTML = (id === 'new-driver-truck' || id === 'expense-truck') ? '<option value="">-- Aucun camion --</option>' : '';
         state.trucks.forEach(t => {
           const opt = document.createElement('option');
           opt.value = t.code;
@@ -2833,7 +2998,7 @@
 
       // Pré-remplir les dates par défaut sur aujourd'hui dans les formulaires
       const today = new Date().toISOString().slice(0, 10);
-      ['trip-date', 'fuel-date', 'maint-date'].forEach(id => {
+      ['trip-date', 'fuel-date', 'maint-date', 'expense-date'].forEach(id => {
         const el = document.getElementById(id);
         if (el && !el.value) el.value = today;
       });
@@ -2946,8 +3111,9 @@
     }
 
     // Graphique SVG Mensuel Moderne
-    function renderMonthlyChart(timeline) {
-      const container = document.getElementById('dashboard-chart-container');
+    function renderMonthlyChart(timeline, containerId) {
+      const container = document.getElementById(containerId || 'dashboard-chart-container');
+      if (!container) return;
       if (!timeline || timeline.length === 0) {
         container.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding-top: 5rem;">Aucune donnée sur les mois récents.</div>';
         return;
@@ -3025,6 +3191,169 @@
           <span style="display: flex; align-items: center; gap: 0.35rem;"><span style="width: 10px; height: 10px; background: #0284c7; border-radius: 2px;"></span> Bénéfice Net</span>
         </div>
       `;
+    }
+
+    // Regroupe les entrées du relevé chronologique d'un chauffeur par mois
+    // pour alimenter un graphique Recettes vs Dépenses.
+    function buildMonthlyBreakdown(timeline) {
+      if (!timeline || timeline.length === 0) return [];
+      const byMonth = {};
+      timeline.forEach(item => {
+        const month = (item.date || '').slice(0, 7); // 'YYYY-MM'
+        if (!month) return;
+        if (!byMonth[month]) byMonth[month] = { month, revenue: 0, costs: 0 };
+        if (item.isCredit) byMonth[month].revenue += item.amount;
+        else byMonth[month].costs += item.amount;
+      });
+      return Object.values(byMonth)
+        .sort((a, b) => a.month.localeCompare(b.month))
+        .map(m => ({ ...m, netProfit: m.revenue - m.costs }));
+    }
+
+    // Analyse graphique du chauffeur : graphique mensuel + répartition des coûts
+    function renderDriverCharts(data) {
+      const monthly = buildMonthlyBreakdown(data.timeline);
+      renderMonthlyChart(monthly, 'driver-monthly-chart-container');
+
+      const breakdown = document.getElementById('driver-cost-breakdown');
+      if (!breakdown) return;
+
+      const s = data.summary;
+      const items = [
+        { label: 'Carburant', value: s.totalFuel || 0, color: 'var(--warning)' },
+        { label: 'Entretien & Réparations', value: s.totalMaintenance || 0, color: 'var(--danger)' },
+        { label: 'Autres Dépenses', value: s.totalOtherExpenses || 0, color: 'var(--violet)' }
+      ];
+      const total = items.reduce((sum, it) => sum + it.value, 0);
+
+      if (total === 0) {
+        breakdown.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 1rem;">Aucune dépense sur la période.</div>';
+        return;
+      }
+
+      breakdown.innerHTML = items.map(it => {
+        const pct = total > 0 ? Math.round((it.value / total) * 100) : 0;
+        return `
+          <div style="margin-bottom: 0.65rem;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.25rem;">
+              <span>${it.label}</span>
+              <span class="font-mono" style="font-weight: 700;">${formatFCFA(it.value)} <span style="color: var(--text-muted); font-weight: 400;">(${pct}%)</span></span>
+            </div>
+            <div style="background: var(--bg-subtle); border-radius: 6px; height: 8px; overflow: hidden;">
+              <div style="width: ${pct}%; height: 100%; background: ${it.color}; border-radius: 6px;"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ----------------------------------------------------
+    // EXPORT PDF (via impression navigateur, "Enregistrer en PDF")
+    // ----------------------------------------------------
+    function printDriverReport(data) {
+      if (!data || !data.driver) {
+        showToast('Aucune donnée de chauffeur à exporter.', 'danger');
+        return;
+      }
+      const d = data.driver;
+      const s = data.summary;
+      const now = new Date();
+      const periodLabel = (data.period.startDate || data.period.endDate)
+        ? `${data.period.startDate || 'Origine'} au ${data.period.endDate || "aujourd'hui"}`
+        : 'Historique complet';
+
+      // Tri chronologique décroissant pour la présentation du relevé
+      const rows = (data.timeline || []).slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      const rowsHtml = rows.map(item => `
+        <tr>
+          <td>${item.date}</td>
+          <td>${item.typeLabel}</td>
+          <td>${item.title}${item.subtitle ? ' — ' + item.subtitle : ''}</td>
+          <td style="text-align:right; color:#059669;">${item.isCredit ? formatFCFA(item.amount) : ''}</td>
+          <td style="text-align:right; color:#e11d48;">${!item.isCredit ? formatFCFA(item.amount) : ''}</td>
+        </tr>
+      `).join('');
+
+      const zone = document.getElementById('pdf-render-zone');
+      zone.innerHTML = `
+        <div class="pdf-header">
+          <div>
+            <div class="pdf-title">Relevé de Compte Chauffeur</div>
+            <div class="pdf-meta">
+              <strong>${d.name}</strong> — ${d.is_contractor ? 'Sous-traitant' : 'Salarié'} ${d.is_active ? '' : '(Inactif)'}<br>
+              Camion assigné : ${d.assigned_truck || 'Non assigné'} ${d.phone ? '• Tél : ' + d.phone : ''}<br>
+              Période : ${periodLabel}
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <span class="pdf-badge">TRANS-FLOTTE</span>
+            <div class="pdf-meta" style="margin-top:6px;">Généré le ${now.toLocaleDateString('fr-FR')} à ${now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div>
+          </div>
+        </div>
+
+        <div class="pdf-kpi-grid">
+          <div class="pdf-kpi-box">
+            <div class="pdf-kpi-label">Recettes Voyages</div>
+            <div class="pdf-kpi-val" style="color:#059669;">${formatFCFA(s.totalRevenue)}</div>
+          </div>
+          <div class="pdf-kpi-box">
+            <div class="pdf-kpi-label">Carburant</div>
+            <div class="pdf-kpi-val" style="color:#d97706;">${formatFCFA(s.totalFuel)}</div>
+          </div>
+          <div class="pdf-kpi-box">
+            <div class="pdf-kpi-label">Entretien</div>
+            <div class="pdf-kpi-val" style="color:#e11d48;">${formatFCFA(s.totalMaintenance)}</div>
+          </div>
+          <div class="pdf-kpi-box">
+            <div class="pdf-kpi-label">Autres Dépenses</div>
+            <div class="pdf-kpi-val" style="color:#7c3aed;">${formatFCFA(s.totalOtherExpenses || 0)}</div>
+          </div>
+        </div>
+        <div class="pdf-kpi-grid" style="grid-template-columns: 1fr;">
+          <div class="pdf-kpi-box" style="text-align:center;">
+            <div class="pdf-kpi-label">Solde Net (Recettes − Carburant − Entretien − Autres Dépenses)</div>
+            <div class="pdf-kpi-val" style="font-size:20px; color:${s.netBalance >= 0 ? '#059669' : '#e11d48'};">${formatFCFA(s.netBalance)}</div>
+          </div>
+        </div>
+
+        <table class="pdf-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Catégorie</th>
+              <th>Détail</th>
+              <th style="text-align:right;">Crédit (FCFA)</th>
+              <th style="text-align:right;">Débit (FCFA)</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHtml || '<tr><td colspan="5" style="text-align:center; color:#64748b;">Aucune opération sur la période.</td></tr>'}
+          </tbody>
+        </table>
+
+        <div class="pdf-signatures">
+          <div class="pdf-signature-box">
+            <div style="font-size:11px; font-weight:700; color:#475569; margin-bottom:30px;">Signature du Chauffeur</div>
+          </div>
+          <div class="pdf-signature-box">
+            <div style="font-size:11px; font-weight:700; color:#475569; margin-bottom:30px;">Signature du Responsable</div>
+          </div>
+        </div>
+      `;
+
+      document.body.classList.add('printing-report');
+
+      const cleanup = () => {
+        document.body.classList.remove('printing-report');
+        window.removeEventListener('afterprint', cleanup);
+      };
+      window.addEventListener('afterprint', cleanup);
+      // Filet de sécurité si l'événement afterprint ne se déclenche pas
+      // correctement sur certains navigateurs mobiles.
+      setTimeout(cleanup, 15000);
+
+      window.print();
     }
 
     // ----------------------------------------------------
@@ -3132,15 +3461,18 @@
               <button class="btn btn-primary" style="width: 100%; justify-content: center; font-weight: 700;" onclick="event.stopPropagation(); openDriverDetail(${d.id});">
                 ${VECTORS.folder} Entrer dans le dossier chauffeur →
               </button>
-              <div style="display: flex; gap: 0.35rem; justify-content: space-between;">
-                <button class="btn btn-secondary btn-sm" style="flex: 1; font-size: 0.75rem; padding: 0.3rem 0.4rem; justify-content: center;" onclick="event.stopPropagation(); openTripModalForDriver(${d.id}, '${d.assigned_truck || ''}');" title="Ajouter un voyage pour ce chauffeur">
+              <div style="display: flex; gap: 0.35rem; justify-content: space-between; flex-wrap: wrap;">
+                <button class="btn btn-secondary btn-sm" style="flex: 1; min-width: 80px; font-size: 0.75rem; padding: 0.3rem 0.4rem; justify-content: center;" onclick="event.stopPropagation(); openTripModalForDriver(${d.id}, '${d.assigned_truck || ''}');" title="Ajouter un voyage pour ce chauffeur">
                   ${VECTORS.trips} + Voyage
                 </button>
-                <button class="btn btn-secondary btn-sm" style="flex: 1; font-size: 0.75rem; padding: 0.3rem 0.4rem; justify-content: center;" onclick="event.stopPropagation(); openFuelModalForDriver(${d.id}, '${d.assigned_truck || ''}');" title="Facture carburant">
+                <button class="btn btn-secondary btn-sm" style="flex: 1; min-width: 80px; font-size: 0.75rem; padding: 0.3rem 0.4rem; justify-content: center;" onclick="event.stopPropagation(); openFuelModalForDriver(${d.id}, '${d.assigned_truck || ''}');" title="Facture carburant">
                   ${VECTORS.fuel} + Carburant
                 </button>
-                <button class="btn btn-secondary btn-sm" style="flex: 1; font-size: 0.75rem; padding: 0.3rem 0.4rem; justify-content: center;" onclick="event.stopPropagation(); openMaintModalForDriver(${d.id}, '${d.assigned_truck || ''}');" title="Noter un entretien">
+                <button class="btn btn-secondary btn-sm" style="flex: 1; min-width: 80px; font-size: 0.75rem; padding: 0.3rem 0.4rem; justify-content: center;" onclick="event.stopPropagation(); openMaintModalForDriver(${d.id}, '${d.assigned_truck || ''}');" title="Noter un entretien">
                   ${VECTORS.maintenance} + Entretien
+                </button>
+                <button class="btn btn-secondary btn-sm" style="flex: 1; min-width: 80px; font-size: 0.75rem; padding: 0.3rem 0.4rem; justify-content: center;" onclick="event.stopPropagation(); openExpenseModalForDriver(${d.id}, '${d.assigned_truck || ''}');" title="Enregistrer une dépense (péage, amende, assurance...)">
+                  ${VECTORS.expense} + Dépense
                 </button>
                 <button class="btn btn-secondary btn-sm" style="padding: 0.3rem 0.5rem;" onclick="event.stopPropagation(); deleteDriver(${d.id});" title="Supprimer ce chauffeur">
                   ${VECTORS.trash}
@@ -3269,6 +3601,7 @@
       try {
         const res = await fetch(url);
         const data = await res.json();
+        state.currentDriverAccountData = data;
 
         const driver = data.driver;
         const initials = (driver.name || 'CH').split(' ').filter(Boolean).map(n => n[0]).join('').substring(0, 2).toUpperCase();
@@ -3313,11 +3646,17 @@
         document.getElementById('driver-add-maint-btn').onclick = () => {
           openMaintModalForDriver(driver.id, driver.assigned_truck);
         };
+        document.getElementById('driver-add-expense-btn').onclick = () => {
+          openExpenseModalForDriver(driver.id, driver.assigned_truck);
+        };
         document.getElementById('export-driver-detail-csv').onclick = () => {
           let csvUrl = `/api/export/csv?type=driver_account&driver_id=${driver.id}`;
           if (state.startDate) csvUrl += `&startDate=${state.startDate}`;
           if (state.endDate) csvUrl += `&endDate=${state.endDate}`;
           window.location.href = csvUrl;
+        };
+        document.getElementById('export-driver-detail-pdf').onclick = () => {
+          printDriverReport(state.currentDriverAccountData);
         };
 
         // 4 KPIs
@@ -3331,6 +3670,9 @@
         document.getElementById('detail-driver-maint').textContent = formatFCFA(data.summary.totalMaintenance);
         document.getElementById('detail-driver-maint-count').textContent = (data.maintenance || []).length;
 
+        document.getElementById('detail-driver-expenses').textContent = formatFCFA(data.summary.totalOtherExpenses || 0);
+        document.getElementById('detail-driver-expenses-count').textContent = (data.otherExpenses || []).length;
+
         const netEl = document.getElementById('detail-driver-net');
         netEl.textContent = formatFCFA(data.summary.netBalance);
         netEl.className = `kpi-value font-mono ${data.summary.netBalance >= 0 ? 'text-success' : 'text-danger'}`;
@@ -3339,6 +3681,10 @@
         document.getElementById('badge-subtab-trips').textContent = (data.trips || []).length;
         document.getElementById('badge-subtab-fuel').textContent = (data.fuel || []).length;
         document.getElementById('badge-subtab-maint').textContent = (data.maintenance || []).length;
+        document.getElementById('badge-subtab-expenses').textContent = (data.otherExpenses || []).length;
+
+        // Analyse graphique du chauffeur (mensuel + répartition des coûts)
+        renderDriverCharts(data);
 
         // Sous-panneau 1 : Relevé chronologique unifié
         const timelineList = document.getElementById('detail-timeline-list');
@@ -3349,9 +3695,9 @@
           data.timeline.forEach(item => {
             const div = document.createElement('div');
             div.className = 'timeline-item';
-            const icon = item.type === 'trip' ? VECTORS.money : (item.type === 'fuel' ? VECTORS.fuel : VECTORS.maintenance);
+            const icon = item.type === 'trip' ? VECTORS.money : (item.type === 'fuel' ? VECTORS.fuel : (item.type === 'expense' ? VECTORS.expense : VECTORS.maintenance));
             const sign = item.isCredit ? '+' : '-';
-            const colorClass = item.isCredit ? 'text-success' : (item.type === 'fuel' ? 'text-warning' : 'text-danger');
+            const colorClass = item.isCredit ? 'text-success' : (item.type === 'fuel' ? 'text-warning' : (item.type === 'expense' ? 'text-violet' : 'text-danger'));
 
             div.innerHTML = `
               <div class="timeline-badge" style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color);">
@@ -3439,6 +3785,28 @@
           });
         }
 
+        // Sous-panneau 5 : Ses Autres Dépenses
+        const expensesTbody = document.getElementById('detail-expenses-tbody');
+        expensesTbody.innerHTML = '';
+        if (!data.otherExpenses || data.otherExpenses.length === 0) {
+          expensesTbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Aucune autre dépense enregistrée pour ce chauffeur.</td></tr>';
+        } else {
+          data.otherExpenses.forEach(ex => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td data-label="Date">${ex.date}</td>
+              <td data-label="Catégorie"><span class="badge" style="background: var(--violet-light); color: var(--violet-text);">${ex.category}</span></td>
+              <td data-label="Description">${ex.description}</td>
+              <td data-label="Camion">${ex.truck_id || '-'}</td>
+              <td data-label="Montant payé" class="font-mono text-violet"><strong>${formatFCFA(ex.amount_fcfa)}</strong></td>
+              <td data-label="Actions">
+                <button class="btn btn-danger btn-sm" onclick="deleteExpenseFromDetail(${ex.id})" title="Supprimer cette dépense">${VECTORS.trash}</button>
+              </td>
+            `;
+            expensesTbody.appendChild(tr);
+          });
+        }
+
       } catch (err) {
         console.error('Erreur openDriverDetail:', err);
         showToast('Impossible de charger le dossier du chauffeur.', 'danger');
@@ -3470,6 +3838,15 @@
       if (truckCode) document.getElementById('maint-truck').value = truckCode;
     };
 
+    window.openExpenseModalForDriver = function(driverId, truckCode) {
+      openModal('modal-expense-form');
+      document.getElementById('expense-id').value = '';
+      document.getElementById('expense-date').value = new Date().toISOString().split('T')[0];
+      document.getElementById('expense-custom-type-group').style.display = 'none';
+      if (driverId) document.getElementById('expense-driver').value = driverId;
+      if (truckCode) document.getElementById('expense-truck').value = truckCode;
+    };
+
     // Suppressions depuis la vue détaillée
     window.deleteTripFromDetail = async function(id) {
       if (!confirm('Supprimer ce voyage ?')) return;
@@ -3489,6 +3866,13 @@
       if (!confirm('Supprimer cette intervention ?')) return;
       await fetch(`/api/maintenance/${id}`, { method: 'DELETE' });
       showToast('Intervention supprimée.');
+      if (state.selectedDriverId) openDriverDetail(state.selectedDriverId);
+    };
+
+    window.deleteExpenseFromDetail = async function(id) {
+      if (!confirm('Supprimer cette dépense ?')) return;
+      await fetch(`/api/expenses/${id}`, { method: 'DELETE' });
+      showToast('Dépense supprimée.');
       if (state.selectedDriverId) openDriverDetail(state.selectedDriverId);
     };
 
@@ -3965,7 +4349,46 @@
       }
     });
 
-    // 4. Nouveau chauffeur
+    // 4. Nouvelle "autre dépense"
+    document.getElementById('form-expense').addEventListener('submit', async e => {
+      e.preventDefault();
+      const selectType = document.getElementById('expense-type-select').value;
+      const customType = document.getElementById('expense-type-custom').value;
+      const finalCategory = (selectType === 'autre' && customType.trim()) ? customType.trim() : selectType;
+
+      const body = {
+        driver_id: document.getElementById('expense-driver').value || null,
+        truck_id: document.getElementById('expense-truck').value || null,
+        expense_date: document.getElementById('expense-date').value,
+        category: finalCategory,
+        description: document.getElementById('expense-desc').value,
+        amount_fcfa: document.getElementById('expense-amount').value,
+        notes: document.getElementById('expense-notes').value
+      };
+
+      try {
+        const res = await fetch('/api/expenses', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        if (res.ok) {
+          showToast('Dépense enregistrée avec succès !');
+          document.getElementById('modal-expense-form').classList.remove('open');
+          document.getElementById('form-expense').reset();
+          document.getElementById('expense-custom-type-group').style.display = 'none';
+          loadCurrentTabData();
+          loadDrivers();
+        } else {
+          const err = await res.json();
+          showToast(err.error || 'Erreur lors de l\'enregistrement', 'danger');
+        }
+      } catch (err) {
+        showToast('Erreur serveur', 'danger');
+      }
+    });
+
+    // 5. Nouveau chauffeur
     document.getElementById('form-add-driver').addEventListener('submit', async e => {
       e.preventDefault();
       const body = {

@@ -14,6 +14,7 @@ import { trucksRouter } from './routes/trucks.js';
 import { tripsRouter } from './routes/trips.js';
 import { fuelRouter } from './routes/fuel.js';
 import { maintenanceRouter } from './routes/maintenance.js';
+import { expensesRouter } from './routes/expenses.js';
 import { dashboardRouter } from './routes/dashboard.js';
 import { exportRouter } from './routes/export.js';
 
@@ -51,6 +52,7 @@ app.use('/api/trucks', requireAuth, trucksRouter);
 app.use('/api/trips', requireAuth, tripsRouter);
 app.use('/api/fuel', requireAuth, fuelRouter);
 app.use('/api/maintenance', requireAuth, maintenanceRouter);
+app.use('/api/expenses', requireAuth, expensesRouter);
 app.use('/api/dashboard', requireAuth, dashboardRouter);
 app.use('/api/export', requireAuth, exportRouter);
 
