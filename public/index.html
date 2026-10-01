@@ -171,13 +171,19 @@
 
     /* En-tête persistant */
     .app-header {
-      background-color: var(--bg-surface);
-      border-bottom: 1px solid var(--border-color);
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #0284c7 100%);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
       position: sticky;
       top: 0;
       z-index: 40;
       backdrop-filter: blur(8px);
+      box-shadow: 0 4px 20px rgba(2, 132, 199, 0.2);
     }
+    .app-header .brand-text h1 { color: #fff; }
+    .app-header .brand-text p { color: rgba(255,255,255,0.65); }
+    .app-header .user-tag { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.15); }
+    .app-header .view-pill { background: rgba(56,189,248,0.18); color: #7dd3fc; }
+    .app-header .btn-icon { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); color: #fff; }
 
     .header-inner {
       max-width: 1320px;
@@ -255,9 +261,10 @@
     /* Barre d'onglets de navigation */
     .nav-bar {
       background-color: var(--bg-surface);
-      border-bottom: 1px solid var(--border-color);
+      border-bottom: 2px solid var(--border-color);
       overflow-x: auto;
       scrollbar-width: none;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }
     .nav-bar::-webkit-scrollbar { display: none; }
 
@@ -315,10 +322,15 @@
     .btn:active { transform: scale(0.98); }
 
     .btn-primary {
-      background-color: var(--primary);
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
       color: #ffffff;
+      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
     }
-    .btn-primary:hover { background-color: var(--primary-hover); }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
+      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4);
+      transform: translateY(-1px);
+    }
 
     .btn-secondary {
       background-color: var(--bg-surface);
@@ -331,10 +343,14 @@
     }
 
     .btn-danger {
-      background-color: var(--danger);
+      background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
       color: #ffffff;
+      box-shadow: 0 2px 8px rgba(225, 29, 72, 0.3);
     }
-    .btn-danger:hover { opacity: 0.9; }
+    .btn-danger:hover {
+      box-shadow: 0 4px 14px rgba(225, 29, 72, 0.4);
+      transform: translateY(-1px);
+    }
 
     .btn-sm {
       padding: 0.35rem 0.7rem;
@@ -448,14 +464,20 @@
     .kpi-card {
       background-color: var(--bg-surface);
       border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      padding: 1.25rem;
-      box-shadow: var(--shadow-sm);
+      border-radius: var(--radius-lg);
+      padding: 1.35rem 1.25rem;
+      box-shadow: var(--shadow-md);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       position: relative;
       overflow: hidden;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 30px -6px rgba(0,0,0,0.12);
     }
 
     .kpi-card::before {
@@ -464,15 +486,42 @@
       top: 0;
       left: 0;
       right: 0;
-      height: 3px;
+      height: 4px;
       background: var(--border-color);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
     }
 
-    .kpi-card.kpi-revenue::before { background: var(--success); }
-    .kpi-card.kpi-fuel::before { background: var(--warning); }
-    .kpi-card.kpi-maintenance::before { background: var(--danger); }
-    .kpi-card.kpi-net::before { background: var(--primary); }
-    .kpi-card.kpi-expense::before { background: var(--violet); }
+    .kpi-card::after {
+      content: '';
+      position: absolute;
+      bottom: -30px;
+      right: -20px;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      opacity: 0.06;
+      background: currentColor;
+    }
+
+    .kpi-card.kpi-revenue { border-top-color: transparent; }
+    .kpi-card.kpi-revenue::before { background: linear-gradient(90deg, #059669, #34d399); }
+    .kpi-card.kpi-revenue::after { color: #059669; }
+
+    .kpi-card.kpi-fuel { border-top-color: transparent; }
+    .kpi-card.kpi-fuel::before { background: linear-gradient(90deg, #d97706, #fbbf24); }
+    .kpi-card.kpi-fuel::after { color: #d97706; }
+
+    .kpi-card.kpi-maintenance { border-top-color: transparent; }
+    .kpi-card.kpi-maintenance::before { background: linear-gradient(90deg, #e11d48, #fb7185); }
+    .kpi-card.kpi-maintenance::after { color: #e11d48; }
+
+    .kpi-card.kpi-net { border-top-color: transparent; }
+    .kpi-card.kpi-net::before { background: linear-gradient(90deg, #0284c7, #38bdf8); }
+    .kpi-card.kpi-net::after { color: #0284c7; }
+
+    .kpi-card.kpi-expense { border-top-color: transparent; }
+    .kpi-card.kpi-expense::before { background: linear-gradient(90deg, #7c3aed, #a78bfa); }
+    .kpi-card.kpi-expense::after { color: #7c3aed; }
 
     .kpi-header {
       display: flex;
@@ -516,11 +565,12 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 2.25rem;
-      height: 2.25rem;
+      width: 2.5rem;
+      height: 2.5rem;
       border-radius: var(--radius-sm);
       background: var(--bg-surface-elevated);
       color: var(--primary);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
     }
     .kpi-icon svg {
       width: 1.3rem;
@@ -531,11 +581,11 @@
       stroke-linecap: round;
       stroke-linejoin: round;
     }
-    .kpi-card.kpi-revenue .kpi-icon { color: var(--success); background: var(--success-light); }
-    .kpi-card.kpi-fuel .kpi-icon { color: var(--warning); background: var(--warning-light); }
-    .kpi-card.kpi-maintenance .kpi-icon { color: var(--danger); background: var(--danger-light); }
-    .kpi-card.kpi-net .kpi-icon { color: var(--primary); background: var(--primary-light); }
-    .kpi-card.kpi-expense .kpi-icon { color: var(--violet); background: var(--violet-light); }
+    .kpi-card.kpi-revenue .kpi-icon { color: #fff; background: linear-gradient(135deg, #059669, #34d399); }
+    .kpi-card.kpi-fuel .kpi-icon { color: #fff; background: linear-gradient(135deg, #d97706, #fbbf24); }
+    .kpi-card.kpi-maintenance .kpi-icon { color: #fff; background: linear-gradient(135deg, #e11d48, #fb7185); }
+    .kpi-card.kpi-net .kpi-icon { color: #fff; background: linear-gradient(135deg, #0284c7, #38bdf8); }
+    .kpi-card.kpi-expense .kpi-icon { color: #fff; background: linear-gradient(135deg, #7c3aed, #a78bfa); }
 
     .timeline-badge svg {
       width: 18px;
@@ -556,10 +606,11 @@
     }
 
     .kpi-value {
-      font-size: 1.65rem;
+      font-size: 1.7rem;
       font-weight: 800;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.8px;
       margin-bottom: 0.25rem;
+      font-family: var(--font-mono);
     }
 
     .kpi-meta {
@@ -601,15 +652,16 @@
     .data-card {
       background-color: var(--bg-surface);
       border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-sm);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
       overflow: hidden;
       margin-bottom: 1.5rem;
     }
 
     .data-card-header {
-      padding: 1rem 1.25rem;
+      padding: 1rem 1.35rem;
       border-bottom: 1px solid var(--border-color);
+      background: var(--bg-surface-elevated);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -623,6 +675,7 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
+      color: var(--text-main);
     }
 
     .table-container {
@@ -737,10 +790,13 @@
       max-height: 90vh;
       display: flex;
       flex-direction: column;
-      box-shadow: var(--shadow-lg);
-      transform: translateY(16px);
-      transition: transform 0.2s ease;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.2), 0 8px 20px rgba(0,0,0,0.1);
+      transform: translateY(16px) scale(0.98);
+      transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
       overflow: hidden;
+    }
+    .modal-backdrop.open .modal-card {
+      transform: translateY(0) scale(1);
     }
 
     .modal-backdrop.open .modal-card {
@@ -748,12 +804,15 @@
     }
 
     .modal-header {
-      padding: 1rem 1.25rem;
+      padding: 1.1rem 1.35rem;
       border-bottom: 1px solid var(--border-color);
       display: flex;
       align-items: center;
       justify-content: space-between;
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
     }
+    .modal-title { color: #fff; }
+    .modal-header .btn-icon { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); color: #fff; }
 
     .modal-title {
       font-size: 1.1rem;
@@ -873,7 +932,7 @@
       position: fixed;
       inset: 0;
       z-index: 150;
-      background: radial-gradient(circle at 50% 10%, var(--bg-surface-elevated), var(--bg-body));
+      background: linear-gradient(135deg, #0b0f17 0%, #0f1f3d 50%, #0284c7 100%);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -883,12 +942,15 @@
     .login-box {
       width: 100%;
       max-width: 420px;
-      background-color: var(--bg-surface);
-      border: 1px solid var(--border-color);
+      background-color: rgba(255,255,255,0.97);
+      border: 1px solid rgba(255,255,255,0.2);
       border-radius: var(--radius-lg);
-      padding: 2rem;
-      box-shadow: var(--shadow-lg);
+      padding: 2.25rem;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+      color: #0f172a;
     }
+    .login-box .form-label { color: #334155; }
+    .login-box .form-control { background: #f8fafc; border-color: #e2e8f0; color: #0f172a; }
 
     .login-logo {
       width: 48px;
@@ -914,20 +976,29 @@
     .truck-card {
       background-color: var(--bg-surface);
       border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      padding: 1.25rem;
-      box-shadow: var(--shadow-sm);
+      border-radius: var(--radius-lg);
+      padding: 1.35rem;
+      box-shadow: var(--shadow-md);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       gap: 0.75rem;
-      transition: border-color 0.15s, box-shadow 0.15s;
+      transition: border-color 0.18s, box-shadow 0.18s, transform 0.18s;
       cursor: pointer;
+      position: relative;
+      overflow: hidden;
     }
-
+    .truck-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #d97706, #fbbf24);
+    }
     .truck-card:hover {
       border-color: var(--primary);
-      box-shadow: var(--shadow-md);
+      box-shadow: 0 10px 28px -6px rgba(2, 132, 199, 0.18);
+      transform: translateY(-2px);
     }
 
     /* Grille des Chauffeurs & Fiches Chauffeurs */
@@ -941,21 +1012,31 @@
     .driver-card {
       background-color: var(--bg-surface);
       border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      padding: 1.25rem;
-      box-shadow: var(--shadow-sm);
+      border-radius: var(--radius-lg);
+      padding: 1.35rem;
+      box-shadow: var(--shadow-md);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       gap: 1rem;
       transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
       cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .driver-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #0284c7, #38bdf8);
     }
 
     .driver-card:hover {
       border-color: var(--primary);
-      box-shadow: var(--shadow-md);
-      transform: translateY(-2px);
+      box-shadow: 0 12px 28px -6px rgba(2, 132, 199, 0.18);
+      transform: translateY(-3px);
     }
 
     .driver-card-header {
@@ -991,13 +1072,31 @@
 
     /* En-tête Dossier Chauffeur */
     .driver-detail-hero {
-      background-color: var(--bg-surface);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      padding: 1.25rem 1.5rem;
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 55%, #0284c7 100%);
+      border: none;
+      border-radius: var(--radius-lg);
+      padding: 1.5rem 1.75rem;
       margin-bottom: 1.25rem;
-      box-shadow: var(--shadow-sm);
+      box-shadow: 0 8px 28px rgba(2, 132, 199, 0.22);
+      color: #fff;
+      position: relative;
+      overflow: hidden;
     }
+    .driver-detail-hero::after {
+      content: '🚛';
+      position: absolute;
+      right: 1.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 5rem;
+      opacity: 0.07;
+      pointer-events: none;
+    }
+    .driver-detail-hero .text-muted { color: rgba(255,255,255,0.65) !important; }
+    .driver-detail-hero .text-subtle { color: rgba(255,255,255,0.45) !important; }
+    .driver-detail-hero .badge-success { background: rgba(52,211,153,0.2); color: #6ee7b7; }
+    .driver-detail-hero .badge-neutral { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.75); }
+    .driver-detail-hero h2, .driver-detail-hero h3 { color: #fff; }
 
     .driver-actions-bar {
       display: flex;
@@ -1006,7 +1105,7 @@
       align-items: center;
       padding-top: 1rem;
       margin-top: 1rem;
-      border-top: 1px dashed var(--border-color);
+      border-top: 1px solid rgba(255,255,255,0.15);
     }
 
     .driver-actions-bar .btn {
@@ -1608,7 +1707,7 @@
           </div>
         </div>
 
-        <!-- BARRE D'ACTIONS DIRECTES POUR CE CHAUFFEUR (PRE-REQUIS USER) -->
+        <!-- BARRE D'ACTIONS DIRECTES POUR CE CHAUFFEUR -->
         <div class="driver-actions-bar">
           <span style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-right: 0.5rem;">
             SAISIES POUR CE CHAUFFEUR :
@@ -1616,14 +1715,15 @@
           <button id="driver-add-trip-btn" class="btn btn-primary btn-sm" style="font-weight: 700;">
             <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> + Enregistrer un voyage
           </button>
-          <button id="driver-add-fuel-btn" class="btn btn-warning btn-sm" style="background-color: #d97706; color: white; border: none; font-weight: 700;">
-            <svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 22V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v17"/><path d="M13 10h4a2 2 0 0 1 2 2v8a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V9.5a1.5 1.5 0 0 0-2.56-1.06L19 10"/><rect x="5" y="6" width="6" height="5" rx="1"/><path d="M3 22h10"/></svg> + Facture carburant
-          </button>
-          <button id="driver-add-maint-btn" class="btn btn-danger btn-sm" style="background-color: #e11d48; color: white; border: none; font-weight: 700;">
+          <button id="driver-add-maint-btn" class="btn btn-sm" style="background: linear-gradient(135deg, #e11d48, #be123c); color: white; border: none; font-weight: 700;">
             <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> + Noter un entretien
           </button>
-          <button id="driver-add-expense-btn" class="btn btn-secondary btn-sm" style="background-color: #7c3aed; color: white; border: none; font-weight: 700;">
+          <button id="driver-add-expense-btn" class="btn btn-sm" style="background: linear-gradient(135deg, #7c3aed, #6d28d9); color: white; border: none; font-weight: 700;">
             <svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 10h18M7 15h1m4 0h5M5 6h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/></svg> + Autre dépense
+          </button>
+          <!-- Bouton assignation camion depuis le dossier chauffeur -->
+          <button id="driver-assign-truck-btn" class="btn btn-sm" style="background: linear-gradient(135deg, #0891b2, #0e7490); color: white; border: none; font-weight: 700;" onclick="openAssignTruckModal()">
+            <svg class="svg-icon" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> Assigner un camion
           </button>
         </div>
       </div>
@@ -1636,24 +1736,29 @@
           <button class="driver-period-btn" data-preset="week">Cette semaine</button>
           <button class="driver-period-btn" data-preset="30days">30 jours</button>
           <button class="driver-period-btn" data-preset="all">Tout l'historique</button>
+          <button class="driver-period-btn" data-preset="custom" id="period-custom-btn">📅 Période perso.</button>
         </div>
-        <div style="font-size: 0.8rem; color: var(--text-muted);">
-          Recettes, carburant, entretien et solde calculés sur la période choisie.
+        <div id="custom-date-range" style="display: none; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+          <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted);">Du :</label>
+          <input type="date" id="custom-start-date" class="form-control" style="width: auto; padding: 0.3rem 0.6rem; font-size: 0.82rem;">
+          <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted);">Au :</label>
+          <input type="date" id="custom-end-date" class="form-control" style="width: auto; padding: 0.3rem 0.6rem; font-size: 0.82rem;">
+          <button id="apply-custom-period-btn" class="btn btn-primary btn-sm" style="font-size: 0.78rem; padding: 0.3rem 0.75rem;">Appliquer</button>
         </div>
       </div>
 
-      <!-- 4 Cartes KPI Financières du Chauffeur -->
+      <!-- 5 Cartes KPI Financières du Chauffeur (cliquables) -->
       <div class="kpi-grid">
-        <div class="kpi-card kpi-revenue">
+        <div class="kpi-card kpi-revenue" onclick="switchDriverSubtab('trips')" style="cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;" title="Cliquer pour voir les voyages">
           <div class="kpi-header">
             <span class="kpi-title">Recettes Voyages</span>
             <span class="kpi-icon"><svg class="svg-icon" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><line x1="6" y1="12" x2="6.01" y2="12"/><line x1="18" y1="12" x2="18.01" y2="12"/></svg></span>
           </div>
           <div class="kpi-value text-success font-mono" id="detail-driver-revenue">0 FCFA</div>
-          <div class="kpi-meta"><span id="detail-driver-trips-count">0</span> voyages effectués</div>
+          <div class="kpi-meta"><span id="detail-driver-trips-count">0</span> voyages • <span style="font-size:0.68rem; opacity:0.7;">→ voir détails</span></div>
         </div>
 
-        <div class="kpi-card kpi-fuel">
+        <div class="kpi-card kpi-fuel" style="cursor: default;">
           <div class="kpi-header">
             <span class="kpi-title">Dépenses Carburant</span>
             <span class="kpi-icon"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 22V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v17"/><path d="M13 10h4a2 2 0 0 1 2 2v8a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V9.5a1.5 1.5 0 0 0-2.56-1.06L19 10"/><rect x="5" y="6" width="6" height="5" rx="1"/><path d="M3 22h10"/></svg></span>
@@ -1662,31 +1767,31 @@
           <div class="kpi-meta"><span id="detail-driver-fuel-liters">0</span> L gasoil (<span id="detail-driver-fuel-count">0</span> pleins)</div>
         </div>
 
-        <div class="kpi-card kpi-maintenance">
+        <div class="kpi-card kpi-maintenance" onclick="switchDriverSubtab('maint')" style="cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;" title="Cliquer pour voir les entretiens">
           <div class="kpi-header">
             <span class="kpi-title">Entretien & Réparations</span>
             <span class="kpi-icon"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
           </div>
           <div class="kpi-value text-danger font-mono" id="detail-driver-maint">0 FCFA</div>
-          <div class="kpi-meta"><span id="detail-driver-maint-count">0</span> interventions d'atelier</div>
+          <div class="kpi-meta"><span id="detail-driver-maint-count">0</span> interventions • <span style="font-size:0.68rem; opacity:0.7;">→ voir détails</span></div>
         </div>
 
-        <div class="kpi-card kpi-expense">
+        <div class="kpi-card kpi-expense" onclick="switchDriverSubtab('expenses')" style="cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;" title="Cliquer pour voir les autres dépenses">
           <div class="kpi-header">
             <span class="kpi-title">Autres Dépenses</span>
             <span class="kpi-icon"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 10h18M7 15h1m4 0h5M5 6h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/></svg></span>
           </div>
           <div class="kpi-value text-violet font-mono" id="detail-driver-expenses">0 FCFA</div>
-          <div class="kpi-meta"><span id="detail-driver-expenses-count">0</span> dépenses (péage, amende...)</div>
+          <div class="kpi-meta"><span id="detail-driver-expenses-count">0</span> dépenses • <span style="font-size:0.68rem; opacity:0.7;">→ voir détails</span></div>
         </div>
 
-        <div class="kpi-card kpi-net">
+        <div class="kpi-card kpi-net" onclick="switchDriverSubtab('timeline')" style="cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;" title="Cliquer pour voir le relevé chronologique">
           <div class="kpi-header">
             <span class="kpi-title">Solde Net Comptable</span>
             <span class="kpi-icon"><svg class="svg-icon" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
           </div>
           <div class="kpi-value font-mono" id="detail-driver-net">0 FCFA</div>
-          <div class="kpi-meta">Recettes - Carburant - Entretien - Autres dépenses</div>
+          <div class="kpi-meta">Recettes - Dépenses totales • <span style="font-size:0.68rem; opacity:0.7;">→ relevé complet</span></div>
         </div>
       </div>
 
@@ -1731,10 +1836,11 @@
                   <th>Date</th>
                   <th>Trajet</th>
                   <th>Camion</th>
-                  <th>Marchandise</th>
-                  <th>N° BL</th>
-                  <th>N° Conteneur</th>
                   <th>Montant reçu</th>
+                  <th>Recette</th>
+                  <th>Marge Nette</th>
+                  <th>N° BL</th>
+                  <th>Marchandise</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -2316,8 +2422,22 @@
               <input type="date" id="trip-date" class="form-control" required>
             </div>
             <div class="form-group">
-              <label class="form-label" for="trip-amount">Montant reçu (FCFA) *</label>
-              <input type="number" id="trip-amount" class="form-control" placeholder="ex: 450000" min="0" required inputmode="numeric">
+              <label class="form-label" for="trip-amount">Montant reçu du client (FCFA) *</label>
+              <input type="number" id="trip-amount" class="form-control" placeholder="ex: 450000" min="0" required inputmode="numeric" oninput="calcMargeNette()">
+            </div>
+          </div>
+
+          <!-- Recette & Marge Nette -->
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="trip-recette">Recette (tarif facturé au client)</label>
+              <input type="number" id="trip-recette" class="form-control" placeholder="ex: 520000" min="0" inputmode="numeric" oninput="calcMargeNette()">
+              <small style="color: var(--text-muted); font-size: 0.72rem;">Prix total que vous avez facturé au client</small>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Marge Nette (calculée)</label>
+              <div id="trip-marge-display" class="form-control font-mono" style="background: var(--bg-subtle); cursor: not-allowed; font-weight: 700; color: var(--success);">— FCFA</div>
+              <small style="color: var(--text-muted); font-size: 0.72rem;">Recette − Montant reçu</small>
             </div>
           </div>
 
@@ -2491,6 +2611,19 @@
             <label class="form-label" for="maint-garage">Garage ou Prestataire *</label>
             <input type="text" id="maint-garage" class="form-control" placeholder="ex: Garage Central Tractafric, Atelier Mécanique..." required>
           </div>
+
+          <!-- Upload document signé -->
+          <div class="form-group" style="border: 2px dashed var(--border-color); border-radius: var(--radius-md); padding: 1rem; background: var(--bg-subtle);">
+            <label class="form-label" style="display: flex; align-items: center; gap: 0.4rem;">
+              <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Document signé (PDF ou image)
+            </label>
+            <input type="file" id="maint-document" class="form-control" accept=".pdf,.jpg,.jpeg,.png,.webp" style="padding: 0.4rem;">
+            <small style="color: var(--text-muted); font-size: 0.72rem;">Bon signé par l'administration et le chauffeur. Formats acceptés : PDF, JPG, PNG. Max 10 Mo.</small>
+            <div id="maint-document-preview" style="margin-top: 0.5rem; display: none;">
+              <a id="maint-document-link" href="#" target="_blank" style="font-size: 0.8rem; color: var(--primary);">📄 Voir le document joint</a>
+            </div>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary close-modal-btn">Annuler</button>
@@ -2615,6 +2748,32 @@
           <button type="submit" class="btn btn-primary">Créer le chauffeur</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL : ASSIGNER UN CAMION ==================== -->
+  <div id="modal-assign-truck" class="modal-backdrop">
+    <div class="modal-card" style="max-width: 420px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Assigner un camion au chauffeur</h3>
+        <button class="btn-icon close-modal-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Chauffeur</label>
+          <div id="assign-truck-driver-name" class="form-control" style="background: var(--bg-subtle); cursor: not-allowed; font-weight: 700;"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="assign-truck-select">Camion à assigner *</label>
+          <select id="assign-truck-select" class="form-control">
+            <option value="">-- Aucun camion (désassigner) --</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary close-modal-btn">Annuler</button>
+        <button type="button" class="btn btn-primary" onclick="applyTruckAssignment()">Confirmer l'assignation</button>
+      </div>
     </div>
   </div>
 
@@ -3409,7 +3568,45 @@
           </tbody>
         </table>
 
-        <div class="pdf-signatures">
+        <!-- SECTION ANALYSE FINANCIÈRE FINALE -->
+        <div style="margin-top: 28px; border: 2px solid #1e293b; border-radius: 8px; overflow: hidden; page-break-inside: avoid;">
+          <div style="background: #1e293b; color: white; padding: 10px 16px; font-size: 13px; font-weight: 800; letter-spacing: 0.05em;">
+            📊 ANALYSE FINANCIÈRE DE FIN DE PÉRIODE
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0;">
+            <div style="padding: 14px 16px; border-right: 1px solid #e2e8f0; background: #f0fdf4;">
+              <div style="font-size: 10px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Total Revenus (Recettes)</div>
+              <div style="font-size: 18px; font-weight: 800; color: #059669;">${formatFCFA(s.totalRevenue)}</div>
+              <div style="font-size: 10px; color: #64748b; margin-top: 2px;">${(data.trips || []).length} voyage(s) enregistré(s)</div>
+            </div>
+            <div style="padding: 14px 16px; border-right: 1px solid #e2e8f0; background: #fff1f2;">
+              <div style="font-size: 10px; font-weight: 700; color: #9f1239; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Total Dépenses</div>
+              <div style="font-size: 18px; font-weight: 800; color: #e11d48;">${formatFCFA((s.totalFuel||0) + (s.totalMaintenance||0) + (s.totalOtherExpenses||0))}</div>
+              <div style="font-size: 10px; color: #64748b; margin-top: 2px;">Carburant + Entretien + Autres</div>
+            </div>
+            <div style="padding: 14px 16px; background: ${s.netBalance >= 0 ? '#f0fdf4' : '#fff1f2'};">
+              <div style="font-size: 10px; font-weight: 700; color: ${s.netBalance >= 0 ? '#166534' : '#9f1239'}; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Crédit Entreprise / Marge</div>
+              <div style="font-size: 18px; font-weight: 800; color: ${s.netBalance >= 0 ? '#059669' : '#e11d48'};">${formatFCFA(Math.abs(s.netBalance))}</div>
+              <div style="font-size: 10px; color: #64748b; margin-top: 2px;">${s.netBalance >= 0 ? '✅ Bénéfice en banque pour ce chauffeur' : '⚠️ Déficit — Les dépenses dépassent les recettes'}</div>
+            </div>
+          </div>
+          <div style="padding: 10px 16px; background: #f8fafc; border-top: 1px solid #e2e8f0;">
+            <table style="width: 100%; font-size: 11px; border-collapse: collapse;">
+              <tr>
+                <td style="padding: 3px 0; color: #475569;">Carburant :</td>
+                <td style="text-align: right; font-weight: 700; color: #d97706;">${formatFCFA(s.totalFuel || 0)}</td>
+                <td style="width: 30px;"></td>
+                <td style="padding: 3px 0; color: #475569;">Entretien :</td>
+                <td style="text-align: right; font-weight: 700; color: #e11d48;">${formatFCFA(s.totalMaintenance || 0)}</td>
+                <td style="width: 30px;"></td>
+                <td style="padding: 3px 0; color: #475569;">Autres :</td>
+                <td style="text-align: right; font-weight: 700; color: #7c3aed;">${formatFCFA(s.totalOtherExpenses || 0)}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="pdf-signatures" style="margin-top: 20px;">
           <div class="pdf-signature-box">
             <div style="font-size:11px; font-weight:700; color:#475569; margin-bottom:30px;">Signature du Chauffeur</div>
           </div>
@@ -3710,15 +3907,12 @@
         activeBadge.textContent = driver.is_active ? 'Actif' : 'Inactif';
         activeBadge.className = `badge ${driver.is_active ? 'badge-success' : 'badge-danger'}`;
 
-        document.getElementById('detail-driver-meta').textContent = 
-          `Camion assigné : ${driver.assigned_truck || 'Non assigné'} • Téléphone : ${driver.phone || 'Non renseigné'}`;
+        document.getElementById('detail-driver-meta').innerHTML =
+          `<span>Camion assigné : <strong>${driver.assigned_truck || 'Non assigné'}</strong></span> • <span>Téléphone : ${driver.phone || 'Non renseigné'}</span>`;
 
         // Liaison des boutons d'actions directes pré-remplis pour ce chauffeur
         document.getElementById('driver-add-trip-btn').onclick = () => {
           openTripModalForDriver(driver.id, driver.assigned_truck);
-        };
-        document.getElementById('driver-add-fuel-btn').onclick = () => {
-          openFuelModalForDriver(driver.id, driver.assigned_truck);
         };
         document.getElementById('driver-add-maint-btn').onclick = () => {
           openMaintModalForDriver(driver.id, driver.assigned_truck);
@@ -3802,15 +3996,17 @@
           tripsTbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Aucun voyage enregistré pour ce chauffeur.</td></tr>';
         } else {
           data.trips.forEach(t => {
+            const marge = (t.recette || 0) - (t.amount_fcfa || 0);
             const tr = document.createElement('tr');
             tr.innerHTML = `
               <td data-label="Date">${t.trip_date}</td>
               <td data-label="Trajet"><strong>${t.route}</strong></td>
               <td data-label="Camion"><span class="badge badge-primary font-mono">${t.truck_id}</span></td>
-              <td data-label="Marchandise" class="text-muted">${t.cargo || '-'}</td>
-              <td data-label="N° BL" class="font-mono">${t.bl_number || '-'}</td>
-              <td data-label="N° Conteneur" class="font-mono">${t.container_number || '-'}</td>
               <td data-label="Montant reçu" class="font-mono text-success"><strong>${formatFCFA(t.amount_fcfa)}</strong></td>
+              <td data-label="Recette" class="font-mono" style="color: var(--primary);">${t.recette ? formatFCFA(t.recette) : '-'}</td>
+              <td data-label="Marge Nette" class="font-mono ${t.recette ? (marge >= 0 ? 'text-success' : 'text-danger') : ''}">${t.recette ? formatFCFA(marge) : '-'}</td>
+              <td data-label="N° BL" class="font-mono">${t.bl_number || '-'}</td>
+              <td data-label="Marchandise" class="text-muted">${t.cargo || '-'}</td>
               <td data-label="Actions">
                 <button class="btn btn-danger btn-sm" onclick="deleteTripFromDetail(${t.id})" title="Supprimer ce voyage">${VECTORS.trash}</button>
               </td>
@@ -4385,6 +4581,22 @@
     // SOUMISSION DES FORMULAIRES DE CRÉATION
     // ----------------------------------------------------
 
+    // Calcul live de la marge nette dans le formulaire voyage
+    window.calcMargeNette = function() {
+      const amount = parseInt(document.getElementById('trip-amount').value) || 0;
+      const recette = parseInt(document.getElementById('trip-recette').value) || 0;
+      const display = document.getElementById('trip-marge-display');
+      if (!display) return;
+      if (recette === 0) {
+        display.textContent = '— FCFA';
+        display.style.color = 'var(--text-muted)';
+        return;
+      }
+      const marge = recette - amount;
+      display.textContent = formatFCFA(marge);
+      display.style.color = marge >= 0 ? 'var(--success)' : 'var(--danger)';
+    };
+
     // 1. Nouveau voyage
     document.getElementById('form-trip').addEventListener('submit', async e => {
       e.preventDefault();
@@ -4394,6 +4606,7 @@
         trip_date: document.getElementById('trip-date').value,
         route: document.getElementById('trip-route').value,
         amount_fcfa: document.getElementById('trip-amount').value,
+        recette: document.getElementById('trip-recette').value || 0,
         cargo: document.getElementById('trip-cargo').value,
         bl_number: document.getElementById('trip-bl').value,
         container_number: document.getElementById('trip-container').value,
@@ -4456,12 +4669,40 @@
       }
     });
 
-    // 3. Nouvelle intervention entretien
+    // 3. Nouvelle intervention entretien (avec upload de document optionnel)
     document.getElementById('form-maint').addEventListener('submit', async e => {
       e.preventDefault();
       const selectType = document.getElementById('maint-type-select').value;
       const customType = document.getElementById('maint-type-custom').value;
       const finalType = (selectType === 'autre' && customType.trim()) ? customType.trim() : selectType;
+
+      const submitBtn = e.target.querySelector('[type="submit"]');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Enregistrement…';
+
+      let documentUrl = null;
+      const fileInput = document.getElementById('maint-document');
+      if (fileInput && fileInput.files && fileInput.files[0]) {
+        try {
+          const fd = new FormData();
+          fd.append('document', fileInput.files[0]);
+          const upRes = await fetch('/api/upload/document', { method: 'POST', body: fd });
+          if (upRes.ok) {
+            const upData = await upRes.json();
+            documentUrl = upData.url;
+          } else {
+            showToast('Erreur lors de l\'upload du document.', 'danger');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Enregistrer l\'entretien';
+            return;
+          }
+        } catch (err) {
+          showToast('Erreur réseau lors de l\'upload.', 'danger');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Enregistrer l\'entretien';
+          return;
+        }
+      }
 
       const body = {
         truck_id: document.getElementById('maint-truck').value,
@@ -4471,7 +4712,8 @@
         description: document.getElementById('maint-desc').value,
         amount_fcfa: document.getElementById('maint-amount').value,
         garage: document.getElementById('maint-garage').value,
-        km: document.getElementById('maint-km').value
+        km: document.getElementById('maint-km').value,
+        document_url: documentUrl
       };
 
       try {
@@ -4485,6 +4727,7 @@
           document.getElementById('modal-maint-form').classList.remove('open');
           document.getElementById('form-maint').reset();
           document.getElementById('custom-type-group').style.display = 'none';
+          document.getElementById('maint-document-preview').style.display = 'none';
           loadCurrentTabData();
           loadDrivers();
         } else {
@@ -4493,6 +4736,9 @@
         }
       } catch (err) {
         showToast('Erreur serveur', 'danger');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Enregistrer l\'entretien';
       }
     });
 
@@ -4581,6 +4827,136 @@
 
     const btnAddTruck = document.getElementById('add-truck-btn');
     if (btnAddTruck) btnAddTruck.addEventListener('click', () => openAddTruckModal());
+
+    // ---- Fonction utilitaire : basculer vers un sous-onglet du dossier chauffeur ----
+    window.switchDriverSubtab = function(subtabName) {
+      document.querySelectorAll('.driver-subtab-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.subtab === subtabName);
+      });
+      document.querySelectorAll('.driver-subpanel').forEach(p => {
+        p.style.display = p.id === `subpanel-${subtabName}` ? 'block' : 'none';
+      });
+      // Scroll fluide vers les sous-onglets
+      const subtabs = document.querySelector('.driver-subtabs');
+      if (subtabs) subtabs.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    };
+
+    // ---- Période personnalisée : afficher/masquer le sélecteur de dates ----
+    const customBtn = document.getElementById('period-custom-btn');
+    if (customBtn) {
+      customBtn.addEventListener('click', () => {
+        document.querySelectorAll('.driver-period-btn').forEach(b => b.classList.remove('active'));
+        customBtn.classList.add('active');
+        const rangeEl = document.getElementById('custom-date-range');
+        if (rangeEl) rangeEl.style.display = 'flex';
+      });
+    }
+
+    const applyPeriodBtn = document.getElementById('apply-custom-period-btn');
+    if (applyPeriodBtn) {
+      applyPeriodBtn.addEventListener('click', () => {
+        const start = document.getElementById('custom-start-date').value;
+        const end = document.getElementById('custom-end-date').value;
+        if (!start || !end) {
+          showToast('Veuillez sélectionner les deux dates.', 'danger');
+          return;
+        }
+        if (start > end) {
+          showToast('La date de début doit être avant la date de fin.', 'danger');
+          return;
+        }
+        state.startDate = start;
+        state.endDate = end;
+        if (state.selectedDriverId) openDriverDetail(state.selectedDriverId);
+      });
+    }
+
+    // Masquer la sélection de dates lorsqu'on clique un bouton preset
+    document.querySelectorAll('.driver-period-btn:not(#period-custom-btn)').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const rangeEl = document.getElementById('custom-date-range');
+        if (rangeEl) rangeEl.style.display = 'none';
+      });
+    });
+
+    // ---- Hover effect sur KPI cards cliquables ----
+    document.querySelectorAll('.kpi-card[onclick]').forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        card.style.transform = 'translateY(-3px)';
+        card.style.boxShadow = 'var(--shadow-lg)';
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = '';
+        card.style.boxShadow = '';
+      });
+    });
+
+    // ---- Modal d'assignation camion depuis le dossier chauffeur ----
+    window.openAssignTruckModal = function() {
+      if (!state.selectedDriverId) return;
+      const driver = state.currentDriverAccountData?.driver;
+      if (!driver) return;
+
+      document.getElementById('assign-truck-driver-name').textContent = driver.name;
+
+      const sel = document.getElementById('assign-truck-select');
+      sel.innerHTML = '<option value="">-- Aucun camion (désassigner) --</option>';
+      state.trucks.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.code;
+        opt.textContent = `${t.code} — ${t.brand_model}`;
+        if (driver.assigned_truck === t.code) opt.selected = true;
+        sel.appendChild(opt);
+      });
+
+      openModal('modal-assign-truck');
+    };
+
+    window.applyTruckAssignment = async function() {
+      const truckCode = document.getElementById('assign-truck-select').value;
+      const driverId = state.selectedDriverId;
+      if (!driverId) return;
+
+      try {
+        const res = await fetch(`/api/drivers/${driverId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ assigned_truck: truckCode || null })
+        });
+        if (res.ok) {
+          showToast(`Camion ${truckCode || 'retiré'} assigné avec succès !`);
+          document.getElementById('modal-assign-truck').classList.remove('open');
+          await loadInitialData();
+          openDriverDetail(driverId);
+        } else {
+          showToast('Erreur lors de l\'assignation.', 'danger');
+        }
+      } catch (err) {
+        showToast('Erreur réseau.', 'danger');
+      }
+    };
+
+    // ---- Fix: remove orphan driver-add-fuel-btn handler that was removed from HTML ----
+    const fuelBtnRef = document.getElementById('driver-add-fuel-btn');
+    if (fuelBtnRef) fuelBtnRef.remove();
+
+    // ---- Preview document upload dans le formulaire entretien ----
+    const maintDoc = document.getElementById('maint-document');
+    if (maintDoc) {
+      maintDoc.addEventListener('change', function() {
+        const preview = document.getElementById('maint-document-preview');
+        const link = document.getElementById('maint-document-link');
+        if (this.files && this.files[0]) {
+          const file = this.files[0];
+          const url = URL.createObjectURL(file);
+          link.href = url;
+          link.textContent = `📄 ${file.name} (${(file.size / 1024).toFixed(0)} Ko)`;
+          preview.style.display = 'block';
+        } else {
+          preview.style.display = 'none';
+        }
+      });
+    }
 
     // Démarrage de l'application
     initTheme();

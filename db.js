@@ -155,6 +155,9 @@ export function initDatabase() {
 
   migrateAddColumnIfMissing('trips', 'bl_number', 'TEXT');
   migrateAddColumnIfMissing('trips', 'container_number', 'TEXT');
+  migrateAddColumnIfMissing('trips', 'recette', 'INTEGER DEFAULT 0');
+  migrateAddColumnIfMissing('trips', 'marge_nette', 'INTEGER DEFAULT 0');
+  migrateAddColumnIfMissing('maintenance_records', 'document_url', 'TEXT');
 }
 
 /**

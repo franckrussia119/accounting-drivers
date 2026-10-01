@@ -57,7 +57,7 @@ tripsRouter.get('/', (req, res) => {
 // Création d'un voyage
 tripsRouter.post('/', (req, res) => {
   try {
-    const { driver_id, truck_id, trip_date, route, amount_fcfa, cargo, bl_number, container_number, notes } = req.body || {};
+    const { driver_id, truck_id, trip_date, route, amount_fcfa, recette, cargo, bl_number, container_number, notes } = req.body || {};
 
     if (!driver_id || !truck_id || !trip_date || !route || amount_fcfa === undefined) {
       return res.status(400).json({ error: 'Chauffeur, camion, date, trajet et montant (FCFA) sont obligatoires.' });
@@ -67,10 +67,12 @@ tripsRouter.post('/', (req, res) => {
     if (isNaN(amount) || amount < 0) {
       return res.status(400).json({ error: 'Montant invalide.' });
     }
+    const recetteVal = recette ? parseInt(recette, 10) : 0;
+    const margeNette = recetteVal - amount;
 
     const stmt = db.prepare(`
-      INSERT INTO trips (driver_id, truck_id, trip_date, route, amount_fcfa, cargo, bl_number, container_number, notes)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO trips (driver_id, truck_id, trip_date, route, amount_fcfa, recette, marge_nette, cargo, bl_number, container_number, notes)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     const result = stmt.run(
@@ -79,6 +81,8 @@ tripsRouter.post('/', (req, res) => {
       trip_date,
       route.trim(),
       amount,
+      recetteVal,
+      margeNette,
       cargo ? cargo.trim() : null,
       bl_number ? bl_number.trim().toUpperCase() : null,
       container_number ? container_number.trim().toUpperCase() : null,

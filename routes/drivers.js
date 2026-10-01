@@ -206,7 +206,7 @@ driversRouter.get('/:id/account', (req, res) => {
 
     // 1. Tous les voyages du chauffeur
     const trips = db.prepare(`
-      SELECT id, trip_date, trip_date as date, route, amount_fcfa, truck_id, cargo, bl_number, container_number, notes
+      SELECT id, trip_date, trip_date as date, route, amount_fcfa, recette, marge_nette, truck_id, cargo, bl_number, container_number, notes
       FROM trips
       WHERE driver_id = ? ${dateTripFilter}
       ORDER BY trip_date DESC
@@ -291,11 +291,16 @@ driversRouter.get('/:id/account', (req, res) => {
     // Totaux
     const totalTripsCount = trips.length;
     const totalRevenue = trips.reduce((sum, t) => sum + Number(t.amount_fcfa || 0), 0);
+    const totalRecette = trips.reduce((sum, t) => sum + Number(t.recette || 0), 0);
+    const totalMargeNette = trips.reduce((sum, t) => sum + Number(t.marge_nette || 0), 0);
     const totalFuel = fuel.reduce((sum, f) => sum + Number(f.amount_fcfa || 0), 0);
     const totalFuelLiters = fuel.reduce((sum, f) => sum + Number(f.liters || 0), 0);
     const totalMaintenance = maintenance.reduce((sum, m) => sum + Number(m.amount_fcfa || 0), 0);
     const totalOtherExpenses = otherExpenses.reduce((sum, e) => sum + Number(e.amount_fcfa || 0), 0);
     const netBalance = totalRevenue - totalFuel - totalMaintenance - totalOtherExpenses;
+    const totalDépenses = totalFuel + totalMaintenance + totalOtherExpenses;
+    // Crédit entreprise = montant reçu des voyages - total dépenses (ce que l'entreprise garde)
+    const creditEntreprise = totalRevenue - totalDépenses;
 
     // Flux chronologique unifié (Trips + Fuel + Maintenance + Autres Dépenses)
     const timeline = [
@@ -362,10 +367,14 @@ driversRouter.get('/:id/account', (req, res) => {
       summary: {
         totalTripsCount,
         totalRevenue,
+        totalRecette,
+        totalMargeNette,
         totalFuel,
         totalFuelLiters,
         totalMaintenance,
         totalOtherExpenses,
+        totalDépenses,
+        creditEntreprise,
         netBalance
       },
       timeline,

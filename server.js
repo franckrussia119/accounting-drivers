@@ -6,6 +6,7 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import multer from 'multer';
 
 import { initDatabase } from './db.js';
 import { cookieParserMiddleware, requireAuth, authController } from './auth.js';
@@ -55,6 +56,32 @@ app.use('/api/maintenance', requireAuth, maintenanceRouter);
 app.use('/api/expenses', requireAuth, expensesRouter);
 app.use('/api/dashboard', requireAuth, dashboardRouter);
 app.use('/api/export', requireAuth, exportRouter);
+
+// === Upload de documents (PJ entretiens) ===
+const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadsDir),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, `doc_${Date.now()}${ext}`);
+  }
+});
+const upload = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB max
+  fileFilter: (req, file, cb) => {
+    const allowed = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+    if (allowed.includes(file.mimetype)) cb(null, true);
+    else cb(new Error('Type de fichier non autorisé. Utilisez PDF, JPG ou PNG.'));
+  }
+});
+
+app.post('/api/upload/document', requireAuth, upload.single('document'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'Aucun fichier reçu.' });
+  res.json({ url: `/uploads/${req.file.filename}` });
+});
 
 // Service des fichiers statiques du frontend vanilla (HTML, CSS, JS)
 const publicDir = path.join(process.cwd(), 'public');
