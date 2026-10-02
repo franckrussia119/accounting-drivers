@@ -2068,6 +2068,9 @@
           <button id="export-csv-btn" class="btn btn-secondary btn-sm" title="Exporter les données filtrées en CSV">
             <svg class="svg-icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Exporter CSV
           </button>
+          <button class="btn btn-primary btn-sm" onclick="generateDashboardPDF()" title="Imprimer le rapport complet de la flotte en PDF">
+            <svg class="svg-icon" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Rapport PDF
+          </button>
         </div>
       </div>
 
@@ -3522,6 +3525,7 @@
       try {
         const res = await fetch(url);
         const data = await res.json();
+        _dashboardData = data; // Sauvegarder pour export PDF
 
         // Remplissage KPIs
         document.getElementById('dash-revenue').textContent = formatFCFA(data.summary.totalRevenue);
@@ -3935,10 +3939,20 @@
         </div>
       `;
 
+      // Injecter @page landscape pour imprimer les tableaux larges
+      let driverLandscapeStyle = document.getElementById('print-landscape-style');
+      if (!driverLandscapeStyle) {
+        driverLandscapeStyle = document.createElement('style');
+        driverLandscapeStyle.id = 'print-landscape-style';
+        document.head.appendChild(driverLandscapeStyle);
+      }
+      driverLandscapeStyle.textContent = '@media print { @page { size: A4 landscape; margin: 10mm; } }';
+
       document.body.classList.add('printing-report');
 
       const cleanup = () => {
         document.body.classList.remove('printing-report');
+        if (driverLandscapeStyle) driverLandscapeStyle.textContent = '';
         window.removeEventListener('afterprint', cleanup);
       };
       window.addEventListener('afterprint', cleanup);
@@ -4660,7 +4674,9 @@
         : endDate ? `Jusqu'au ${endDate}`
         : 'Tout l\'historique';
 
-      const printContent = document.getElementById('print-content');
+      const printContent = document.getElementById('pdf-render-zone');
+      if (!printContent) { alert('Zone d\'impression introuvable.'); return; }
+      document.body.classList.add('pdf-landscape');
       printContent.innerHTML = `
         <div class="pdf-header">
           <div class="pdf-logo">🚛</div>
@@ -4827,8 +4843,194 @@
         </div>
       `;
 
+      // Injecter @page landscape dynamiquement
+      let landscapeStyle = document.getElementById('print-landscape-style');
+      if (!landscapeStyle) {
+        landscapeStyle = document.createElement('style');
+        landscapeStyle.id = 'print-landscape-style';
+        document.head.appendChild(landscapeStyle);
+      }
+      landscapeStyle.textContent = '@media print { @page { size: A4 landscape; margin: 10mm; } }';
+
       document.body.classList.add('printing-report');
-      const cleanup = () => { document.body.classList.remove('printing-report'); window.removeEventListener('afterprint', cleanup); };
+      const cleanup = () => {
+        document.body.classList.remove('printing-report');
+        if (landscapeStyle) landscapeStyle.textContent = '';
+        window.removeEventListener('afterprint', cleanup);
+      };
+      window.addEventListener('afterprint', cleanup);
+      setTimeout(cleanup, 15000);
+      window.print();
+    };
+
+    // ====================================================
+    // EXPORT PDF TABLEAU DE BORD GÉNÉRAL
+    // ====================================================
+    window.generateDashboardPDF = function() {
+      const data = _dashboardData;
+      if (!data) { showToast('Chargez d\'abord les données du tableau de bord.', 'warning'); return; }
+      const s = data.summary;
+      const periodLabel = state.startDate && state.endDate
+        ? `Du ${state.startDate} au ${state.endDate}`
+        : state.startDate ? `À partir du ${state.startDate}`
+        : state.endDate ? `Jusqu'au ${state.endDate}`
+        : 'Tout l\'historique';
+
+      const printContent = document.getElementById('pdf-render-zone');
+      if (!printContent) { alert('Zone d\'impression introuvable.'); return; }
+
+      const truckRows = (data.truckComparison || []).map(t => {
+        const isPos = t.netProfit >= 0;
+        return `<tr style="border-bottom:1px solid #e2e8f0;">
+          <td style="padding:4px 8px; font-weight:700; color:#0284c7;">${t.code}</td>
+          <td style="padding:4px 8px;">${t.model}</td>
+          <td style="padding:4px 8px; font-size:9px; color:#64748b;">${t.plate}</td>
+          <td style="padding:4px 8px; text-align:center;"><span style="background:${t.status==='actif'?'#d1fae5':'#ffe4e6'};color:${t.status==='actif'?'#065f46':'#9f1239'};padding:2px 6px;border-radius:9999px;font-size:9px;font-weight:700;">${t.status}</span></td>
+          <td style="padding:4px 8px; text-align:center;">${t.tripsCount}</td>
+          <td style="padding:4px 8px; text-align:right; color:#059669; font-weight:700;">${formatFCFA(t.revenue)}</td>
+          <td style="padding:4px 8px; text-align:right; color:#d97706;">${formatFCFA(t.fuel)}</td>
+          <td style="padding:4px 8px; text-align:right; color:#dc2626;">${formatFCFA(t.maintenance)}</td>
+          <td style="padding:4px 8px; text-align:right; font-weight:800; color:${isPos?'#059669':'#dc2626'};">${formatFCFA(t.netProfit)}</td>
+        </tr>`;
+      }).join('');
+
+      const driverRows = (data.driverComparison || []).filter(d => d.tripsCount > 0).map(d => {
+        const isPos = d.netProfit >= 0;
+        return `<tr style="border-bottom:1px solid #e2e8f0;">
+          <td style="padding:4px 8px; font-weight:700;">${d.name}</td>
+          <td style="padding:4px 8px; font-weight:700; color:#0284c7;">${d.assigned_truck || '—'}</td>
+          <td style="padding:4px 8px; text-align:center;">${d.tripsCount}</td>
+          <td style="padding:4px 8px; text-align:right; color:#059669; font-weight:700;">${formatFCFA(d.revenue)}</td>
+          <td style="padding:4px 8px; text-align:right; color:#d97706;">${formatFCFA(d.fuel)}</td>
+          <td style="padding:4px 8px; text-align:right; color:#dc2626;">${formatFCFA(d.maintenance)}</td>
+          <td style="padding:4px 8px; text-align:right; font-weight:800; color:${isPos?'#059669':'#dc2626'};">${formatFCFA(d.netProfit)}</td>
+        </tr>`;
+      }).join('');
+
+      printContent.innerHTML = `
+        <div class="pdf-header">
+          <div class="pdf-logo">🚛</div>
+          <div class="pdf-header-text">
+            <div class="pdf-company">YM-TRANSIT — TABLEAU DE BORD GÉNÉRAL</div>
+            <div class="pdf-title">Rapport Consolidé de la Flotte</div>
+            <div class="pdf-period">Période : ${periodLabel} • Généré le ${new Date().toLocaleDateString('fr-FR')}</div>
+          </div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="pdf-kpi-grid" style="grid-template-columns: repeat(4,1fr); gap:10px; margin-bottom:16px;">
+          <div class="pdf-kpi-box" style="border-top:3px solid #059669;">
+            <div class="pdf-kpi-value" style="color:#059669;">${formatFCFA(s.totalRevenue)}</div>
+            <div class="pdf-kpi-label">Recettes Totales</div>
+            <div class="pdf-kpi-sub">${s.tripsCount} voyage(s)</div>
+          </div>
+          <div class="pdf-kpi-box" style="border-top:3px solid #d97706;">
+            <div class="pdf-kpi-value" style="color:#d97706;">${formatFCFA(s.totalFuel)}</div>
+            <div class="pdf-kpi-label">Carburant Stations</div>
+            <div class="pdf-kpi-sub">${Math.round(s.totalLiters).toLocaleString('fr-FR')} L • ${s.fuelCount} pleins</div>
+          </div>
+          <div class="pdf-kpi-box" style="border-top:3px solid #dc2626;">
+            <div class="pdf-kpi-value" style="color:#dc2626;">${formatFCFA(s.totalMaintenance)}</div>
+            <div class="pdf-kpi-label">Entretien & Réparations</div>
+            <div class="pdf-kpi-sub">${s.maintenanceCount} intervention(s)</div>
+          </div>
+          <div class="pdf-kpi-box" style="border-top:3px solid ${s.netProfit>=0?'#059669':'#dc2626'};">
+            <div class="pdf-kpi-value" style="color:${s.netProfit>=0?'#059669':'#dc2626'};">${formatFCFA(s.netProfit)}</div>
+            <div class="pdf-kpi-label">Bénéfice Net Flotte</div>
+            <div class="pdf-kpi-sub">Marge : ${s.profitMargin}%</div>
+          </div>
+        </div>
+
+        <!-- Tableau camions -->
+        <div style="margin-bottom:16px; border:1px solid #bfdbfe; border-radius:8px; overflow:hidden;">
+          <div style="background:linear-gradient(135deg,#0284c7,#0369a1); color:white; padding:8px 16px; font-size:11px; font-weight:800;">
+            🚛 BILAN PAR CAMION (${(data.truckComparison||[]).length} camions)
+          </div>
+          <table style="width:100%; border-collapse:collapse; font-size:10px;">
+            <thead>
+              <tr style="background:#eff6ff;">
+                <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #bfdbfe;">Code</th>
+                <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #bfdbfe;">Modèle</th>
+                <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #bfdbfe;">Immat.</th>
+                <th style="padding:5px 8px; text-align:center; border-bottom:1px solid #bfdbfe;">Statut</th>
+                <th style="padding:5px 8px; text-align:center; border-bottom:1px solid #bfdbfe;">Voyages</th>
+                <th style="padding:5px 8px; text-align:right; border-bottom:1px solid #bfdbfe;">Recettes</th>
+                <th style="padding:5px 8px; text-align:right; border-bottom:1px solid #bfdbfe;">Carburant</th>
+                <th style="padding:5px 8px; text-align:right; border-bottom:1px solid #bfdbfe;">Entretien</th>
+                <th style="padding:5px 8px; text-align:right; border-bottom:1px solid #bfdbfe;">Bénéfice Net</th>
+              </tr>
+            </thead>
+            <tbody>${truckRows || '<tr><td colspan="9" style="text-align:center;padding:8px;color:#64748b;">Aucun camion enregistré.</td></tr>'}</tbody>
+          </table>
+        </div>
+
+        <!-- Tableau chauffeurs (actifs seulement) -->
+        ${driverRows ? `
+        <div style="margin-bottom:16px; border:1px solid #d9f99d; border-radius:8px; overflow:hidden;">
+          <div style="background:linear-gradient(135deg,#16a34a,#15803d); color:white; padding:8px 16px; font-size:11px; font-weight:800;">
+            👤 BILAN PAR CHAUFFEUR (ayant effectué des voyages sur la période)
+          </div>
+          <table style="width:100%; border-collapse:collapse; font-size:10px;">
+            <thead>
+              <tr style="background:#f0fdf4;">
+                <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #d9f99d;">Chauffeur</th>
+                <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #d9f99d;">Camion</th>
+                <th style="padding:5px 8px; text-align:center; border-bottom:1px solid #d9f99d;">Voyages</th>
+                <th style="padding:5px 8px; text-align:right; border-bottom:1px solid #d9f99d;">Recettes</th>
+                <th style="padding:5px 8px; text-align:right; border-bottom:1px solid #d9f99d;">Carburant</th>
+                <th style="padding:5px 8px; text-align:right; border-bottom:1px solid #d9f99d;">Entretien</th>
+                <th style="padding:5px 8px; text-align:right; border-bottom:1px solid #d9f99d;">Bénéfice Net</th>
+              </tr>
+            </thead>
+            <tbody>${driverRows}</tbody>
+          </table>
+        </div>` : ''}
+
+        <!-- Top Routes -->
+        ${(data.topRoutes||[]).length > 0 ? `
+        <div style="margin-bottom:16px; border:1px solid #e9d5ff; border-radius:8px; overflow:hidden;">
+          <div style="background:linear-gradient(135deg,#7c3aed,#6d28d9); color:white; padding:8px 16px; font-size:11px; font-weight:800;">
+            🛣️ TOP TRAJETS DE LA PÉRIODE
+          </div>
+          <table style="width:100%; border-collapse:collapse; font-size:10px;">
+            <thead>
+              <tr style="background:#faf5ff;">
+                <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #e9d5ff;">Trajet</th>
+                <th style="padding:5px 8px; text-align:center; border-bottom:1px solid #e9d5ff;">Nb voyages</th>
+                <th style="padding:5px 8px; text-align:right; border-bottom:1px solid #e9d5ff;">Total Recettes</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${data.topRoutes.map(r => `<tr style="border-bottom:1px solid #f3e8ff;">
+                <td style="padding:4px 8px; font-weight:600;">${r.route}</td>
+                <td style="padding:4px 8px; text-align:center;">${r.count}</td>
+                <td style="padding:4px 8px; text-align:right; color:#7c3aed; font-weight:700;">${formatFCFA(r.total_fcfa)}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>` : ''}
+
+        <div class="pdf-signatures" style="margin-top:20px;">
+          <div class="pdf-signature-box"><div style="font-size:11px; font-weight:700; color:#475569; margin-bottom:30px;">Signature Responsable Flotte</div></div>
+          <div class="pdf-signature-box"><div style="font-size:11px; font-weight:700; color:#475569; margin-bottom:30px;">Signature Direction Générale</div></div>
+        </div>
+      `;
+
+      // Injecter @page landscape
+      let landscapeStyle = document.getElementById('print-landscape-style');
+      if (!landscapeStyle) {
+        landscapeStyle = document.createElement('style');
+        landscapeStyle.id = 'print-landscape-style';
+        document.head.appendChild(landscapeStyle);
+      }
+      landscapeStyle.textContent = '@media print { @page { size: A4 landscape; margin: 10mm; } }';
+
+      document.body.classList.add('printing-report');
+      const cleanup = () => {
+        document.body.classList.remove('printing-report');
+        if (landscapeStyle) landscapeStyle.textContent = '';
+        window.removeEventListener('afterprint', cleanup);
+      };
       window.addEventListener('afterprint', cleanup);
       setTimeout(cleanup, 15000);
       window.print();
@@ -4954,6 +5156,9 @@
         console.error('Erreur load trucks:', err);
       }
     }
+
+    // Données du tableau de bord pour export PDF
+    let _dashboardData = null;
 
     // Code camion courant pour le rapport
     let _currentTruckCode = null;
