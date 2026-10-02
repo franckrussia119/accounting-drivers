@@ -1689,6 +1689,9 @@
       <button class="nav-tab" data-tab="trucks" id="nav-tab-trucks">
         <svg class="svg-icon" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> Camions (10)
       </button>
+      <button class="nav-tab" data-tab="search-bl" id="nav-tab-search-bl">
+        <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Recherche BL / Conteneur
+      </button>
     </div>
   </nav>
 
@@ -2333,6 +2336,51 @@
       </div>
     </section>
 
+    <!-- ==================== ONGLET 6 : RECHERCHE BL / CONTENEUR ==================== -->
+    <section id="view-search-bl" class="view-panel" style="display:none;">
+      <div style="background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:1.5rem; margin-bottom:1.5rem; box-shadow:var(--shadow-sm);">
+        <h2 style="font-size:1.2rem; font-weight:800; margin-bottom:0.4rem;">🔍 Recherche par N° BL ou N° Conteneur</h2>
+        <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.25rem;">Retrouvez instantanément qui a transporté un chargement, quand et avec quel camion.</p>
+
+        <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap; margin-bottom:1.5rem;">
+          <input type="text" id="bl-search-input" class="form-control" placeholder="Ex: MAEU123456789 ou MSKU1234567" style="flex:1; min-width:240px; font-size:1rem; font-weight:600;" onkeydown="if(event.key==='Enter') searchBLContainer()">
+          <button class="btn btn-primary" onclick="searchBLContainer()" style="white-space:nowrap;">
+            <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Rechercher
+          </button>
+          <button class="btn btn-secondary" onclick="clearBLSearch()">Effacer</button>
+        </div>
+
+        <div id="bl-search-status" style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.75rem; display:none;"></div>
+
+        <div class="table-container" id="bl-search-results-container" style="display:none;">
+          <table class="data-table mobile-collapse">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Chauffeur</th>
+                <th>Camion</th>
+                <th>Trajet</th>
+                <th>Marchandise</th>
+                <th>N° BL</th>
+                <th>N° Conteneur</th>
+                <th>Recette</th>
+                <th>Total Remis</th>
+                <th>Solde Net</th>
+              </tr>
+            </thead>
+            <tbody id="bl-search-tbody"></tbody>
+          </table>
+        </div>
+
+        <div id="bl-search-empty" style="display:none; text-align:center; padding:3rem 1rem; color:var(--text-muted);">
+          <div style="font-size:3rem; margin-bottom:0.75rem;">📭</div>
+          <div style="font-size:1rem; font-weight:600;">Aucun résultat trouvé</div>
+          <div style="font-size:0.85rem; margin-top:0.35rem;">Vérifiez le numéro saisi — la recherche est partielle (vous pouvez saisir une partie du numéro).</div>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <!-- ==================== MODAL : COMPTE INDIVIDUEL CHAUFFEUR ==================== -->
@@ -2453,67 +2501,113 @@
 
   <!-- ==================== MODAL : HISTORIQUE D'ENTRETIEN CAMION ==================== -->
   <div id="modal-truck-history" class="modal-backdrop">
-    <div class="modal-card" style="max-width: 780px;">
+    <div class="modal-card" style="max-width: 860px; display:flex; flex-direction:column; overflow:hidden;">
       <div class="modal-header">
         <div>
           <h3 class="modal-title" id="truck-hist-title">Fiche Camion</h3>
-          <p style="font-size: 0.8rem; color: var(--text-muted);" id="truck-hist-subtitle">Modèle • Immatriculation</p>
+          <p style="font-size: 0.8rem; color: rgba(255,255,255,0.7);" id="truck-hist-subtitle">Modèle • Immatriculation</p>
         </div>
         <button class="btn-icon close-modal-btn">&times;</button>
       </div>
-      <div class="modal-body">
-        <!-- Résumé Coût Total de Possession (TCO) -->
-        <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.65rem; margin-bottom: 1.25rem;">
+      <div class="modal-body" style="flex:1 1 auto; min-height:0; overflow-y:auto;">
+
+        <!-- Filtre dates -->
+        <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; margin-bottom:1rem; padding:0.75rem 1rem; background:var(--bg-subtle); border-radius:var(--radius-sm); border:1px solid var(--border-color);">
+          <span style="font-size:0.78rem; font-weight:700; color:var(--text-muted);">📅 Période :</span>
+          <input type="date" id="truck-report-start" class="form-control" style="width:auto; font-size:0.82rem; padding:0.3rem 0.6rem;">
+          <span style="color:var(--text-muted); font-size:0.8rem;">→</span>
+          <input type="date" id="truck-report-end" class="form-control" style="width:auto; font-size:0.82rem; padding:0.3rem 0.6rem;">
+          <button class="btn btn-secondary btn-sm" onclick="applyTruckReportFilter()">Filtrer</button>
+          <button class="btn btn-secondary btn-sm" onclick="clearTruckReportFilter()">Tout l'historique</button>
+        </div>
+
+        <!-- KPIs enrichis -->
+        <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.65rem; margin-bottom: 1.25rem;">
           <div class="kpi-card" style="padding: 0.85rem;">
-            <div class="kpi-title" style="font-size: 0.7rem;">Entretien Total</div>
-            <div class="kpi-value font-mono text-danger" style="font-size: 1.25rem;" id="truck-total-maint">0 FCFA</div>
+            <div class="kpi-title" style="font-size: 0.7rem;">Recettes Voyages</div>
+            <div class="kpi-value font-mono text-success" style="font-size: 1.15rem;" id="truck-total-revenue">0 FCFA</div>
+            <div class="kpi-meta"><span id="truck-trip-count">0</span> voyages</div>
+          </div>
+          <div class="kpi-card" style="padding: 0.85rem;">
+            <div class="kpi-title" style="font-size: 0.7rem;">⛽ Carburant (voyages)</div>
+            <div class="kpi-value font-mono" style="font-size: 1.15rem; color:#d97706;" id="truck-total-dep-carb">0 FCFA</div>
+          </div>
+          <div class="kpi-card" style="padding: 0.85rem;">
+            <div class="kpi-title" style="font-size: 0.7rem;">⛽ Pleins Station</div>
+            <div class="kpi-value font-mono text-warning" style="font-size: 1.15rem;" id="truck-total-fuel">0 FCFA</div>
+            <div class="kpi-meta"><span id="truck-fuel-liters">0</span> L</div>
+          </div>
+          <div class="kpi-card" style="padding: 0.85rem;">
+            <div class="kpi-title" style="font-size: 0.7rem;">🔧 Entretien</div>
+            <div class="kpi-value font-mono text-danger" style="font-size: 1.15rem;" id="truck-total-maint">0 FCFA</div>
             <div class="kpi-meta"><span id="truck-maint-count">0</span> réparations</div>
           </div>
           <div class="kpi-card" style="padding: 0.85rem;">
-            <div class="kpi-title" style="font-size: 0.7rem;">Carburant Total</div>
-            <div class="kpi-value font-mono text-warning" style="font-size: 1.25rem;" id="truck-total-fuel">0 FCFA</div>
-            <div class="kpi-meta"><span id="truck-fuel-liters">0</span> L gasoil</div>
-          </div>
-          <div class="kpi-card" style="padding: 0.85rem;">
-            <div class="kpi-title" style="font-size: 0.7rem;">Recettes Générées</div>
-            <div class="kpi-value font-mono text-success" style="font-size: 1.25rem;" id="truck-total-revenue">0 FCFA</div>
-          </div>
-          <div class="kpi-card" style="padding: 0.85rem;">
-            <div class="kpi-title" style="font-size: 0.7rem;">Bénéfice Net Camion</div>
-            <div class="kpi-value font-mono" style="font-size: 1.25rem;" id="truck-net-profit">0 FCFA</div>
+            <div class="kpi-title" style="font-size: 0.7rem;">Bénéfice Net</div>
+            <div class="kpi-value font-mono" style="font-size: 1.15rem;" id="truck-net-profit">0 FCFA</div>
           </div>
         </div>
 
-        <h4 style="font-size: 0.925rem; font-weight: 700; margin-bottom: 0.65rem;">
-          Répartition des Travaux d'Entretien
-        </h4>
-        <div id="truck-type-breakdown" style="display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 1.25rem;">
-          <!-- Badges de répartition -->
-        </div>
-
-        <h4 style="font-size: 0.925rem; font-weight: 700; margin-bottom: 0.65rem;">
-          Historique Complet des Réparations
-        </h4>
-        <div class="table-container">
+        <!-- Voyages -->
+        <h4 style="font-size: 0.925rem; font-weight: 700; margin-bottom: 0.65rem;">🚛 Voyages effectués</h4>
+        <div class="table-container" style="margin-bottom:1.25rem;">
           <table class="data-table mobile-collapse">
             <thead>
               <tr>
                 <th>Date</th>
-                <th>Type</th>
-                <th>Description</th>
-                <th>Garage</th>
-                <th>Km</th>
-                <th>Montant</th>
+                <th>Chauffeur</th>
+                <th>Trajet</th>
+                <th>Recette</th>
+                <th>⛽ Carb.</th>
+                <th>⚖️ Pesée</th>
+                <th>🛣️ Route</th>
+                <th>Total Remis</th>
+                <th>Solde Net</th>
+              </tr>
+            </thead>
+            <tbody id="truck-trips-tbody">
+              <tr><td colspan="9" style="text-align:center; color:var(--text-muted);">Aucun voyage.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pleins carburant -->
+        <h4 style="font-size: 0.925rem; font-weight: 700; margin-bottom: 0.65rem;">⛽ Pleins Carburant (station)</h4>
+        <div class="table-container" style="margin-bottom:1.25rem;">
+          <table class="data-table mobile-collapse">
+            <thead>
+              <tr><th>Date</th><th>Chauffeur</th><th>Station</th><th>Litres</th><th>Montant</th></tr>
+            </thead>
+            <tbody id="truck-fuel-tbody">
+              <tr><td colspan="5" style="text-align:center; color:var(--text-muted);">Aucun plein.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Répartition entretien -->
+        <h4 style="font-size: 0.925rem; font-weight: 700; margin-bottom: 0.65rem;">🔧 Répartition des Travaux d'Entretien</h4>
+        <div id="truck-type-breakdown" style="display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 1rem;"></div>
+
+        <!-- Table entretiens -->
+        <div class="table-container">
+          <table class="data-table mobile-collapse">
+            <thead>
+              <tr>
+                <th>Date</th><th>Type</th><th>Description</th><th>Garage</th><th>Km</th><th>Montant</th>
               </tr>
             </thead>
             <tbody id="truck-records-tbody">
-              <!-- Lignes injectées -->
+              <tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Aucune réparation.</td></tr>
             </tbody>
           </table>
         </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary close-modal-btn">Fermer</button>
+        <button class="btn btn-primary" onclick="generateTruckPDF()">
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Exporter PDF
+        </button>
       </div>
     </div>
   </div>
@@ -3227,6 +3321,7 @@
         'driver-detail': { name: '2. Chauffeur actif', icon: VECTORS.user, btn: 'Nouveau voyage' },
         dashboard: { name: '3. Tableau de bord général', icon: VECTORS.dashboard, btn: 'Nouveau voyage' },
         trucks: { name: 'Camions (10)', icon: VECTORS.truck, btn: 'Noter entretien' },
+        'search-bl': { name: 'Recherche BL / Conteneur', icon: VECTORS.folder, btn: null },
         trips: { name: 'Tous les Voyages', icon: VECTORS.trips, btn: 'Nouveau voyage' },
         fuel: { name: 'Tout le Carburant', icon: VECTORS.fuel, btn: 'Plein carburant' },
         maintenance: { name: 'Tout l\'Entretien', icon: VECTORS.maintenance, btn: 'Noter entretien' }
@@ -3410,6 +3505,7 @@
         else switchTab('drivers');
       }
       else if (state.currentTab === 'trucks') loadTrucks();
+      else if (state.currentTab === 'search-bl') { /* pas de chargement auto */ }
       else if (state.currentTab === 'trips') loadTrips();
       else if (state.currentTab === 'fuel') loadFuel();
       else if (state.currentTab === 'maintenance') loadMaintenance();
@@ -4547,6 +4643,254 @@
       }
     });
 
+    // ====================================================
+    // GÉNÉRATION PDF RAPPORT CAMION
+    // ====================================================
+    window.generateTruckPDF = function() {
+      const data = _truckReportData;
+      if (!data) return;
+      const s = data.summary;
+      const truck = data.truck;
+      const startDate = document.getElementById('truck-report-start').value;
+      const endDate = document.getElementById('truck-report-end').value;
+
+      const periodLabel = startDate && endDate
+        ? `Du ${startDate} au ${endDate}`
+        : startDate ? `À partir du ${startDate}`
+        : endDate ? `Jusqu'au ${endDate}`
+        : 'Tout l\'historique';
+
+      const printContent = document.getElementById('print-content');
+      printContent.innerHTML = `
+        <div class="pdf-header">
+          <div class="pdf-logo">🚛</div>
+          <div class="pdf-header-text">
+            <div class="pdf-company">RAPPORT CAMION — ${truck.code}</div>
+            <div class="pdf-title">${truck.brand_model}</div>
+            <div class="pdf-meta">Immatriculation: ${truck.license_plate} • Année: ${truck.year || 'N/A'} • Compteur: ${(truck.current_km||0).toLocaleString('fr-FR')} km</div>
+            <div class="pdf-period">Période : ${periodLabel}</div>
+          </div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="pdf-kpi-grid" style="grid-template-columns: repeat(4,1fr); gap:10px; margin-bottom:16px;">
+          <div class="pdf-kpi-box" style="border-top:3px solid #059669;">
+            <div class="pdf-kpi-value" style="color:#059669;">${formatFCFA(s.totalRecette)}</div>
+            <div class="pdf-kpi-label">Recettes Voyages</div>
+            <div class="pdf-kpi-sub">${s.totalTrips} voyage(s)</div>
+          </div>
+          <div class="pdf-kpi-box" style="border-top:3px solid #d97706;">
+            <div class="pdf-kpi-value" style="color:#d97706;">${formatFCFA(s.totalMontantRemis)}</div>
+            <div class="pdf-kpi-label">Total Remis Chauffeurs</div>
+            <div class="pdf-kpi-sub">Carb. + Pesée + Route</div>
+          </div>
+          <div class="pdf-kpi-box" style="border-top:3px solid #dc2626;">
+            <div class="pdf-kpi-value" style="color:#dc2626;">${formatFCFA(s.totalMaintenance + s.totalFuelCost)}</div>
+            <div class="pdf-kpi-label">Entretien + Pleins</div>
+            <div class="pdf-kpi-sub">${data.maintenance.length} intervention(s)</div>
+          </div>
+          <div class="pdf-kpi-box" style="border-top:3px solid ${s.netProfit>=0?'#059669':'#dc2626'};">
+            <div class="pdf-kpi-value" style="color:${s.netProfit>=0?'#059669':'#dc2626'};">${formatFCFA(s.netProfit)}</div>
+            <div class="pdf-kpi-label">Bénéfice Net Camion</div>
+          </div>
+        </div>
+
+        <!-- Analyse financière -->
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin-bottom:16px;">
+          <div style="font-size:11px; font-weight:800; color:#0f172a; margin-bottom:8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">📊 ANALYSE FINANCIÈRE</div>
+          <table style="width:100%; font-size:10px; border-collapse:collapse;">
+            <tr><td style="padding:3px 0;">Recettes voyages</td><td style="text-align:right; font-weight:700; color:#059669;">${formatFCFA(s.totalRecette)}</td></tr>
+            <tr><td style="padding:3px 0; color:#475569;">— ⛽ Carburant (voyages)</td><td style="text-align:right; color:#d97706;">${formatFCFA(s.totalDepCarburant)}</td></tr>
+            <tr><td style="padding:3px 0; color:#475569;">— ⚖️ Pesée</td><td style="text-align:right; color:#0284c7;">${formatFCFA(s.totalPesee)}</td></tr>
+            <tr><td style="padding:3px 0; color:#475569;">— 🛣️ Frais de route</td><td style="text-align:right; color:#7c3aed;">${formatFCFA(s.totalPeage)}</td></tr>
+            <tr><td style="padding:3px 0; color:#475569;">— ⛽ Pleins station</td><td style="text-align:right; color:#d97706;">${formatFCFA(s.totalFuelCost)}</td></tr>
+            <tr><td style="padding:3px 0; color:#475569;">— 🔧 Entretien</td><td style="text-align:right; color:#dc2626;">${formatFCFA(s.totalMaintenance)}</td></tr>
+            <tr style="border-top:2px solid #0f172a; font-weight:800;">
+              <td style="padding:4px 0;">= Bénéfice Net</td>
+              <td style="text-align:right; color:${s.netProfit>=0?'#059669':'#dc2626'};">${formatFCFA(s.netProfit)}</td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- Tableau voyages -->
+        ${data.trips.length > 0 ? `
+        <div style="margin-bottom:16px; border:1px solid #bbf7d0; border-radius:8px; overflow:hidden;">
+          <div style="background:linear-gradient(135deg,#059669,#047857); color:white; padding:8px 16px; font-size:11px; font-weight:800; display:flex; justify-content:space-between;">
+            <span>🚛 VOYAGES (${data.trips.length})</span>
+            <span>Recettes: ${formatFCFA(s.totalRecette)} • Total remis: ${formatFCFA(s.totalMontantRemis)}</span>
+          </div>
+          <table style="width:100%; border-collapse:collapse; font-size:9px;">
+            <thead>
+              <tr style="background:#f0fdf4;">
+                <th style="padding:5px 6px; text-align:left; border-bottom:1px solid #bbf7d0;">Date</th>
+                <th style="padding:5px 6px; text-align:left; border-bottom:1px solid #bbf7d0;">Chauffeur</th>
+                <th style="padding:5px 6px; text-align:left; border-bottom:1px solid #bbf7d0;">Trajet</th>
+                <th style="padding:5px 6px; text-align:right; border-bottom:1px solid #bbf7d0;">Recette</th>
+                <th style="padding:5px 6px; text-align:right; border-bottom:1px solid #bbf7d0;">⛽ Carb.</th>
+                <th style="padding:5px 6px; text-align:right; border-bottom:1px solid #bbf7d0;">⚖️ Pesée</th>
+                <th style="padding:5px 6px; text-align:right; border-bottom:1px solid #bbf7d0;">🛣️ Route</th>
+                <th style="padding:5px 6px; text-align:right; border-bottom:1px solid #bbf7d0; font-weight:800;">Total Remis</th>
+                <th style="padding:5px 6px; text-align:right; border-bottom:1px solid #bbf7d0;">Solde Net</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${data.trips.map(t => `
+              <tr style="border-bottom:1px solid #f0fdf4;">
+                <td style="padding:4px 6px;">${t.trip_date}</td>
+                <td style="padding:4px 6px;">${t.driver_name}</td>
+                <td style="padding:4px 6px; font-weight:600;">${t.route}</td>
+                <td style="padding:4px 6px; text-align:right; color:#059669; font-weight:700;">${formatFCFA(t.recette||0)}</td>
+                <td style="padding:4px 6px; text-align:right; color:#d97706;">${(t.dep_carburant||0)>0?formatFCFA(t.dep_carburant):'—'}</td>
+                <td style="padding:4px 6px; text-align:right; color:#0284c7;">${(t.pesee||0)>0?formatFCFA(t.pesee):'—'}</td>
+                <td style="padding:4px 6px; text-align:right; color:#7c3aed;">${(t.peage||0)>0?formatFCFA(t.peage):'—'}</td>
+                <td style="padding:4px 6px; text-align:right; font-weight:800; color:#ea580c;">${formatFCFA(t.montant_remis||0)}</td>
+                <td style="padding:4px 6px; text-align:right; font-weight:700; color:${(t.marge_nette||0)>=0?'#059669':'#e11d48'};">${formatFCFA(t.marge_nette||0)}</td>
+              </tr>`).join('')}
+              <tr style="background:#f0fdf4; font-weight:800; border-top:2px solid #059669;">
+                <td colspan="3" style="padding:5px 6px;">TOTAUX</td>
+                <td style="padding:5px 6px; text-align:right; color:#059669;">${formatFCFA(s.totalRecette)}</td>
+                <td style="padding:5px 6px; text-align:right; color:#d97706;">${formatFCFA(s.totalDepCarburant)}</td>
+                <td style="padding:5px 6px; text-align:right; color:#0284c7;">${formatFCFA(s.totalPesee)}</td>
+                <td style="padding:5px 6px; text-align:right; color:#7c3aed;">${formatFCFA(s.totalPeage)}</td>
+                <td style="padding:5px 6px; text-align:right; color:#ea580c;">${formatFCFA(s.totalMontantRemis)}</td>
+                <td style="padding:5px 6px; text-align:right; color:${s.totalMargeNette>=0?'#059669':'#e11d48'};">${formatFCFA(s.totalMargeNette)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>` : ''}
+
+        <!-- Tableau entretiens -->
+        ${data.maintenance.length > 0 ? `
+        <div style="margin-bottom:16px; border:1px solid #fecaca; border-radius:8px; overflow:hidden;">
+          <div style="background:linear-gradient(135deg,#dc2626,#b91c1c); color:white; padding:8px 16px; font-size:11px; font-weight:800; display:flex; justify-content:space-between;">
+            <span>🔧 ENTRETIEN & RÉPARATIONS (${data.maintenance.length})</span>
+            <span>Total: ${formatFCFA(s.totalMaintenance)}</span>
+          </div>
+          <table style="width:100%; border-collapse:collapse; font-size:9px;">
+            <thead>
+              <tr style="background:#fef2f2;">
+                <th style="padding:5px 6px; text-align:left; border-bottom:1px solid #fecaca;">Date</th>
+                <th style="padding:5px 6px; text-align:left; border-bottom:1px solid #fecaca;">Type</th>
+                <th style="padding:5px 6px; text-align:left; border-bottom:1px solid #fecaca;">Description</th>
+                <th style="padding:5px 6px; text-align:left; border-bottom:1px solid #fecaca;">Garage</th>
+                <th style="padding:5px 6px; text-align:right; border-bottom:1px solid #fecaca;">Km</th>
+                <th style="padding:5px 6px; text-align:right; border-bottom:1px solid #fecaca;">Montant</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${data.maintenance.map(r => `
+              <tr style="border-bottom:1px solid #fef2f2;">
+                <td style="padding:4px 6px;">${r.record_date}</td>
+                <td style="padding:4px 6px; font-weight:700; text-transform:uppercase;">${r.service_type}</td>
+                <td style="padding:4px 6px;">${r.description}</td>
+                <td style="padding:4px 6px;">${r.garage}</td>
+                <td style="padding:4px 6px; text-align:right;">${r.km ? r.km.toLocaleString('fr-FR') + ' km' : '—'}</td>
+                <td style="padding:4px 6px; text-align:right; font-weight:700; color:#dc2626;">${formatFCFA(r.amount_fcfa)}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>` : ''}
+
+        <!-- Pleins carburant -->
+        ${data.fuel.length > 0 ? `
+        <div style="margin-bottom:16px; border:1px solid #fde68a; border-radius:8px; overflow:hidden;">
+          <div style="background:linear-gradient(135deg,#d97706,#b45309); color:white; padding:8px 16px; font-size:11px; font-weight:800; display:flex; justify-content:space-between;">
+            <span>⛽ PLEINS CARBURANT (${data.fuel.length})</span>
+            <span>${Math.round(s.totalFuelLiters).toLocaleString('fr-FR')} L — ${formatFCFA(s.totalFuelCost)}</span>
+          </div>
+          <table style="width:100%; border-collapse:collapse; font-size:9px;">
+            <thead>
+              <tr style="background:#fffbeb;">
+                <th style="padding:5px 6px; text-align:left; border-bottom:1px solid #fde68a;">Date</th>
+                <th style="padding:5px 6px; text-align:left; border-bottom:1px solid #fde68a;">Chauffeur</th>
+                <th style="padding:5px 6px; text-align:left; border-bottom:1px solid #fde68a;">Station</th>
+                <th style="padding:5px 6px; text-align:right; border-bottom:1px solid #fde68a;">Litres</th>
+                <th style="padding:5px 6px; text-align:right; border-bottom:1px solid #fde68a;">Montant</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${data.fuel.map(f => `
+              <tr style="border-bottom:1px solid #fffbeb;">
+                <td style="padding:4px 6px;">${f.expense_date}</td>
+                <td style="padding:4px 6px;">${f.driver_name||'—'}</td>
+                <td style="padding:4px 6px;">${f.station}</td>
+                <td style="padding:4px 6px; text-align:right;">${Number(f.liters).toLocaleString('fr-FR')} L</td>
+                <td style="padding:4px 6px; text-align:right; font-weight:700; color:#d97706;">${formatFCFA(f.amount_fcfa)}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>` : ''}
+
+        <div class="pdf-signatures" style="margin-top:20px;">
+          <div class="pdf-signature-box"><div style="font-size:11px; font-weight:700; color:#475569; margin-bottom:30px;">Signature Responsable Flotte</div></div>
+          <div class="pdf-signature-box"><div style="font-size:11px; font-weight:700; color:#475569; margin-bottom:30px;">Signature Direction</div></div>
+        </div>
+      `;
+
+      document.body.classList.add('printing-report');
+      const cleanup = () => { document.body.classList.remove('printing-report'); window.removeEventListener('afterprint', cleanup); };
+      window.addEventListener('afterprint', cleanup);
+      setTimeout(cleanup, 15000);
+      window.print();
+    };
+
+    // ====================================================
+    // RECHERCHE GLOBALE BL / CONTENEUR
+    // ====================================================
+    window.searchBLContainer = async function() {
+      const q = (document.getElementById('bl-search-input').value || '').trim();
+      if (!q) { showToast('Saisissez un numéro BL ou conteneur.', 'warning'); return; }
+
+      const status = document.getElementById('bl-search-status');
+      const resultsContainer = document.getElementById('bl-search-results-container');
+      const emptyEl = document.getElementById('bl-search-empty');
+      const tbody = document.getElementById('bl-search-tbody');
+
+      status.style.display = 'block';
+      status.textContent = `Recherche de "${q}"…`;
+      resultsContainer.style.display = 'none';
+      emptyEl.style.display = 'none';
+
+      try {
+        const res = await fetch(`/api/trips/search/bl-container?q=${encodeURIComponent(q)}`);
+        const results = await res.json();
+
+        if (!Array.isArray(results) || results.length === 0) {
+          status.textContent = `0 résultat pour "${q}"`;
+          emptyEl.style.display = 'block';
+          return;
+        }
+
+        status.textContent = `${results.length} résultat(s) trouvé(s) pour "${q}"`;
+        tbody.innerHTML = results.map(t => `
+          <tr>
+            <td data-label="Date"><strong>${t.trip_date}</strong></td>
+            <td data-label="Chauffeur"><strong>${t.driver_name}</strong></td>
+            <td data-label="Camion"><span class="badge badge-primary font-mono">${t.truck_id}</span></td>
+            <td data-label="Trajet">${t.route}</td>
+            <td data-label="Marchandise" class="text-muted">${t.cargo || '—'}</td>
+            <td data-label="N° BL" class="font-mono" style="font-weight:700; color:${t.bl_number?'var(--primary)':'var(--text-muted)'};">${t.bl_number || '—'}</td>
+            <td data-label="N° Conteneur" class="font-mono" style="font-weight:700; color:${t.container_number?'var(--primary)':'var(--text-muted)'};">${t.container_number || '—'}</td>
+            <td data-label="Recette" class="font-mono text-success"><strong>${formatFCFA(t.recette||0)}</strong></td>
+            <td data-label="Total Remis" class="font-mono" style="color:var(--warning); font-weight:700;">${formatFCFA(t.montant_remis||0)}</td>
+            <td data-label="Solde Net" class="font-mono ${(t.marge_nette||0)>=0?'text-success':'text-danger'}" style="font-weight:700;">${formatFCFA(t.marge_nette||0)}</td>
+          </tr>
+        `).join('');
+        resultsContainer.style.display = 'block';
+
+      } catch (err) {
+        status.textContent = 'Erreur lors de la recherche.';
+        showToast('Erreur lors de la recherche BL/Conteneur.', 'danger');
+      }
+    };
+
+    window.clearBLSearch = function() {
+      document.getElementById('bl-search-input').value = '';
+      document.getElementById('bl-search-status').style.display = 'none';
+      document.getElementById('bl-search-results-container').style.display = 'none';
+      document.getElementById('bl-search-empty').style.display = 'none';
+    };
+
     async function loadTrucks() {
       try {
         const res = await fetch('/api/trucks');
@@ -4611,67 +4955,118 @@
       }
     }
 
+    // Code camion courant pour le rapport
+    let _currentTruckCode = null;
+    let _truckReportData = null;
+
     // Fiche complète d'historique d'entretien d'un camion
     window.openTruckHistory = async function(truckCode) {
-      try {
-        const res = await fetch(`/api/trucks/${truckCode}/maintenance`);
-        const data = await res.json();
+      _currentTruckCode = truckCode;
+      // Réinitialiser les filtres de date
+      document.getElementById('truck-report-start').value = '';
+      document.getElementById('truck-report-end').value = '';
+      await loadTruckReport(truckCode, null, null);
+      openModal('modal-truck-history');
+    };
 
-        document.getElementById('truck-hist-title').textContent = `${data.truck.code} - ${data.truck.brand_model}`;
+    window.applyTruckReportFilter = async function() {
+      const start = document.getElementById('truck-report-start').value;
+      const end = document.getElementById('truck-report-end').value;
+      await loadTruckReport(_currentTruckCode, start || null, end || null);
+    };
+
+    window.clearTruckReportFilter = async function() {
+      document.getElementById('truck-report-start').value = '';
+      document.getElementById('truck-report-end').value = '';
+      await loadTruckReport(_currentTruckCode, null, null);
+    };
+
+    async function loadTruckReport(truckCode, startDate, endDate) {
+      try {
+        let url = `/api/trucks/${truckCode}/report`;
+        const params = [];
+        if (startDate) params.push(`startDate=${startDate}`);
+        if (endDate) params.push(`endDate=${endDate}`);
+        if (params.length) url += '?' + params.join('&');
+
+        const res = await fetch(url);
+        const data = await res.json();
+        _truckReportData = data;
+
+        document.getElementById('truck-hist-title').textContent = `${data.truck.code} — ${data.truck.brand_model}`;
         document.getElementById('truck-hist-subtitle').textContent = `Immat: ${data.truck.license_plate} • Année: ${data.truck.year || 'N/A'} • Chauffeur habituel: ${data.truck.driver_name || 'Aucun'} • Compteur: ${(data.truck.current_km || 0).toLocaleString('fr-FR')} km`;
 
-        document.getElementById('truck-total-maint').textContent = formatFCFA(data.summary.totalMaintenanceCost);
-        document.getElementById('truck-maint-count').textContent = data.summary.maintenanceCount;
-
-        document.getElementById('truck-total-fuel').textContent = formatFCFA(data.summary.totalFuelCost);
-        document.getElementById('truck-fuel-liters').textContent = Math.round(data.summary.totalFuelLiters).toLocaleString('fr-FR');
-
-        document.getElementById('truck-total-revenue').textContent = formatFCFA(data.summary.totalRevenue);
-
+        const s = data.summary;
+        document.getElementById('truck-total-revenue').textContent = formatFCFA(s.totalRecette);
+        document.getElementById('truck-trip-count').textContent = s.totalTrips;
+        document.getElementById('truck-total-dep-carb').textContent = formatFCFA(s.totalDepCarburant);
+        document.getElementById('truck-total-fuel').textContent = formatFCFA(s.totalFuelCost);
+        document.getElementById('truck-fuel-liters').textContent = Math.round(s.totalFuelLiters).toLocaleString('fr-FR');
+        document.getElementById('truck-total-maint').textContent = formatFCFA(s.totalMaintenance);
+        document.getElementById('truck-maint-count').textContent = data.maintenance.length;
         const netEl = document.getElementById('truck-net-profit');
-        netEl.textContent = formatFCFA(data.summary.netProfit);
-        netEl.style.color = data.summary.netProfit >= 0 ? 'var(--success)' : 'var(--danger)';
+        netEl.textContent = formatFCFA(s.netProfit);
+        netEl.style.color = s.netProfit >= 0 ? 'var(--success)' : 'var(--danger)';
 
-        // Badges types
+        // Tableau voyages
+        const tripsTbody = document.getElementById('truck-trips-tbody');
+        tripsTbody.innerHTML = data.trips.length === 0
+          ? '<tr><td colspan="9" style="text-align:center;color:var(--text-muted);">Aucun voyage sur la période.</td></tr>'
+          : data.trips.map(t => `<tr>
+              <td data-label="Date">${t.trip_date}</td>
+              <td data-label="Chauffeur"><strong>${t.driver_name}</strong></td>
+              <td data-label="Trajet">${t.route}</td>
+              <td data-label="Recette" class="font-mono text-success"><strong>${formatFCFA(t.recette||0)}</strong></td>
+              <td data-label="⛽ Carb." class="font-mono" style="color:#d97706;">${(t.dep_carburant||0)>0?formatFCFA(t.dep_carburant):'—'}</td>
+              <td data-label="⚖️ Pesée" class="font-mono" style="color:#0284c7;">${(t.pesee||0)>0?formatFCFA(t.pesee):'—'}</td>
+              <td data-label="🛣️ Route" class="font-mono" style="color:#7c3aed;">${(t.peage||0)>0?formatFCFA(t.peage):'—'}</td>
+              <td data-label="Total Remis" class="font-mono" style="color:var(--warning);font-weight:700;">${formatFCFA(t.montant_remis||0)}</td>
+              <td data-label="Solde Net" class="font-mono" style="font-weight:700;color:${(t.marge_nette||0)>=0?'var(--success)':'var(--danger)'};">${formatFCFA(t.marge_nette||0)}</td>
+            </tr>`).join('');
+
+        // Tableau pleins carburant
+        const fuelTbody = document.getElementById('truck-fuel-tbody');
+        fuelTbody.innerHTML = data.fuel.length === 0
+          ? '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Aucun plein enregistré.</td></tr>'
+          : data.fuel.map(f => `<tr>
+              <td data-label="Date">${f.expense_date}</td>
+              <td data-label="Chauffeur">${f.driver_name||'—'}</td>
+              <td data-label="Station">${f.station}</td>
+              <td data-label="Litres" class="font-mono">${Number(f.liters).toLocaleString('fr-FR')} L</td>
+              <td data-label="Montant" class="font-mono text-warning"><strong>${formatFCFA(f.amount_fcfa)}</strong></td>
+            </tr>`).join('');
+
+        // Badges entretien par type
         const typeContainer = document.getElementById('truck-type-breakdown');
-        typeContainer.innerHTML = '';
-        if (data.summary.byType.length === 0) {
-          typeContainer.innerHTML = '<span class="text-muted" style="font-size: 0.8rem;">Aucune intervention enregistrée.</span>';
-        } else {
-          data.summary.byType.forEach(b => {
-            const span = document.createElement('span');
-            span.className = `badge badge-${b.type}`;
-            span.textContent = `${b.type.toUpperCase()}: ${formatFCFA(b.total_fcfa)} (${b.count})`;
-            typeContainer.appendChild(span);
-          });
+        const byType = {};
+        for (const r of data.maintenance) {
+          const t = r.service_type.toLowerCase();
+          if (!byType[t]) byType[t] = { type: t, count: 0, total_fcfa: 0 };
+          byType[t].count++;
+          byType[t].total_fcfa += Number(r.amount_fcfa || 0);
         }
+        const byTypeArr = Object.values(byType).sort((a,b) => b.total_fcfa - a.total_fcfa);
+        typeContainer.innerHTML = byTypeArr.length === 0
+          ? '<span class="text-muted" style="font-size:0.8rem;">Aucune intervention enregistrée.</span>'
+          : byTypeArr.map(b => `<span class="badge badge-${b.type}">${b.type.toUpperCase()}: ${formatFCFA(b.total_fcfa)} (${b.count})</span>`).join('');
 
-        // Table des entretiens
+        // Tableau entretiens
         const tbody = document.getElementById('truck-records-tbody');
-        tbody.innerHTML = '';
-        if (data.records.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Aucune réparation pour ce camion.</td></tr>';
-        } else {
-          data.records.forEach(r => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
+        tbody.innerHTML = data.maintenance.length === 0
+          ? '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Aucune réparation pour ce camion.</td></tr>'
+          : data.maintenance.map(r => `<tr>
               <td data-label="Date">${r.record_date}</td>
               <td data-label="Type"><span class="badge badge-${r.service_type.toLowerCase()}">${r.service_type}</span></td>
               <td data-label="Description">${r.description}</td>
               <td data-label="Garage">${r.garage}</td>
               <td data-label="Km" class="font-mono">${r.km ? r.km.toLocaleString('fr-FR') + ' km' : '-'}</td>
               <td data-label="Montant" class="font-mono text-danger"><strong>${formatFCFA(r.amount_fcfa)}</strong></td>
-            `;
-            tbody.appendChild(tr);
-          });
-        }
-
-        openModal('modal-truck-history');
+            </tr>`).join('');
 
       } catch (err) {
         showToast('Erreur lors du chargement de la fiche camion.', 'danger');
       }
-    };
+    }
 
     // ----------------------------------------------------
     // CHARGEMENT ONGLET VOYAGES

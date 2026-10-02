@@ -54,6 +54,30 @@ tripsRouter.get('/', (req, res) => {
   }
 });
 
+// Recherche par numéro BL ou conteneur — DOIT être avant /:id
+tripsRouter.get('/search/bl-container', (req, res) => {
+  try {
+    const { q } = req.query;
+    if (!q || !q.trim()) {
+      return res.status(400).json({ error: 'Paramètre de recherche manquant.' });
+    }
+    const term = q.trim().toUpperCase();
+    const results = db.prepare(`
+      SELECT
+        t.*,
+        d.name as driver_name
+      FROM trips t
+      JOIN drivers d ON d.id = t.driver_id
+      WHERE UPPER(t.bl_number) LIKE ? OR UPPER(t.container_number) LIKE ?
+      ORDER BY t.trip_date DESC
+    `).all(`%${term}%`, `%${term}%`);
+    res.json(results);
+  } catch (err) {
+    console.error('Erreur search bl/container:', err);
+    res.status(500).json({ error: 'Erreur lors de la recherche.' });
+  }
+});
+
 // Création d'un voyage
 tripsRouter.post('/', (req, res) => {
   try {

@@ -207,3 +207,114 @@ trucksRouter.get('/:code/maintenance', (req, res) => {
     res.status(500).json({ error: 'Erreur lors de la récupération de l\'historique d\'entretien.' });
   }
 });
+
+// Rapport complet d'un camion sur une plage de dates (pour PDF)
+trucksRouter.get('/:code/report', (req, res) => {
+  try {
+    const code = req.params.code.toUpperCase();
+    const truck = db.prepare(`
+      SELECT t.*, d.name as driver_name
+      FROM trucks t
+      LEFT JOIN drivers d ON d.assigned_truck = t.code
+      WHERE t.code = ?
+    `).get(code);
+
+    if (!truck) {
+      return res.status(404).json({ error: 'Camion introuvable.' });
+    }
+
+    const { startDate, endDate } = req.query;
+
+    // Helpers de filtre de date
+    const dateFilter = (col) => {
+      if (startDate && endDate) return ` AND ${col} BETWEEN ? AND ?`;
+      if (startDate) return ` AND ${col} >= ?`;
+      if (endDate) return ` AND ${col} <= ?`;
+      return '';
+    };
+    const dateParams = () => {
+      if (startDate && endDate) return [startDate, endDate];
+      if (startDate) return [startDate];
+      if (endDate) return [endDate];
+      return [];
+    };
+
+    // Voyages
+    const trips = db.prepare(`
+      SELECT tr.*, d.name as driver_name
+      FROM trips tr
+      LEFT JOIN drivers d ON d.id = tr.driver_id
+      WHERE tr.truck_id = ? ${dateFilter('tr.trip_date')}
+      ORDER BY tr.trip_date DESC
+    `).all(code, ...dateParams());
+
+    // Pleins carburant
+    const fuel = db.prepare(`
+      SELECT f.*, d.name as driver_name
+      FROM fuel_expenses f
+      LEFT JOIN drivers d ON d.id = f.driver_id
+      WHERE f.truck_id = ? ${dateFilter('f.expense_date')}
+      ORDER BY f.expense_date DESC
+    `).all(code, ...dateParams());
+
+    // Entretiens
+    const maintenance = db.prepare(`
+      SELECT m.*, d.name as driver_name
+      FROM maintenance_records m
+      LEFT JOIN drivers d ON d.id = m.driver_id
+      WHERE m.truck_id = ? ${dateFilter('m.record_date')}
+      ORDER BY m.record_date DESC
+    `).all(code, ...dateParams());
+
+    // Autres dépenses
+    const otherExpenses = db.prepare(`
+      SELECT e.*
+      FROM other_expenses e
+      WHERE e.truck_id = ? ${dateFilter('e.expense_date')}
+      ORDER BY e.expense_date DESC
+    `).all(code, ...dateParams());
+
+    // Totaux voyages
+    const totalRecette = trips.reduce((s, t) => s + Number(t.recette || 0), 0);
+    const totalDepCarburant = trips.reduce((s, t) => s + Number(t.dep_carburant || 0), 0);
+    const totalPesee = trips.reduce((s, t) => s + Number(t.pesee || 0), 0);
+    const totalPeage = trips.reduce((s, t) => s + Number(t.peage || 0), 0);
+    const totalMontantRemis = trips.reduce((s, t) => s + Number(t.montant_remis || 0), 0);
+    const totalMargeNette = trips.reduce((s, t) => s + Number(t.marge_nette || 0), 0);
+
+    // Totaux autres
+    const totalFuelCost = fuel.reduce((s, f) => s + Number(f.amount_fcfa || 0), 0);
+    const totalFuelLiters = fuel.reduce((s, f) => s + Number(f.liters || 0), 0);
+    const totalMaintenance = maintenance.reduce((s, m) => s + Number(m.amount_fcfa || 0), 0);
+    const totalOtherExpenses = otherExpenses.reduce((s, e) => s + Number(e.amount_fcfa || 0), 0);
+    const totalDépenses = totalMontantRemis + totalFuelCost + totalMaintenance + totalOtherExpenses;
+    const netProfit = totalRecette - totalDépenses;
+
+    res.json({
+      truck,
+      period: { startDate: startDate || null, endDate: endDate || null },
+      trips,
+      fuel,
+      maintenance,
+      otherExpenses,
+      summary: {
+        totalTrips: trips.length,
+        totalRecette,
+        totalDepCarburant,
+        totalPesee,
+        totalPeage,
+        totalMontantRemis,
+        totalMargeNette,
+        totalFuelCost,
+        totalFuelLiters,
+        totalMaintenance,
+        totalOtherExpenses,
+        totalDépenses,
+        netProfit
+      }
+    });
+  } catch (err) {
+    console.error('Erreur get truck report:', err);
+    res.status(500).json({ error: 'Erreur lors de la génération du rapport camion.' });
+  }
+});
