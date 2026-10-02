@@ -157,7 +157,7 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      font-size: 15px;
+      font-size: 14px;
     }
 
     /* Utilitaires typographiques */
@@ -171,13 +171,13 @@
 
     /* En-tête persistant */
     .app-header {
-      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #0284c7 100%);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(135deg, #080f1e 0%, #0f2040 55%, #0173a8 100%);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
       position: sticky;
       top: 0;
       z-index: 40;
       backdrop-filter: blur(8px);
-      box-shadow: 0 4px 20px rgba(2, 132, 199, 0.2);
+      box-shadow: 0 4px 24px rgba(1, 115, 168, 0.28);
     }
     .app-header .brand-text h1 { color: #fff; }
     .app-header .brand-text p { color: rgba(255,255,255,0.65); }
@@ -261,10 +261,10 @@
     /* Barre d'onglets de navigation */
     .nav-bar {
       background-color: var(--bg-surface);
-      border-bottom: 2px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
       overflow-x: auto;
       scrollbar-width: none;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
     }
     .nav-bar::-webkit-scrollbar { display: none; }
 
@@ -273,32 +273,39 @@
       margin: 0 auto;
       padding: 0 1.25rem;
       display: flex;
-      gap: 0.5rem;
+      gap: 0.25rem;
+      align-items: stretch;
     }
 
     .nav-tab {
-      padding: 0.75rem 0.9rem;
-      font-size: 0.875rem;
+      padding: 0rem 1rem;
+      font-size: 0.8rem;
       font-weight: 600;
       color: var(--text-muted);
       background: transparent;
       border: none;
-      border-bottom: 2px solid transparent;
+      border-top: 3px solid transparent;
+      border-bottom: none;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 0.45rem;
       white-space: nowrap;
       transition: all 0.15s ease;
+      min-height: 46px;
+      letter-spacing: 0.1px;
     }
 
     .nav-tab:hover {
       color: var(--text-main);
+      background: var(--bg-subtle);
     }
 
     .nav-tab.active {
       color: var(--primary);
-      border-bottom-color: var(--primary);
+      border-top-color: var(--primary);
+      background: var(--primary-light);
+      font-weight: 700;
     }
 
     /* Boutons et Contrôles */
@@ -315,9 +322,38 @@
       border-radius: var(--radius-sm);
       border: 1px solid transparent;
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: all 0.15s ease, background 0.15s;
       white-space: nowrap;
     }
+
+    /* Compact icon-only action buttons for table rows */
+    .btn-icon-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      padding: 0;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      background: var(--bg-surface);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-size: 0;
+      position: relative;
+    }
+    .btn-icon-action svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .btn-icon-action:hover { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
+    .btn-icon-action.btn-icon-danger:hover { background: var(--danger-light); color: var(--danger); border-color: var(--danger); }
 
     .btn:active { transform: scale(0.98); }
 
@@ -467,64 +503,28 @@
     .kpi-card {
       background-color: var(--bg-surface);
       border: 1px solid var(--border-color);
+      border-left: 4px solid var(--border-color);
       border-radius: var(--radius-lg);
-      padding: 1.35rem 1.25rem;
+      padding: 1.1rem 1.15rem;
       box-shadow: var(--shadow-md);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       position: relative;
       overflow: hidden;
-      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s;
     }
 
     .kpi-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 16px 30px -6px rgba(0,0,0,0.12);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px -6px rgba(0,0,0,0.1);
     }
 
-    .kpi-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: var(--border-color);
-      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    }
-
-    .kpi-card::after {
-      content: '';
-      position: absolute;
-      bottom: -30px;
-      right: -20px;
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      opacity: 0.06;
-      background: currentColor;
-    }
-
-    .kpi-card.kpi-revenue { border-top-color: transparent; }
-    .kpi-card.kpi-revenue::before { background: linear-gradient(90deg, #059669, #34d399); }
-    .kpi-card.kpi-revenue::after { color: #059669; }
-
-    .kpi-card.kpi-fuel { border-top-color: transparent; }
-    .kpi-card.kpi-fuel::before { background: linear-gradient(90deg, #d97706, #fbbf24); }
-    .kpi-card.kpi-fuel::after { color: #d97706; }
-
-    .kpi-card.kpi-maintenance { border-top-color: transparent; }
-    .kpi-card.kpi-maintenance::before { background: linear-gradient(90deg, #e11d48, #fb7185); }
-    .kpi-card.kpi-maintenance::after { color: #e11d48; }
-
-    .kpi-card.kpi-net { border-top-color: transparent; }
-    .kpi-card.kpi-net::before { background: linear-gradient(90deg, #0284c7, #38bdf8); }
-    .kpi-card.kpi-net::after { color: #0284c7; }
-
-    .kpi-card.kpi-expense { border-top-color: transparent; }
-    .kpi-card.kpi-expense::before { background: linear-gradient(90deg, #7c3aed, #a78bfa); }
-    .kpi-card.kpi-expense::after { color: #7c3aed; }
+    .kpi-card.kpi-revenue { border-left-color: #059669; }
+    .kpi-card.kpi-fuel { border-left-color: #d97706; }
+    .kpi-card.kpi-maintenance { border-left-color: #e11d48; }
+    .kpi-card.kpi-net { border-left-color: #0284c7; }
+    .kpi-card.kpi-expense { border-left-color: #7c3aed; }
 
     .kpi-header {
       display: flex;
@@ -567,27 +567,28 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 2.5rem;
-      height: 2.5rem;
-      border-radius: var(--radius-sm);
+      width: 2.75rem;
+      height: 2.75rem;
+      border-radius: 50%;
       background: var(--bg-surface-elevated);
       color: var(--primary);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
     .kpi-icon svg {
-      width: 1.3rem;
-      height: 1.3rem;
+      width: 1.25rem;
+      height: 1.25rem;
       stroke: currentColor;
       fill: none;
       stroke-width: 2;
       stroke-linecap: round;
       stroke-linejoin: round;
     }
-    .kpi-card.kpi-revenue .kpi-icon { color: #fff; background: linear-gradient(135deg, #059669, #34d399); }
-    .kpi-card.kpi-fuel .kpi-icon { color: #fff; background: linear-gradient(135deg, #d97706, #fbbf24); }
-    .kpi-card.kpi-maintenance .kpi-icon { color: #fff; background: linear-gradient(135deg, #e11d48, #fb7185); }
-    .kpi-card.kpi-net .kpi-icon { color: #fff; background: linear-gradient(135deg, #0284c7, #38bdf8); }
-    .kpi-card.kpi-expense .kpi-icon { color: #fff; background: linear-gradient(135deg, #7c3aed, #a78bfa); }
+    .kpi-card.kpi-revenue .kpi-icon { color: #059669; background: #d1fae5; box-shadow: 0 2px 8px rgba(5,150,105,0.18); }
+    .kpi-card.kpi-fuel .kpi-icon { color: #d97706; background: #fef3c7; box-shadow: 0 2px 8px rgba(217,119,6,0.18); }
+    .kpi-card.kpi-maintenance .kpi-icon { color: #e11d48; background: #ffe4e6; box-shadow: 0 2px 8px rgba(225,29,72,0.18); }
+    .kpi-card.kpi-net .kpi-icon { color: #0284c7; background: #e0f2fe; box-shadow: 0 2px 8px rgba(2,132,199,0.18); }
+    .kpi-card.kpi-expense .kpi-icon { color: #7c3aed; background: #ede9fe; box-shadow: 0 2px 8px rgba(124,58,237,0.18); }
 
     .timeline-badge svg {
       width: 18px;
@@ -695,22 +696,36 @@
     table.data-table th {
       background-color: var(--bg-surface-elevated);
       color: var(--text-muted);
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       font-weight: 700;
-      letter-spacing: 0.3px;
-      padding: 0.75rem 1rem;
-      border-bottom: 1px solid var(--border-color);
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      padding: 0.7rem 1rem;
+      border-bottom: 2px solid var(--border-color);
       white-space: nowrap;
     }
 
     table.data-table td {
-      padding: 0.85rem 1rem;
+      padding: 0.8rem 1rem;
       border-bottom: 1px solid var(--border-color);
       vertical-align: middle;
+      transition: background 0.1s;
     }
 
-    table.data-table tbody tr:hover {
-      background-color: var(--bg-subtle);
+    table.data-table tbody tr:nth-child(odd) td {
+      background-color: #f8fafc;
+    }
+    @media (prefers-color-scheme: dark) {
+      table.data-table tbody tr:nth-child(odd) td {
+        background-color: rgba(255,255,255,0.02);
+      }
+    }
+    .dark-mode table.data-table tbody tr:nth-child(odd) td {
+      background-color: rgba(255,255,255,0.02);
+    }
+
+    table.data-table tbody tr:hover td {
+      background-color: var(--primary-light) !important;
     }
 
     table.data-table tbody tr:last-child td {
@@ -746,7 +761,7 @@
     .form-control:focus {
       outline: none;
       border-color: var(--border-focus);
-      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2);
     }
 
     .form-hint {
@@ -812,6 +827,11 @@
       justify-content: space-between;
       background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
     }
+    .modal-header.modal-header-green { background: linear-gradient(135deg, #064e3b 0%, #059669 100%); }
+    .modal-header.modal-header-amber { background: linear-gradient(135deg, #451a03 0%, #d97706 100%); }
+    .modal-header.modal-header-red { background: linear-gradient(135deg, #4c0519 0%, #e11d48 100%); }
+    .modal-header.modal-header-violet { background: linear-gradient(135deg, #2e1065 0%, #7c3aed 100%); }
+    .modal-header.modal-header-blue { background: linear-gradient(135deg, #0c2a3d 0%, #0284c7 100%); }
     .modal-title { color: #fff; }
     .modal-header .btn-icon { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); color: #fff; }
 
@@ -1029,13 +1049,7 @@
       overflow: hidden;
     }
 
-    .driver-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, #0284c7, #38bdf8);
-    }
+    /* Driver card colored left border is set via inline style using dColor.hex */
 
     .driver-card:hover {
       border-color: var(--primary);
@@ -2618,7 +2632,7 @@
   <!-- ==================== MODAL DE SAISIE : VOYAGE ==================== -->
   <div id="modal-trip-form" class="modal-backdrop">
     <div class="modal-card">
-      <div class="modal-header">
+      <div class="modal-header modal-header-green">
         <h3 class="modal-title" id="trip-modal-title">Enregistrer un voyage</h3>
         <button class="btn-icon close-modal-btn">&times;</button>
       </div>
@@ -2718,7 +2732,7 @@
   <!-- ==================== MODAL DE SAISIE : CARBURANT ==================== -->
   <div id="modal-fuel-form" class="modal-backdrop">
     <div class="modal-card">
-      <div class="modal-header">
+      <div class="modal-header modal-header-amber">
         <h3 class="modal-title" id="fuel-modal-title">Enregistrer un plein de carburant</h3>
         <button class="btn-icon close-modal-btn">&times;</button>
       </div>
@@ -2783,7 +2797,7 @@
   <!-- ==================== MODAL DE SAISIE : ENTRETIEN ==================== -->
   <div id="modal-maint-form" class="modal-backdrop">
     <div class="modal-card">
-      <div class="modal-header">
+      <div class="modal-header modal-header-red">
         <h3 class="modal-title" id="maint-modal-title">Noter une intervention d'entretien</h3>
         <button class="btn-icon close-modal-btn">&times;</button>
       </div>
@@ -2876,7 +2890,7 @@
   <!-- ==================== MODAL DE SAISIE : AUTRE DÉPENSE ==================== -->
   <div id="modal-expense-form" class="modal-backdrop">
     <div class="modal-card">
-      <div class="modal-header">
+      <div class="modal-header modal-header-violet">
         <h3 class="modal-title">Enregistrer une dépense</h3>
         <button class="btn-icon close-modal-btn">&times;</button>
       </div>
@@ -4096,7 +4110,8 @@
           const isNetPos = d.net_balance >= 0;
           const initials = (d.name || 'CH').split(' ').filter(Boolean).map(n => n[0]).join('').substring(0, 2).toUpperCase();
           const dColor = getDriverColor(d.id);
-          card.style.borderTop = `3px solid ${dColor.hex}`;
+          card.style.borderLeft = `4px solid ${dColor.hex}`;
+          card.style.borderTop = 'none';
           card.style.setProperty('--driver-color', dColor.hex);
 
           card.innerHTML = `

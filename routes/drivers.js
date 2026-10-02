@@ -216,12 +216,38 @@ driversRouter.get('/:id/account', (req, res) => {
     `).all(...paramsTrip);
 
     // 2. Toutes les dépenses de carburant
-    const fuel = db.prepare(`
-      SELECT id, expense_date, expense_date as date, liters, amount_fcfa, station, truck_id, km_at_fill, notes
-      FROM fuel_expenses
-      WHERE driver_id = ? ${dateFuelFilter}
-      ORDER BY expense_date DESC
-    `).all(...paramsFuel);
+    // Inclure les entrées liées au chauffeur OU à son camion assigné (driver_id IS NULL)
+    let fuelQuery = '';
+    const fuelParams = [];
+    if (driver.assigned_truck) {
+      fuelQuery = `
+        SELECT id, expense_date, expense_date as date, liters, amount_fcfa, station, truck_id, km_at_fill, notes
+        FROM fuel_expenses
+        WHERE (driver_id = ? OR (driver_id IS NULL AND truck_id = ?))
+      `;
+      fuelParams.push(id, driver.assigned_truck);
+    } else {
+      fuelQuery = `
+        SELECT id, expense_date, expense_date as date, liters, amount_fcfa, station, truck_id, km_at_fill, notes
+        FROM fuel_expenses
+        WHERE driver_id = ?
+      `;
+      fuelParams.push(id);
+    }
+
+    if (startDate && endDate) {
+      fuelQuery += ' AND expense_date BETWEEN ? AND ?';
+      fuelParams.push(startDate, endDate);
+    } else if (startDate) {
+      fuelQuery += ' AND expense_date >= ?';
+      fuelParams.push(startDate);
+    } else if (endDate) {
+      fuelQuery += ' AND expense_date <= ?';
+      fuelParams.push(endDate);
+    }
+    fuelQuery += ' ORDER BY expense_date DESC';
+
+    const fuel = db.prepare(fuelQuery).all(...fuelParams);
 
     // 3. Toutes les interventions d'entretien associées au chauffeur ou à son camion assigné
     // Si une intervention a driver_id = ce chauffeur OU (driver_id IS NULL et truck_id = camion assigné)
