@@ -1417,6 +1417,134 @@
     @media print {
       #pdf-render-zone { width: auto; padding: 0; }
       @page { margin: 14mm; }
+
+      /* ===== IMPRESSION NOIR & BLANC PROPRE ===== */
+      /* Force toutes les couleurs en niveaux de gris pour une impression laser nette */
+      #pdf-render-zone * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+      }
+
+      /* Blocs d'en-tête : fond noir, texte blanc */
+      #pdf-render-zone [style*="background: linear-gradient"],
+      #pdf-render-zone [style*="background:linear-gradient"],
+      #pdf-render-zone [style*="background-color: #0f172a"],
+      #pdf-render-zone [style*="background-color:#0f172a"],
+      #pdf-render-zone [style*="background: #0f172a"],
+      #pdf-render-zone [style*="background:#0f172a"] {
+        background: #000000 !important;
+        background-image: none !important;
+        color: #ffffff !important;
+      }
+
+      /* En-têtes de sections (bleus foncés, verts foncés) → noir */
+      #pdf-render-zone [style*="background: #1e3a5f"],
+      #pdf-render-zone [style*="background:#1e3a5f"],
+      #pdf-render-zone [style*="background-color: #1e293b"],
+      #pdf-render-zone [style*="background-color:#1e293b"],
+      #pdf-render-zone [style*="background: #1e293b"],
+      #pdf-render-zone [style*="background:#1e293b"],
+      #pdf-render-zone [style*="background: #0f172a"],
+      #pdf-render-zone [style*="background:#0f172a"] {
+        background: #111111 !important;
+        background-image: none !important;
+        color: #ffffff !important;
+      }
+
+      /* Fonds colorés clairs (vert clair, rouge clair, bleu clair, etc.) → gris très clair */
+      #pdf-render-zone [style*="background: #f0fdf4"],
+      #pdf-render-zone [style*="background:#f0fdf4"],
+      #pdf-render-zone [style*="background: #fff1f2"],
+      #pdf-render-zone [style*="background:#fff1f2"],
+      #pdf-render-zone [style*="background: #eff6ff"],
+      #pdf-render-zone [style*="background:#eff6ff"],
+      #pdf-render-zone [style*="background: #f0f9ff"],
+      #pdf-render-zone [style*="background:#f0f9ff"],
+      #pdf-render-zone [style*="background: #fefce8"],
+      #pdf-render-zone [style*="background:#fefce8"],
+      #pdf-render-zone [style*="background: #fef3c7"],
+      #pdf-render-zone [style*="background:#fef3c7"] {
+        background: #f4f4f4 !important;
+        background-image: none !important;
+      }
+
+      /* Fonds alternés de lignes */
+      #pdf-render-zone [style*="background: #f8fafc"],
+      #pdf-render-zone [style*="background:#f8fafc"] {
+        background: #f9f9f9 !important;
+      }
+
+      /* Textes colorés → niveaux de gris lisibles */
+      /* Vert (recettes DÉBIT) → noir gras */
+      #pdf-render-zone [style*="color: #059669"],
+      #pdf-render-zone [style*="color:#059669"],
+      #pdf-render-zone [style*="color: #10b981"],
+      #pdf-render-zone [style*="color:#10b981"],
+      #pdf-render-zone [style*="color: #065f46"],
+      #pdf-render-zone [style*="color:#065f46"] {
+        color: #000000 !important;
+        font-weight: 800 !important;
+      }
+
+      /* Rouge (dépenses CRÉDIT) → gris foncé + italique pour distinction */
+      #pdf-render-zone [style*="color: #e11d48"],
+      #pdf-render-zone [style*="color:#e11d48"],
+      #pdf-render-zone [style*="color: #dc2626"],
+      #pdf-render-zone [style*="color:#dc2626"],
+      #pdf-render-zone [style*="color: #9f1239"],
+      #pdf-render-zone [style*="color:#9f1239"] {
+        color: #333333 !important;
+        font-style: italic;
+      }
+
+      /* Bleu, violet, orange → gris moyen */
+      #pdf-render-zone [style*="color: #0284c7"],
+      #pdf-render-zone [style*="color:#0284c7"],
+      #pdf-render-zone [style*="color: #0369a1"],
+      #pdf-render-zone [style*="color:#0369a1"],
+      #pdf-render-zone [style*="color: #7c3aed"],
+      #pdf-render-zone [style*="color:#7c3aed"],
+      #pdf-render-zone [style*="color: #d97706"],
+      #pdf-render-zone [style*="color:#d97706"],
+      #pdf-render-zone [style*="color: #0284c7"],
+      #pdf-render-zone [style*="color: #6366f1"],
+      #pdf-render-zone [style*="color:#6366f1"] {
+        color: #444444 !important;
+      }
+
+      /* Bordures colorées → gris standard */
+      #pdf-render-zone [style*="border-left: 2px solid #059669"],
+      #pdf-render-zone [style*="border-left:2px solid #059669"],
+      #pdf-render-zone [style*="border-left: 2px solid #e11d48"],
+      #pdf-render-zone [style*="border-left:2px solid #e11d48"],
+      #pdf-render-zone [style*="border-left: 4px solid"],
+      #pdf-render-zone [style*="border-left:4px solid"],
+      #pdf-render-zone [style*="border-top: 3px solid"],
+      #pdf-render-zone [style*="border-top:3px solid"] {
+        border-color: #555555 !important;
+      }
+
+      /* Textes secondaires déjà gris → conserver */
+      #pdf-render-zone [style*="color: #475569"],
+      #pdf-render-zone [style*="color:#475569"],
+      #pdf-render-zone [style*="color: #64748b"],
+      #pdf-render-zone [style*="color:#64748b"],
+      #pdf-render-zone [style*="color: #94a3b8"],
+      #pdf-render-zone [style*="color:#94a3b8"] {
+        color: #555555 !important;
+      }
+
+      /* Fond global du rapport : blanc pur */
+      #pdf-render-zone {
+        background: #ffffff !important;
+      }
+
+      /* Supprimer les box-shadows pour impression propre */
+      #pdf-render-zone * {
+        box-shadow: none !important;
+        text-shadow: none !important;
+      }
     }
 
     .pdf-header {
@@ -3800,6 +3928,95 @@
     }
 
     // ----------------------------------------------------
+    // IMPRESSION NOIR & BLANC — transforme les couleurs inline pour un rendu laser propre
+    // ----------------------------------------------------
+    function applyPrintBW(zone) {
+      if (!zone) return;
+      const colorMap = {
+        // Fonds foncés → noir
+        '#0f172a': { bg: '#000000', color: '#ffffff' },
+        '#1e3a5f': { bg: '#111111', color: '#ffffff' },
+        '#1e293b': { bg: '#111111', color: '#ffffff' },
+        '#047857': { bg: '#000000', color: '#ffffff' },
+        '#059669': { bg: '#000000', color: '#ffffff' },
+        // Fonds colorés clairs → gris clair
+        '#f0fdf4': { bg: '#f4f4f4' },
+        '#fff1f2': { bg: '#f4f4f4' },
+        '#eff6ff': { bg: '#f4f4f4' },
+        '#f0f9ff': { bg: '#f4f4f4' },
+        '#fef3c7': { bg: '#f4f4f4' },
+        '#dbeafe': { bg: '#eeeeee' },
+        '#d1fae5': { bg: '#eeeeee' },
+        '#ffe4e6': { bg: '#eeeeee' },
+        '#f8fafc': { bg: '#f9f9f9' },
+      };
+      const textColorMap = {
+        // Vert (DÉBIT/recettes) → noir gras
+        '#059669': '#000000', '#10b981': '#000000', '#065f46': '#000000',
+        // Rouge (CRÉDIT/dépenses) → gris foncé italique
+        '#e11d48': '#333333', '#dc2626': '#333333', '#9f1239': '#333333',
+        '#f43f5e': '#333333',
+        // Bleu, violet, orange → gris moyen
+        '#0284c7': '#444444', '#0369a1': '#444444', '#38bdf8': '#444444',
+        '#7c3aed': '#444444', '#5b21b6': '#444444', '#a78bfa': '#444444',
+        '#d97706': '#444444', '#6366f1': '#444444',
+        // Gris → gris standard
+        '#475569': '#555555', '#64748b': '#555555', '#94a3b8': '#666666',
+        '#0f172a': '#000000', '#1e293b': '#111111',
+      };
+
+      zone.querySelectorAll('*').forEach(el => {
+        const style = el.getAttribute('style');
+        if (!style) return;
+        let newStyle = style;
+
+        // Remplacer les gradients par du noir plein
+        if (/linear-gradient/.test(style)) {
+          newStyle = newStyle.replace(/background\s*:\s*linear-gradient\([^;]+\)/gi, 'background:#000000');
+          newStyle = newStyle.replace(/background-image\s*:\s*linear-gradient\([^;]+\)/gi, 'background-image:none');
+          // S'assurer que la couleur du texte est blanche
+          if (!/color\s*:/.test(newStyle)) {
+            newStyle += '; color:#ffffff;';
+          } else {
+            newStyle = newStyle.replace(/color\s*:\s*[^;]+/g, 'color:#ffffff');
+          }
+        }
+
+        // Remplacer les couleurs de fond connues
+        for (const [hex, mapping] of Object.entries(colorMap)) {
+          const bgRegex = new RegExp(`background(?:-color)?\\s*:\\s*${hex.replace('#','#')}`, 'gi');
+          if (bgRegex.test(newStyle)) {
+            newStyle = newStyle.replace(new RegExp(`background(?:-color)?\\s*:\\s*${hex}`, 'gi'), `background:${mapping.bg}`);
+            if (mapping.color) {
+              if (!/color\s*:/.test(newStyle)) newStyle += `; color:${mapping.color};`;
+              else newStyle = newStyle.replace(/\bcolor\s*:\s*[^;]+/g, `color:${mapping.color}`);
+            }
+          }
+        }
+
+        // Remplacer les couleurs de texte connues
+        for (const [hex, replacement] of Object.entries(textColorMap)) {
+          newStyle = newStyle.replace(new RegExp(`(?<![a-z-])color\\s*:\\s*${hex}`, 'gi'), `color:${replacement}`);
+        }
+
+        // Supprimer box-shadow et border-radius coloré sur en-têtes
+        newStyle = newStyle.replace(/box-shadow\s*:[^;]+;?/gi, '');
+
+        // Normaliser les bordures colorées → gris
+        newStyle = newStyle.replace(/border(?:-left|-right|-top|-bottom)?\s*:\s*[\d.]+px\s+solid\s+#[0-9a-fA-F]{3,6}/gi, m => {
+          const parts = m.match(/(border[^:]*)\s*:\s*([\d.]+px\s+solid\s+)(#[0-9a-fA-F]{3,6})/i);
+          if (!parts) return m;
+          const col = parts[3].toLowerCase();
+          if (col === '#e2e8f0' || col === '#e9eef4' || col === '#cbd5e1') return `${parts[1]}:${parts[2]}#cccccc`;
+          if (['#059669','#e11d48','#0284c7','#7c3aed','#d97706','#f59e0b'].includes(col)) return `${parts[1]}:${parts[2]}#555555`;
+          return m;
+        });
+
+        if (newStyle !== style) el.setAttribute('style', newStyle);
+      });
+    }
+
+    // ----------------------------------------------------
     // EXPORT PDF (via impression navigateur, "Enregistrer en PDF")
     // ----------------------------------------------------
     function printDriverReport(data) {
@@ -4083,6 +4300,9 @@
         document.head.appendChild(driverLandscapeStyle);
       }
       driverLandscapeStyle.textContent = '@media print { @page { size: A4 landscape; margin: 10mm; } }';
+
+      // Appliquer les couleurs N&B sur les éléments générés dynamiquement
+      applyPrintBW(zone);
 
       document.body.classList.add('printing-report');
 
@@ -4989,6 +5209,8 @@
       }
       landscapeStyle.textContent = '@media print { @page { size: A4 landscape; margin: 10mm; } }';
 
+      applyPrintBW(document.getElementById('pdf-render-zone'));
+
       document.body.classList.add('printing-report');
       const cleanup = () => {
         document.body.classList.remove('printing-report');
@@ -5161,6 +5383,8 @@
         document.head.appendChild(landscapeStyle);
       }
       landscapeStyle.textContent = '@media print { @page { size: A4 landscape; margin: 10mm; } }';
+
+      applyPrintBW(document.getElementById('pdf-render-zone'));
 
       document.body.classList.add('printing-report');
       const cleanup = () => {
