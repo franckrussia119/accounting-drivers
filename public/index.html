@@ -3814,35 +3814,83 @@
         ? `${data.period.startDate || 'Origine'} au ${data.period.endDate || "aujourd'hui"}`
         : 'Historique complet';
 
-      // Livre de caisse — tri CHRONOLOGIQUE CROISSANT pour calcul solde courant
-      const cashRows = (data.timeline || []).slice().sort((a, b) => {
-        const da = new Date(a.date), db = new Date(b.date);
-        return da - db || (a.isCredit ? -1 : 1); // même jour: recettes avant dépenses
+      // ── LIVRE DE CAISSE : construction des lignes atomiques ──────────────
+      // Chaque voyage génère : 1 ligne DÉBIT (recette) + N lignes CRÉDIT
+      // (carburant, pesée, frais route inclus dans le voyage)
+      // Les dépenses séparées (fuel_expenses, maintenance, other) = lignes CRÉDIT
+      const allCashEntries = [];
+
+      (data.timeline || []).forEach(item => {
+        if (item.type === 'trip') {
+          // 1. Ligne DÉBIT — recette encaissée
+          const tripRef = [item.title, item.subtitle].filter(Boolean).join(' · ');
+          allCashEntries.push({
+            date: item.date,
+            sort: item.date + '_0',
+            typeLabel: 'Voyage',
+            detail: `<span style="font-weight:700;">${item.title}</span><br><span style="font-size:7.5px;color:#64748b;">${item.subtitle||''}</span>`,
+            isDebit: true,
+            amount: item.amount || 0,
+            labelColor: '#059669'
+          });
+          // 2. Lignes CRÉDIT — dépenses embarquées dans le voyage
+          if ((item.depCarburant || 0) > 0) {
+            allCashEntries.push({
+              date: item.date, sort: item.date + '_1',
+              typeLabel: 'Carburant',
+              detail: `<span style="font-weight:700;">Carburant voyage</span><br><span style="font-size:7.5px;color:#64748b;">${item.title}</span>`,
+              isDebit: false, amount: item.depCarburant, labelColor: '#d97706'
+            });
+          }
+          if ((item.pesee || 0) > 0) {
+            allCashEntries.push({
+              date: item.date, sort: item.date + '_2',
+              typeLabel: 'Pesée',
+              detail: `<span style="font-weight:700;">Pesée / Pont bascule</span><br><span style="font-size:7.5px;color:#64748b;">${item.title}</span>`,
+              isDebit: false, amount: item.pesee, labelColor: '#0284c7'
+            });
+          }
+          if ((item.peage || 0) > 0) {
+            allCashEntries.push({
+              date: item.date, sort: item.date + '_3',
+              typeLabel: 'Frais route',
+              detail: `<span style="font-weight:700;">Frais de route / Péage</span><br><span style="font-size:7.5px;color:#64748b;">${item.title}</span>`,
+              isDebit: false, amount: item.peage, labelColor: '#7c3aed'
+            });
+          }
+        } else {
+          // Dépenses séparées de la DB (fuel_expenses, maintenance, other_expenses)
+          allCashEntries.push({
+            date: item.date, sort: item.date + '_5',
+            typeLabel: item.typeLabel,
+            detail: `<span style="font-weight:700;">${item.title}</span>${item.subtitle ? '<br><span style="font-size:7.5px;color:#64748b;">' + item.subtitle + '</span>' : ''}`,
+            isDebit: false, amount: item.amount || 0, labelColor: '#e11d48'
+          });
+        }
       });
 
-      // Calcul du solde courant ligne par ligne
+      // Tri chronologique croissant; même date: recettes (sort _0) avant dépenses
+      allCashEntries.sort((a, b) => a.sort.localeCompare(b.sort));
+
+      // Calcul solde courant
       let runningBalance = 0;
-      const cashbookRows = cashRows.map((item, i) => {
-        const amount = item.amount || 0;
-        if (item.isCredit) {
-          runningBalance += amount; // DÉBIT = entrée d'argent (recette)
-        } else {
-          runningBalance -= amount; // CRÉDIT = sortie d'argent (dépense)
-        }
+      const cashbookRows = allCashEntries.map((entry, i) => {
+        if (entry.isDebit) runningBalance += entry.amount;
+        else runningBalance -= entry.amount;
         const rowBg = i % 2 === 0 ? '#ffffff' : '#f8fafc';
         const soldeColor = runningBalance >= 0 ? '#059669' : '#e11d48';
-        const mainDetail = `<span style="font-weight:700;">${item.title}</span>${item.subtitle ? '<br><span style="font-size:7.5px; color:#64748b;">' + item.subtitle + '</span>' : ''}`;
         return `<tr style="border-bottom:1px solid #e9eef4; background:${rowBg};">
-          <td style="padding:5px 7px; font-size:8.5px; color:#475569; white-space:nowrap;">${item.date}</td>
-          <td style="padding:5px 7px; font-size:8px; font-weight:700; color:#334155; white-space:nowrap;">${item.typeLabel}</td>
-          <td style="padding:5px 7px; font-size:8.5px; color:#0f172a; line-height:1.3;">${mainDetail}</td>
-          <td style="padding:5px 7px; text-align:right; font-size:9px; font-weight:800; color:#059669;">${item.isCredit ? formatFCFA(amount) : ''}</td>
-          <td style="padding:5px 7px; text-align:right; font-size:9px; font-weight:800; color:#e11d48;">${!item.isCredit ? formatFCFA(amount) : ''}</td>
-          <td style="padding:5px 9px; text-align:right; font-size:9px; font-weight:900; color:${soldeColor}; background:${runningBalance >= 0 ? '#f0fdf4' : '#fff1f2'}; border-left:2px solid ${soldeColor};">${formatFCFA(runningBalance)}</td>
+          <td style="padding:5px 7px; font-size:8.5px; color:#475569; white-space:nowrap;">${entry.date}</td>
+          <td style="padding:5px 7px; font-size:8px; font-weight:700; color:${entry.labelColor}; white-space:nowrap;">${entry.typeLabel}</td>
+          <td style="padding:5px 7px; font-size:8.5px; color:#0f172a; line-height:1.4;">${entry.detail}</td>
+          <td style="padding:5px 7px; text-align:right; font-size:9px; font-weight:800; color:#059669;">${entry.isDebit ? formatFCFA(entry.amount) : ''}</td>
+          <td style="padding:5px 7px; text-align:right; font-size:9px; font-weight:800; color:#e11d48;">${!entry.isDebit ? formatFCFA(entry.amount) : ''}</td>
+          <td style="padding:5px 9px; text-align:right; font-size:9px; font-weight:900; color:${soldeColor}; background:${runningBalance>=0?'#f0fdf4':'#fff1f2'}; border-left:2px solid ${soldeColor};">${formatFCFA(runningBalance)}</td>
         </tr>`;
       });
 
       const finalBalance = runningBalance;
+      const cashRows = allCashEntries; // pour le compteur de mouvements
       const rowsHtml = cashbookRows.join('');
 
       const dColor = getDriverColor(d.id);
