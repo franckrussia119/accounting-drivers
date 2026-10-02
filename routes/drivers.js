@@ -206,7 +206,10 @@ driversRouter.get('/:id/account', (req, res) => {
 
     // 1. Tous les voyages du chauffeur
     const trips = db.prepare(`
-      SELECT id, trip_date, trip_date as date, route, amount_fcfa, recette, marge_nette, truck_id, cargo, bl_number, container_number, notes
+      SELECT id, trip_date, trip_date as date, route, amount_fcfa, recette, marge_nette,
+             COALESCE(dep_carburant,0) as dep_carburant, COALESCE(pesee,0) as pesee,
+             COALESCE(peage,0) as peage, COALESCE(montant_remis,amount_fcfa) as montant_remis,
+             truck_id, cargo, bl_number, container_number, notes
       FROM trips
       WHERE driver_id = ? ${dateTripFilter}
       ORDER BY trip_date DESC
@@ -290,17 +293,22 @@ driversRouter.get('/:id/account', (req, res) => {
 
     // Totaux
     const totalTripsCount = trips.length;
-    const totalRevenue = trips.reduce((sum, t) => sum + Number(t.amount_fcfa || 0), 0);
     const totalRecette = trips.reduce((sum, t) => sum + Number(t.recette || 0), 0);
+    const totalDepCarburant = trips.reduce((sum, t) => sum + Number(t.dep_carburant || 0), 0);
+    const totalPesee = trips.reduce((sum, t) => sum + Number(t.pesee || 0), 0);
+    const totalPeage = trips.reduce((sum, t) => sum + Number(t.peage || 0), 0);
+    const totalMontantRemis = trips.reduce((sum, t) => sum + Number(t.montant_remis || 0), 0);
     const totalMargeNette = trips.reduce((sum, t) => sum + Number(t.marge_nette || 0), 0);
+    // totalRevenue kept for backward compat = sum of montant_remis (what was given to driver)
+    const totalRevenue = totalMontantRemis;
     const totalFuel = fuel.reduce((sum, f) => sum + Number(f.amount_fcfa || 0), 0);
     const totalFuelLiters = fuel.reduce((sum, f) => sum + Number(f.liters || 0), 0);
     const totalMaintenance = maintenance.reduce((sum, m) => sum + Number(m.amount_fcfa || 0), 0);
     const totalOtherExpenses = otherExpenses.reduce((sum, e) => sum + Number(e.amount_fcfa || 0), 0);
-    const netBalance = totalRevenue - totalFuel - totalMaintenance - totalOtherExpenses;
-    const totalDépenses = totalFuel + totalMaintenance + totalOtherExpenses;
-    // Crédit entreprise = montant reçu des voyages - total dépenses (ce que l'entreprise garde)
-    const creditEntreprise = totalRevenue - totalDépenses;
+    const totalDépenses = totalMontantRemis + totalMaintenance + totalOtherExpenses;
+    const netBalance = totalRecette - totalDépenses;
+    // Crédit entreprise = recette totale - total remis chauffeur - autres dépenses
+    const creditEntreprise = totalRecette - totalMontantRemis - totalMaintenance - totalOtherExpenses;
 
     // Flux chronologique unifié (Trips + Fuel + Maintenance + Autres Dépenses)
     const timeline = [
@@ -312,7 +320,12 @@ driversRouter.get('/:id/account', (req, res) => {
         date: t.date,
         title: t.route,
         subtitle: `Camion: ${t.truck_id}${t.cargo ? ' • ' + t.cargo : ''}${t.container_number ? ' • Conteneur: ' + t.container_number : ''}${t.bl_number ? ' • BL: ' + t.bl_number : ''}`,
-        amount: Number(t.amount_fcfa),
+        amount: Number(t.recette || 0),
+        montantRemis: Number(t.montant_remis || 0),
+        depCarburant: Number(t.dep_carburant || 0),
+        pesee: Number(t.pesee || 0),
+        peage: Number(t.peage || 0),
+        margeNette: Number(t.marge_nette || 0),
         isCredit: true, // Revenu
         details: t.notes || ''
       })),
@@ -368,6 +381,10 @@ driversRouter.get('/:id/account', (req, res) => {
         totalTripsCount,
         totalRevenue,
         totalRecette,
+        totalDepCarburant,
+        totalPesee,
+        totalPeage,
+        totalMontantRemis,
         totalMargeNette,
         totalFuel,
         totalFuelLiters,

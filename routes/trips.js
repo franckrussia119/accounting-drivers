@@ -57,22 +57,24 @@ tripsRouter.get('/', (req, res) => {
 // Création d'un voyage
 tripsRouter.post('/', (req, res) => {
   try {
-    const { driver_id, truck_id, trip_date, route, amount_fcfa, recette, cargo, bl_number, container_number, notes } = req.body || {};
+    const { driver_id, truck_id, trip_date, route, recette, dep_carburant, pesee, peage, cargo, bl_number, container_number, notes } = req.body || {};
 
-    if (!driver_id || !truck_id || !trip_date || !route || amount_fcfa === undefined) {
-      return res.status(400).json({ error: 'Chauffeur, camion, date, trajet et montant (FCFA) sont obligatoires.' });
+    if (!driver_id || !truck_id || !trip_date || !route) {
+      return res.status(400).json({ error: 'Chauffeur, camion, date et trajet sont obligatoires.' });
     }
 
-    const amount = parseInt(amount_fcfa, 10);
-    if (isNaN(amount) || amount < 0) {
-      return res.status(400).json({ error: 'Montant invalide.' });
-    }
     const recetteVal = recette ? parseInt(recette, 10) : 0;
-    const margeNette = recetteVal - amount;
+    const depCarb = dep_carburant ? parseInt(dep_carburant, 10) : 0;
+    const peseeVal = pesee ? parseInt(pesee, 10) : 0;
+    const peageVal = peage ? parseInt(peage, 10) : 0;
+    const montantRemis = depCarb + peseeVal + peageVal;
+    // amount_fcfa = montant_remis (kept for backward compat)
+    const amount = montantRemis;
+    const margeNette = recetteVal - montantRemis;
 
     const stmt = db.prepare(`
-      INSERT INTO trips (driver_id, truck_id, trip_date, route, amount_fcfa, recette, marge_nette, cargo, bl_number, container_number, notes)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO trips (driver_id, truck_id, trip_date, route, amount_fcfa, recette, marge_nette, dep_carburant, pesee, peage, montant_remis, cargo, bl_number, container_number, notes)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     const result = stmt.run(
@@ -83,6 +85,10 @@ tripsRouter.post('/', (req, res) => {
       amount,
       recetteVal,
       margeNette,
+      depCarb,
+      peseeVal,
+      peageVal,
+      montantRemis,
       cargo ? cargo.trim() : null,
       bl_number ? bl_number.trim().toUpperCase() : null,
       container_number ? container_number.trim().toUpperCase() : null,
@@ -112,18 +118,33 @@ tripsRouter.put('/:id', (req, res) => {
       return res.status(404).json({ error: 'Voyage introuvable.' });
     }
 
-    const { driver_id, truck_id, trip_date, route, amount_fcfa, cargo, bl_number, container_number, notes } = req.body || {};
+    const { driver_id, truck_id, trip_date, route, recette, dep_carburant, pesee, peage, cargo, bl_number, container_number, notes } = req.body || {};
+
+    const recetteVal = recette !== undefined ? parseInt(recette, 10) : Number(existing.recette || 0);
+    const depCarb = dep_carburant !== undefined ? parseInt(dep_carburant, 10) : Number(existing.dep_carburant || 0);
+    const peseeVal = pesee !== undefined ? parseInt(pesee, 10) : Number(existing.pesee || 0);
+    const peageVal = peage !== undefined ? parseInt(peage, 10) : Number(existing.peage || 0);
+    const montantRemis = depCarb + peseeVal + peageVal;
+    const margeNette = recetteVal - montantRemis;
 
     db.prepare(`
-      UPDATE trips 
-      SET driver_id = ?, truck_id = ?, trip_date = ?, route = ?, amount_fcfa = ?, cargo = ?, bl_number = ?, container_number = ?, notes = ?
+      UPDATE trips
+      SET driver_id = ?, truck_id = ?, trip_date = ?, route = ?, amount_fcfa = ?, recette = ?, marge_nette = ?,
+          dep_carburant = ?, pesee = ?, peage = ?, montant_remis = ?,
+          cargo = ?, bl_number = ?, container_number = ?, notes = ?
       WHERE id = ?
     `).run(
       driver_id ? parseInt(driver_id, 10) : existing.driver_id,
       truck_id ? truck_id.trim().toUpperCase() : existing.truck_id,
       trip_date || existing.trip_date,
       route ? route.trim() : existing.route,
-      amount_fcfa !== undefined ? parseInt(amount_fcfa, 10) : existing.amount_fcfa,
+      montantRemis,
+      recetteVal,
+      margeNette,
+      depCarb,
+      peseeVal,
+      peageVal,
+      montantRemis,
       cargo !== undefined ? (cargo ? cargo.trim() : null) : existing.cargo,
       bl_number !== undefined ? (bl_number ? bl_number.trim().toUpperCase() : null) : existing.bl_number,
       container_number !== undefined ? (container_number ? container_number.trim().toUpperCase() : null) : existing.container_number,

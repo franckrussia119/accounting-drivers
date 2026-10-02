@@ -157,6 +157,10 @@ export function initDatabase() {
   migrateAddColumnIfMissing('trips', 'container_number', 'TEXT');
   migrateAddColumnIfMissing('trips', 'recette', 'INTEGER DEFAULT 0');
   migrateAddColumnIfMissing('trips', 'marge_nette', 'INTEGER DEFAULT 0');
+  migrateAddColumnIfMissing('trips', 'dep_carburant', 'INTEGER DEFAULT 0');
+  migrateAddColumnIfMissing('trips', 'pesee', 'INTEGER DEFAULT 0');
+  migrateAddColumnIfMissing('trips', 'peage', 'INTEGER DEFAULT 0');
+  migrateAddColumnIfMissing('trips', 'montant_remis', 'INTEGER DEFAULT 0');
   migrateAddColumnIfMissing('maintenance_records', 'document_url', 'TEXT');
 }
 
