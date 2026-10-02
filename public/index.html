@@ -382,13 +382,13 @@
     .toolbar-card {
       background-color: var(--bg-surface);
       border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      padding: 1rem;
-      margin-bottom: 1.25rem;
-      box-shadow: var(--shadow-sm);
+      border-radius: var(--radius-sm);
+      padding: 0.875rem 1rem;
+      margin-bottom: 1rem;
+      box-shadow: none;
       display: flex;
       flex-direction: column;
-      gap: 0.85rem;
+      gap: 0.75rem;
     }
 
     .toolbar-row {
@@ -456,10 +456,13 @@
     /* Cartes KPI Synthétiques */
     .kpi-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      grid-template-columns: repeat(5, 1fr);
       gap: 1rem;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
     }
+    @media (max-width: 1100px) { .kpi-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 700px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 460px) { .kpi-grid { grid-template-columns: 1fr; } }
 
     .kpi-card {
       background-color: var(--bg-surface);
@@ -534,8 +537,7 @@
       font-size: 0.8rem;
       font-weight: 600;
       color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
     }
 
     /* Vector Icons */
@@ -655,7 +657,7 @@
       border-radius: var(--radius-lg);
       box-shadow: var(--shadow-md);
       overflow: hidden;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
     }
 
     .data-card-header {
@@ -695,8 +697,7 @@
       color: var(--text-muted);
       font-size: 0.75rem;
       font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
       padding: 0.75rem 1rem;
       border-bottom: 1px solid var(--border-color);
       white-space: nowrap;
@@ -852,7 +853,7 @@
     .timeline-item {
       display: flex;
       gap: 1rem;
-      padding: 0.85rem 0;
+      padding: 0.85rem 0 0.85rem 0.75rem;
       border-bottom: 1px solid var(--border-color);
     }
 
@@ -943,10 +944,11 @@
       width: 100%;
       max-width: 420px;
       background-color: rgba(255,255,255,0.97);
-      border: 1px solid rgba(255,255,255,0.2);
+      border: none;
       border-radius: var(--radius-lg);
       padding: 2.25rem;
       box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+      backdrop-filter: blur(10px);
       color: #0f172a;
     }
     .login-box .form-label { color: #334155; }
@@ -1052,12 +1054,30 @@
       background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
       color: #ffffff;
       font-weight: 800;
-      font-size: 1.15rem;
+      font-size: 1.05rem;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
       box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
+    }
+
+    .driver-card .driver-card-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      border-top: 1px solid var(--border-color);
+      padding-top: 0.75rem;
+      margin-top: 0.5rem;
+      opacity: 0;
+      max-height: 0;
+      overflow: hidden;
+      transition: opacity 0.2s ease, max-height 0.25s ease;
+    }
+    .driver-card:hover .driver-card-actions,
+    .driver-card:focus-within .driver-card-actions {
+      opacity: 1;
+      max-height: 200px;
     }
 
     .driver-card-metrics {
@@ -1809,17 +1829,17 @@
           <button id="driver-add-trip-btn" class="btn btn-primary btn-sm" style="font-weight: 700;">
             <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> + Enregistrer un voyage
           </button>
-          <button id="driver-add-fuel-btn" class="btn btn-sm" style="background: linear-gradient(135deg, #d97706, #b45309); color: white; border: none; font-weight: 700;">
+          <button id="driver-add-fuel-btn" class="btn btn-secondary btn-sm" style="font-weight: 600;">
             <svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 22V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v17"/><path d="M13 10h4a2 2 0 0 1 2 2v8a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V9.5a1.5 1.5 0 0 0-2.56-1.06L19 10"/><rect x="5" y="6" width="6" height="5" rx="1"/><path d="M3 22h10"/></svg> + Dépense Carburant
           </button>
-          <button id="driver-add-maint-btn" class="btn btn-sm" style="background: linear-gradient(135deg, #e11d48, #be123c); color: white; border: none; font-weight: 700;">
+          <button id="driver-add-maint-btn" class="btn btn-secondary btn-sm" style="font-weight: 600;">
             <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> + Noter un entretien
           </button>
-          <button id="driver-add-expense-btn" class="btn btn-sm" style="background: linear-gradient(135deg, #7c3aed, #6d28d9); color: white; border: none; font-weight: 700;">
+          <button id="driver-add-expense-btn" class="btn btn-secondary btn-sm" style="font-weight: 600;">
             <svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 10h18M7 15h1m4 0h5M5 6h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/></svg> + Autre dépense
           </button>
           <!-- Bouton assignation camion depuis le dossier chauffeur -->
-          <button id="driver-assign-truck-btn" class="btn btn-sm" style="background: linear-gradient(135deg, #0891b2, #0e7490); color: white; border: none; font-weight: 700;" onclick="openAssignTruckModal()">
+          <button id="driver-assign-truck-btn" class="btn btn-secondary btn-sm" style="font-weight: 600;" onclick="openAssignTruckModal()">
             <svg class="svg-icon" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> Assigner un camion
           </button>
         </div>
@@ -1852,7 +1872,7 @@
             <span class="kpi-icon"><svg class="svg-icon" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><line x1="6" y1="12" x2="6.01" y2="12"/><line x1="18" y1="12" x2="18.01" y2="12"/></svg></span>
           </div>
           <div class="kpi-value text-success font-mono" id="detail-driver-revenue">0 FCFA</div>
-          <div class="kpi-meta"><span id="detail-driver-trips-count">0</span> voyages • <span style="font-size:0.68rem; opacity:0.7;">→ voir détails</span></div>
+          <div class="kpi-meta"><span id="detail-driver-trips-count">0</span> voyages</div>
         </div>
 
         <div class="kpi-card kpi-fuel" onclick="switchDriverSubtab('fuel')" style="cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;" title="Cliquer pour voir les dépenses carburant">
@@ -1861,7 +1881,7 @@
             <span class="kpi-icon"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 22V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v17"/><path d="M13 10h4a2 2 0 0 1 2 2v8a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V9.5a1.5 1.5 0 0 0-2.56-1.06L19 10"/><rect x="5" y="6" width="6" height="5" rx="1"/><path d="M3 22h10"/></svg></span>
           </div>
           <div class="kpi-value text-warning font-mono" id="detail-driver-fuel">0 FCFA</div>
-          <div class="kpi-meta"><span id="detail-driver-fuel-liters">0</span> L gasoil (<span id="detail-driver-fuel-count">0</span> pleins) • <span style="font-size:0.68rem; opacity:0.7;">→ voir détails</span></div>
+          <div class="kpi-meta"><span id="detail-driver-fuel-liters">0</span> L gasoil (<span id="detail-driver-fuel-count">0</span> pleins)</div>
         </div>
 
         <div class="kpi-card kpi-maintenance" onclick="switchDriverSubtab('maint')" style="cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;" title="Cliquer pour voir les entretiens">
@@ -1870,7 +1890,7 @@
             <span class="kpi-icon"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
           </div>
           <div class="kpi-value text-danger font-mono" id="detail-driver-maint">0 FCFA</div>
-          <div class="kpi-meta"><span id="detail-driver-maint-count">0</span> interventions • <span style="font-size:0.68rem; opacity:0.7;">→ voir détails</span></div>
+          <div class="kpi-meta"><span id="detail-driver-maint-count">0</span> interventions</div>
         </div>
 
         <div class="kpi-card kpi-expense" onclick="switchDriverSubtab('expenses')" style="cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;" title="Cliquer pour voir les autres dépenses">
@@ -1879,7 +1899,7 @@
             <span class="kpi-icon"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 10h18M7 15h1m4 0h5M5 6h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/></svg></span>
           </div>
           <div class="kpi-value text-violet font-mono" id="detail-driver-expenses">0 FCFA</div>
-          <div class="kpi-meta"><span id="detail-driver-expenses-count">0</span> dépenses • <span style="font-size:0.68rem; opacity:0.7;">→ voir détails</span></div>
+          <div class="kpi-meta"><span id="detail-driver-expenses-count">0</span> dépenses</div>
         </div>
 
         <div class="kpi-card kpi-net" onclick="switchDriverSubtab('timeline')" style="cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;" title="Cliquer pour voir le relevé chronologique">
@@ -1888,7 +1908,7 @@
             <span class="kpi-icon"><svg class="svg-icon" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
           </div>
           <div class="kpi-value font-mono" id="detail-driver-net">0 FCFA</div>
-          <div class="kpi-meta">Recettes - Dépenses totales • <span style="font-size:0.68rem; opacity:0.7;">→ relevé complet</span></div>
+          <div class="kpi-meta">Recettes - Dépenses totales</div>
         </div>
       </div>
 
@@ -3883,7 +3903,7 @@
             </div>
 
             <!-- ACTIONS DIRECTES POUR CE CHAUFFEUR -->
-            <div style="display: flex; flex-direction: column; gap: 0.5rem; border-top: 1px dashed var(--border-color); padding-top: 0.75rem; margin-top: 0.25rem;">
+            <div class="driver-card-actions">
               <button class="btn btn-primary" style="width: 100%; justify-content: center; font-weight: 700;" onclick="event.stopPropagation(); openDriverDetail(${d.id});">
                 ${VECTORS.folder} Entrer dans le dossier chauffeur →
               </button>
