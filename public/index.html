@@ -1105,7 +1105,7 @@
       overflow: hidden;
     }
     .driver-detail-hero::after {
-      content: '🚛';
+      content: '';
       position: absolute;
       right: 1.5rem;
       top: 50%;
@@ -1858,7 +1858,7 @@
           <button class="driver-period-btn" data-preset="week">Cette semaine</button>
           <button class="driver-period-btn" data-preset="30days">30 jours</button>
           <button class="driver-period-btn" data-preset="all">Tout l'historique</button>
-          <button class="driver-period-btn" data-preset="custom" id="period-custom-btn">📅 Période perso.</button>
+          <button class="driver-period-btn" data-preset="custom" id="period-custom-btn">Période perso.</button>
         </div>
         <div id="custom-date-range" style="display: none; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
           <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted);">Du :</label>
@@ -1959,9 +1959,9 @@
                   <th>Trajet</th>
                   <th>Camion</th>
                   <th>Recette</th>
-                  <th>⛽ Carburant</th>
-                  <th>⚖️ Pesée</th>
-                  <th>🛣️ Frais de route</th>
+                  <th>Carburant</th>
+                  <th>Pesée</th>
+                  <th>Frais de route</th>
                   <th>Total Remis</th>
                   <th>Marge Nette</th>
                   <th>N° BL</th>
@@ -1976,7 +1976,7 @@
         <!-- Sous-panneau 3 : Carburant Voyages -->
         <div id="subpanel-fuel" class="driver-subpanel" style="display: none; padding: 0;">
           <div style="padding: 0.75rem 1rem; background: var(--bg-subtle); border-bottom: 1px solid var(--border-color); font-size: 0.78rem; color: var(--text-muted);">
-            Carburant remis au chauffeur par voyage — somme des montants ⛽ enregistrés à chaque voyage
+            Carburant remis au chauffeur par voyage — somme des montants enregistrés à chaque voyage
           </div>
           <div class="table-container">
             <table class="data-table mobile-collapse">
@@ -1985,9 +1985,9 @@
                   <th>Date</th>
                   <th>Trajet</th>
                   <th>Camion</th>
-                  <th>⛽ Carburant remis</th>
-                  <th>⚖️ Pesée</th>
-                  <th>🛣️ Frais de route</th>
+                  <th>Carburant remis</th>
+                  <th>Pesée</th>
+                  <th>Frais de route</th>
                   <th>Total remis</th>
                 </tr>
               </thead>
@@ -2079,11 +2079,11 @@
         <div class="toolbar-row">
           <div class="presets-group">
             <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); align-self: center; margin-right: 0.25rem;">PÉRIODE :</span>
-            <button class="preset-btn" data-preset="week">Cette semaine</button>
-            <button class="preset-btn active" data-preset="month">Ce mois-ci</button>
-            <button class="preset-btn" data-preset="7days">7 derniers jours</button>
-            <button class="preset-btn" data-preset="30days">30 derniers jours</button>
-            <button class="preset-btn" data-preset="all">Tout l'historique</button>
+            <button class="preset-btn dash-preset-btn" data-preset="week">Cette semaine</button>
+            <button class="preset-btn dash-preset-btn" data-preset="month">Ce mois-ci</button>
+            <button class="preset-btn dash-preset-btn" data-preset="7days">7 derniers jours</button>
+            <button class="preset-btn dash-preset-btn" data-preset="30days">30 derniers jours</button>
+            <button class="preset-btn dash-preset-btn active" data-preset="all">Tout l'historique</button>
           </div>
           <div class="date-pickers">
             <div class="date-input-wrap">
@@ -2342,7 +2342,7 @@
     <!-- ==================== ONGLET 6 : RECHERCHE BL / CONTENEUR ==================== -->
     <section id="view-search-bl" class="view-panel" style="display:none;">
       <div style="background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:1.5rem; margin-bottom:1.5rem; box-shadow:var(--shadow-sm);">
-        <h2 style="font-size:1.2rem; font-weight:800; margin-bottom:0.4rem;">🔍 Recherche par N° BL ou N° Conteneur</h2>
+        <h2 style="font-size:1.2rem; font-weight:800; margin-bottom:0.4rem;">Recherche par N° BL ou N° Conteneur</h2>
         <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.25rem;">Retrouvez instantanément qui a transporté un chargement, quand et avec quel camion.</p>
 
         <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap; margin-bottom:1.5rem;">
@@ -2377,7 +2377,7 @@
         </div>
 
         <div id="bl-search-empty" style="display:none; text-align:center; padding:3rem 1rem; color:var(--text-muted);">
-          <div style="font-size:3rem; margin-bottom:0.75rem;">📭</div>
+          <div style="font-size:3rem; margin-bottom:0.75rem;"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><path d="M22 10H2"/></svg></div>
           <div style="font-size:1rem; font-weight:600;">Aucun résultat trouvé</div>
           <div style="font-size:0.85rem; margin-top:0.35rem;">Vérifiez le numéro saisi — la recherche est partielle (vous pouvez saisir une partie du numéro).</div>
         </div>
@@ -2516,7 +2516,7 @@
 
         <!-- Filtre dates -->
         <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; margin-bottom:1rem; padding:0.75rem 1rem; background:var(--bg-subtle); border-radius:var(--radius-sm); border:1px solid var(--border-color);">
-          <span style="font-size:0.78rem; font-weight:700; color:var(--text-muted);">📅 Période :</span>
+          <span style="font-size:0.78rem; font-weight:700; color:var(--text-muted);">Période :</span>
           <input type="date" id="truck-report-start" class="form-control" style="width:auto; font-size:0.82rem; padding:0.3rem 0.6rem;">
           <span style="color:var(--text-muted); font-size:0.8rem;">→</span>
           <input type="date" id="truck-report-end" class="form-control" style="width:auto; font-size:0.82rem; padding:0.3rem 0.6rem;">
@@ -2532,16 +2532,16 @@
             <div class="kpi-meta"><span id="truck-trip-count">0</span> voyages</div>
           </div>
           <div class="kpi-card" style="padding: 0.85rem;">
-            <div class="kpi-title" style="font-size: 0.7rem;">⛽ Carburant (voyages)</div>
+            <div class="kpi-title" style="font-size: 0.7rem;">Carburant (voyages)</div>
             <div class="kpi-value font-mono" style="font-size: 1.15rem; color:#d97706;" id="truck-total-dep-carb">0 FCFA</div>
           </div>
           <div class="kpi-card" style="padding: 0.85rem;">
-            <div class="kpi-title" style="font-size: 0.7rem;">⛽ Pleins Station</div>
+            <div class="kpi-title" style="font-size: 0.7rem;">Pleins Station</div>
             <div class="kpi-value font-mono text-warning" style="font-size: 1.15rem;" id="truck-total-fuel">0 FCFA</div>
             <div class="kpi-meta"><span id="truck-fuel-liters">0</span> L</div>
           </div>
           <div class="kpi-card" style="padding: 0.85rem;">
-            <div class="kpi-title" style="font-size: 0.7rem;">🔧 Entretien</div>
+            <div class="kpi-title" style="font-size: 0.7rem;">Entretien</div>
             <div class="kpi-value font-mono text-danger" style="font-size: 1.15rem;" id="truck-total-maint">0 FCFA</div>
             <div class="kpi-meta"><span id="truck-maint-count">0</span> réparations</div>
           </div>
@@ -2552,7 +2552,7 @@
         </div>
 
         <!-- Voyages -->
-        <h4 style="font-size: 0.925rem; font-weight: 700; margin-bottom: 0.65rem;">🚛 Voyages effectués</h4>
+        <h4 style="font-size: 0.925rem; font-weight: 700; margin-bottom: 0.65rem;">Voyages effectués</h4>
         <div class="table-container" style="margin-bottom:1.25rem;">
           <table class="data-table mobile-collapse">
             <thead>
@@ -2561,9 +2561,9 @@
                 <th>Chauffeur</th>
                 <th>Trajet</th>
                 <th>Recette</th>
-                <th>⛽ Carb.</th>
-                <th>⚖️ Pesée</th>
-                <th>🛣️ Route</th>
+                <th>Carb.</th>
+                <th>Pesée</th>
+                <th>Route</th>
                 <th>Total Remis</th>
                 <th>Solde Net</th>
               </tr>
@@ -2575,7 +2575,7 @@
         </div>
 
         <!-- Pleins carburant -->
-        <h4 style="font-size: 0.925rem; font-weight: 700; margin-bottom: 0.65rem;">⛽ Pleins Carburant (station)</h4>
+        <h4 style="font-size: 0.925rem; font-weight: 700; margin-bottom: 0.65rem;">Pleins Carburant (station)</h4>
         <div class="table-container" style="margin-bottom:1.25rem;">
           <table class="data-table mobile-collapse">
             <thead>
@@ -2588,7 +2588,7 @@
         </div>
 
         <!-- Répartition entretien -->
-        <h4 style="font-size: 0.925rem; font-weight: 700; margin-bottom: 0.65rem;">🔧 Répartition des Travaux d'Entretien</h4>
+        <h4 style="font-size: 0.925rem; font-weight: 700; margin-bottom: 0.65rem;">Répartition des Travaux d'Entretien</h4>
         <div id="truck-type-breakdown" style="display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 1rem;"></div>
 
         <!-- Table entretiens -->
@@ -2657,15 +2657,15 @@
             <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.6rem; text-transform: none; letter-spacing: 0;">Montant total remis au chauffeur</div>
             <div class="form-grid-3" style="grid-template-columns: 1fr 1fr 1fr; gap: 0.6rem;">
               <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label" for="trip-dep-carburant" style="font-size: 0.75rem;">⛽ Carburant (FCFA)</label>
+                <label class="form-label" for="trip-dep-carburant" style="font-size: 0.75rem;">Carburant (FCFA)</label>
                 <input type="number" id="trip-dep-carburant" class="form-control" placeholder="0" min="0" inputmode="numeric" oninput="calcMargeNette()">
               </div>
               <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label" for="trip-pesee" style="font-size: 0.75rem;">⚖️ Pesée / Pont bascule</label>
+                <label class="form-label" for="trip-pesee" style="font-size: 0.75rem;">Pesée / Pont bascule</label>
                 <input type="number" id="trip-pesee" class="form-control" placeholder="0" min="0" inputmode="numeric" oninput="calcMargeNette()">
               </div>
               <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label" for="trip-peage" style="font-size: 0.75rem;">🛣️ Frais de route</label>
+                <label class="form-label" for="trip-peage" style="font-size: 0.75rem;">Frais de route</label>
                 <input type="number" id="trip-peage" class="form-control" placeholder="0" min="0" inputmode="numeric" oninput="calcMargeNette()">
               </div>
             </div>
@@ -2861,7 +2861,7 @@
             <input type="file" id="maint-document" class="form-control" accept=".pdf,.jpg,.jpeg,.png,.webp" style="padding: 0.4rem;">
             <small style="color: var(--text-muted); font-size: 0.72rem;">Bon signé par l'administration et le chauffeur. Formats acceptés : PDF, JPG, PNG. Max 10 Mo.</small>
             <div id="maint-document-preview" style="margin-top: 0.5rem; display: none;">
-              <a id="maint-document-link" href="#" target="_blank" style="font-size: 0.8rem; color: var(--primary);">📄 Voir le document joint</a>
+              <a id="maint-document-link" href="#" target="_blank" style="font-size: 0.8rem; color: var(--primary);">Voir le document joint</a>
             </div>
           </div>
         </div>
@@ -3350,22 +3350,61 @@
       loadCurrentTabData();
     }
 
-    // Préréglages de dates
+    // Préréglages de dates (global — pour les onglets chauffeurs, voyages, etc.)
     document.querySelectorAll('.preset-btn').forEach(btn => {
-      if (btn.classList.contains('driver-filter-btn')) return; // Évite interférence avec filtres chauffeurs
+      if (btn.classList.contains('driver-filter-btn')) return;
+      if (btn.classList.contains('dash-preset-btn')) return; // dashboard has its own handler
       btn.addEventListener('click', () => {
         applyPreset(btn.dataset.preset);
       });
+    });
+
+    // Préréglages dashboard — état indépendant (dashStartDate / dashEndDate)
+    function applyDashPreset(preset) {
+      const today = new Date();
+      const y = today.getFullYear(), m = today.getMonth(), d = today.getDate();
+      const fmt = dt => `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+      if (preset === 'week') {
+        const dow = today.getDay() || 7;
+        const mon = new Date(today); mon.setDate(d - dow + 1);
+        state.dashStartDate = fmt(mon); state.dashEndDate = fmt(today);
+      } else if (preset === 'month') {
+        state.dashStartDate = fmt(new Date(y, m, 1)); state.dashEndDate = fmt(today);
+      } else if (preset === '7days') {
+        const p = new Date(today); p.setDate(d - 7);
+        state.dashStartDate = fmt(p); state.dashEndDate = fmt(today);
+      } else if (preset === '30days') {
+        const p = new Date(today); p.setDate(d - 30);
+        state.dashStartDate = fmt(p); state.dashEndDate = fmt(today);
+      } else {
+        state.dashStartDate = ''; state.dashEndDate = '';
+      }
+      document.querySelectorAll('.dash-preset-btn').forEach(b => b.classList.toggle('active', b.dataset.preset === preset));
+      loadDashboard();
+    }
+    // Initialiser le dashboard sur "Tout l'historique"
+    state.dashStartDate = ''; state.dashEndDate = '';
+    document.querySelectorAll('.dash-preset-btn').forEach(btn => {
+      btn.addEventListener('click', () => applyDashPreset(btn.dataset.preset));
     });
 
     // Bouton Filtrer manuel
     const applyDateFilterBtn = document.getElementById('apply-date-filter');
     if (applyDateFilterBtn) {
       applyDateFilterBtn.addEventListener('click', () => {
-        state.startDate = document.getElementById('filter-start-date').value;
-        state.endDate = document.getElementById('filter-end-date').value;
-        document.querySelectorAll('.preset-btn:not(.driver-filter-btn)').forEach(b => b.classList.remove('active'));
-        loadCurrentTabData();
+        const start = document.getElementById('filter-start-date').value;
+        const end = document.getElementById('filter-end-date').value;
+        if (state.currentTab === 'dashboard') {
+          state.dashStartDate = start;
+          state.dashEndDate = end;
+          document.querySelectorAll('.dash-preset-btn').forEach(b => b.classList.remove('active'));
+          loadDashboard();
+        } else {
+          state.startDate = start;
+          state.endDate = end;
+          document.querySelectorAll('.preset-btn:not(.driver-filter-btn):not(.dash-preset-btn)').forEach(b => b.classList.remove('active'));
+          loadCurrentTabData();
+        }
       });
     }
 
@@ -3519,8 +3558,8 @@
     // ----------------------------------------------------
     async function loadDashboard() {
       let url = '/api/dashboard/stats?';
-      if (state.startDate) url += `&startDate=${state.startDate}`;
-      if (state.endDate) url += `&endDate=${state.endDate}`;
+      if (state.dashStartDate) url += `&startDate=${state.dashStartDate}`;
+      if (state.dashEndDate) url += `&endDate=${state.dashEndDate}`;
 
       try {
         const res = await fetch(url);
@@ -3717,11 +3756,11 @@
 
       const s = data.summary;
       const items = [
-        { label: '⛽ Carburant voyages', value: s.totalDepCarburant || 0, color: '#d97706' },
-        { label: '⚖️ Pesée / Pont bascule', value: s.totalPesee || 0, color: '#0284c7' },
-        { label: '🛣️ Frais de route', value: s.totalPeage || 0, color: '#7c3aed' },
-        { label: '🔧 Entretien & Réparations', value: s.totalMaintenance || 0, color: 'var(--danger)' },
-        { label: '📋 Autres Dépenses', value: s.totalOtherExpenses || 0, color: '#64748b' }
+        { label: 'Carburant voyages', value: s.totalDepCarburant || 0, color: '#d97706' },
+        { label: 'Pesée / Pont bascule', value: s.totalPesee || 0, color: '#0284c7' },
+        { label: 'Frais de route', value: s.totalPeage || 0, color: '#7c3aed' },
+        { label: 'Entretien & Réparations', value: s.totalMaintenance || 0, color: 'var(--danger)' },
+        { label: 'Autres Dépenses', value: s.totalOtherExpenses || 0, color: '#64748b' }
       ];
       const total = items.reduce((sum, it) => sum + it.value, 0);
 
@@ -3788,7 +3827,7 @@
           </div>
           <div style="text-align:right;">
             <div style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; backdrop-filter: blur(8px);">
-              <div style="font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 3px;">📅 PÉRIODE DU RAPPORT</div>
+              <div style="font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 3px;">PÉRIODE DU RAPPORT</div>
               <div style="font-size: 14px; font-weight: 800; color: white; white-space: nowrap;">${periodLabel}</div>
             </div>
             <div class="pdf-meta" style="color: rgba(255,255,255,0.65);">Généré le ${now.toLocaleDateString('fr-FR')} à ${now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div>
@@ -3801,15 +3840,15 @@
             <div class="pdf-kpi-val" style="color:#059669;">${formatFCFA(s.totalRecette || 0)}</div>
           </div>
           <div class="pdf-kpi-box">
-            <div class="pdf-kpi-label">⛽ Carburant remis</div>
+            <div class="pdf-kpi-label">Carburant remis</div>
             <div class="pdf-kpi-val" style="color:#d97706;">${formatFCFA(s.totalDepCarburant || 0)}</div>
           </div>
           <div class="pdf-kpi-box">
-            <div class="pdf-kpi-label">⚖️ Pesée / Pont bascule</div>
+            <div class="pdf-kpi-label">Pesée / Pont bascule</div>
             <div class="pdf-kpi-val" style="color:#0284c7;">${formatFCFA(s.totalPesee || 0)}</div>
           </div>
           <div class="pdf-kpi-box">
-            <div class="pdf-kpi-label">🛣️ Frais de route</div>
+            <div class="pdf-kpi-label">Frais de route</div>
             <div class="pdf-kpi-val" style="color:#7c3aed;">${formatFCFA(s.totalPeage || 0)}</div>
           </div>
         </div>
@@ -3828,25 +3867,10 @@
           </div>
         </div>
 
-        <table class="pdf-table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Catégorie</th>
-              <th>Détail</th>
-              <th style="text-align:right;">Crédit (FCFA)</th>
-              <th style="text-align:right;">Débit (FCFA)</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rowsHtml || '<tr><td colspan="5" style="text-align:center; color:#64748b;">Aucune opération sur la période.</td></tr>'}
-          </tbody>
-        </table>
-
         <!-- SECTION ANALYSE FINANCIÈRE FINALE -->
-        <div style="margin-top: 28px; border: 2px solid #1e293b; border-radius: 8px; overflow: hidden; page-break-inside: avoid;">
+        <div style="margin-top: 20px; border: 2px solid #1e293b; border-radius: 8px; overflow: hidden; page-break-inside: avoid;">
           <div style="background: #1e293b; color: white; padding: 10px 16px; font-size: 13px; font-weight: 800; letter-spacing: 0.05em;">
-            📊 ANALYSE FINANCIÈRE DE FIN DE PÉRIODE
+            ANALYSE FINANCIÈRE DE FIN DE PÉRIODE
           </div>
           <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0;">
             <div style="padding: 14px 16px; border-right: 1px solid #e2e8f0; background: #f0fdf4;">
@@ -3862,72 +3886,110 @@
             <div style="padding: 14px 16px; background: ${s.creditEntreprise >= 0 ? '#f0fdf4' : '#fff1f2'};">
               <div style="font-size: 10px; font-weight: 700; color: ${s.creditEntreprise >= 0 ? '#166534' : '#9f1239'}; margin-bottom: 4px;">Crédit Entreprise (net chauffeur)</div>
               <div style="font-size: 18px; font-weight: 800; color: ${s.creditEntreprise >= 0 ? '#059669' : '#e11d48'};">${formatFCFA(s.creditEntreprise || 0)}</div>
-              <div style="font-size: 10px; color: #64748b; margin-top: 2px;">${(s.creditEntreprise||0) >= 0 ? '✅ Crédit en faveur de l\'entreprise' : '⚠️ Déficit période'}</div>
+              <div style="font-size: 10px; color: #64748b; margin-top: 2px;">${(s.creditEntreprise||0) >= 0 ? 'Crédit en faveur de l\'entreprise' : 'Déficit période'}</div>
             </div>
           </div>
           <div style="padding: 10px 16px; background: #f8fafc; border-top: 1px solid #e2e8f0;">
             <table style="width: 100%; font-size: 11px; border-collapse: collapse;">
               <tr>
-                <td style="padding: 3px 0; color: #475569;">⛽ Carburant :</td>
+                <td style="padding: 3px 0; color: #475569;">Carburant :</td>
                 <td style="text-align: right; font-weight: 700; color: #d97706;">${formatFCFA(s.totalDepCarburant || 0)}</td>
                 <td style="width: 20px;"></td>
-                <td style="padding: 3px 0; color: #475569;">⚖️ Pesée :</td>
+                <td style="padding: 3px 0; color: #475569;">Pesée :</td>
                 <td style="text-align: right; font-weight: 700; color: #0284c7;">${formatFCFA(s.totalPesee || 0)}</td>
                 <td style="width: 20px;"></td>
-                <td style="padding: 3px 0; color: #475569;">🛣️ Frais de route :</td>
+                <td style="padding: 3px 0; color: #475569;">Frais de route :</td>
                 <td style="text-align: right; font-weight: 700; color: #7c3aed;">${formatFCFA(s.totalPeage || 0)}</td>
                 <td style="width: 20px;"></td>
-                <td style="padding: 3px 0; color: #475569;">🔧 Entretien :</td>
+                <td style="padding: 3px 0; color: #475569;">Entretien :</td>
                 <td style="text-align: right; font-weight: 700; color: #e11d48;">${formatFCFA(s.totalMaintenance || 0)}</td>
               </tr>
             </table>
           </div>
         </div>
 
-        <!-- SECTION DÉTAIL VOYAGES AVEC DÉCOMPOSITION -->
+        <!-- SECTION DÉTAIL VOYAGES AVEC DÉCOMPOSITION FINANCIÈRE COMPLÈTE -->
         ${(data.trips && data.trips.length > 0) ? `
-        <div style="margin-top: 20px; border: 1px solid #bbf7d0; border-radius: 8px; overflow: hidden; page-break-inside: avoid;">
-          <div style="background: linear-gradient(135deg,#059669,#047857); color: white; padding: 8px 16px; font-size: 12px; font-weight: 800; display: flex; justify-content: space-between; align-items: center;">
-            <span>🚛 DÉTAIL DES VOYAGES — MONTANTS REMIS AU CHAUFFEUR</span>
-            <span>${(data.trips.length)} voyage(s) · Total remis: ${formatFCFA(s.totalMontantRemis || 0)}</span>
+        <div style="margin-top: 20px; border: 2px solid #059669; border-radius: 8px; overflow: hidden;">
+          <div style="background: linear-gradient(135deg,#059669,#047857); color: white; padding: 10px 16px; font-size: 11px; font-weight: 800; display: flex; justify-content: space-between; align-items: center;">
+            <span>DÉTAIL FINANCIER DE CHAQUE VOYAGE</span>
+            <span>${data.trips.length} voyage(s) · Recettes: ${formatFCFA(s.totalRecette||0)} · Total remis: ${formatFCFA(s.totalMontantRemis||0)} · Marge nette: ${formatFCFA(s.totalMargeNette||0)}</span>
           </div>
-          <table style="width:100%; border-collapse: collapse; font-size: 10px;">
+          <table style="width:100%; border-collapse:collapse; font-size:9px; table-layout:fixed;">
+            <colgroup>
+              <col style="width:10%"><!-- Date -->
+              <col style="width:20%"><!-- Trajet -->
+              <col style="width:10%"><!-- Cargo/BL -->
+              <col style="width:12%"><!-- Recette -->
+              <col style="width:11%"><!-- Carburant -->
+              <col style="width:9%"><!-- Pesée -->
+              <col style="width:9%"><!-- Frais route -->
+              <col style="width:10%"><!-- Total Remis -->
+              <col style="width:9%"><!-- Marge -->
+            </colgroup>
             <thead>
-              <tr style="background:#f0fdf4;">
-                <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #bbf7d0;">Date</th>
-                <th style="padding:5px 8px; text-align:left; border-bottom:1px solid #bbf7d0;">Trajet</th>
-                <th style="padding:5px 8px; text-align:right; border-bottom:1px solid #bbf7d0;">Recette</th>
-                <th style="padding:5px 8px; text-align:right; border-bottom:1px solid #bbf7d0;">⛽ Carburant</th>
-                <th style="padding:5px 8px; text-align:right; border-bottom:1px solid #bbf7d0;">⚖️ Pesée</th>
-                <th style="padding:5px 8px; text-align:right; border-bottom:1px solid #bbf7d0;">🛣️ Frais de route</th>
-                <th style="padding:5px 8px; text-align:right; border-bottom:1px solid #bbf7d0; font-weight:800;">Total Remis</th>
-                <th style="padding:5px 8px; text-align:right; border-bottom:1px solid #bbf7d0;">Marge</th>
+              <tr style="background:#f0fdf4; border-bottom:2px solid #059669;">
+                <th style="padding:5px 6px; text-align:left; font-size:8px; font-weight:800; color:#065f46;">DATE</th>
+                <th style="padding:5px 6px; text-align:left; font-size:8px; font-weight:800; color:#065f46;">TRAJET</th>
+                <th style="padding:5px 6px; text-align:left; font-size:8px; font-weight:800; color:#065f46;">CARGO / BL</th>
+                <th style="padding:5px 6px; text-align:right; font-size:8px; font-weight:800; color:#059669;">RECETTE</th>
+                <th style="padding:5px 6px; text-align:right; font-size:8px; font-weight:800; color:#d97706;">CARBURANT</th>
+                <th style="padding:5px 6px; text-align:right; font-size:8px; font-weight:800; color:#0284c7;">PESÉE</th>
+                <th style="padding:5px 6px; text-align:right; font-size:8px; font-weight:800; color:#7c3aed;">ROUTE</th>
+                <th style="padding:5px 6px; text-align:right; font-size:8px; font-weight:800; color:#ea580c;">TOTAL REMIS</th>
+                <th style="padding:5px 6px; text-align:right; font-size:8px; font-weight:800; color:#0f172a;">MARGE NETTE</th>
               </tr>
             </thead>
             <tbody>
-              ${(data.trips || []).map(t => `
-              <tr style="border-bottom:1px solid #f0fdf4;">
-                <td style="padding:4px 8px;">${t.trip_date}</td>
-                <td style="padding:4px 8px; font-weight:600;">${t.route}</td>
-                <td style="padding:4px 8px; text-align:right; color:#059669; font-weight:700;">${formatFCFA(t.recette||0)}</td>
-                <td style="padding:4px 8px; text-align:right; color:#d97706;">${(t.dep_carburant||0)>0?formatFCFA(t.dep_carburant):'—'}</td>
-                <td style="padding:4px 8px; text-align:right; color:#0284c7;">${(t.pesee||0)>0?formatFCFA(t.pesee):'—'}</td>
-                <td style="padding:4px 8px; text-align:right; color:#7c3aed;">${(t.peage||0)>0?formatFCFA(t.peage):'—'}</td>
-                <td style="padding:4px 8px; text-align:right; font-weight:800; color:#ea580c;">${formatFCFA(t.montant_remis||0)}</td>
-                <td style="padding:4px 8px; text-align:right; font-weight:700; color:${(t.marge_nette||0)>=0?'#059669':'#e11d48'};">${formatFCFA(t.marge_nette||0)}</td>
-              </tr>`).join('')}
-              <tr style="background:#f0fdf4; font-weight:800; border-top:2px solid #059669;">
-                <td colspan="2" style="padding:6px 8px;">TOTAUX</td>
-                <td style="padding:6px 8px; text-align:right; color:#059669;">${formatFCFA(s.totalRecette||0)}</td>
-                <td style="padding:6px 8px; text-align:right; color:#d97706;">${formatFCFA(s.totalDepCarburant||0)}</td>
-                <td style="padding:6px 8px; text-align:right; color:#0284c7;">${formatFCFA(s.totalPesee||0)}</td>
-                <td style="padding:6px 8px; text-align:right; color:#7c3aed;">${formatFCFA(s.totalPeage||0)}</td>
-                <td style="padding:6px 8px; text-align:right; color:#ea580c;">${formatFCFA(s.totalMontantRemis||0)}</td>
-                <td style="padding:6px 8px; text-align:right; color:${(s.totalMargeNette||0)>=0?'#059669':'#e11d48'};">${formatFCFA(s.totalMargeNette||0)}</td>
+              ${(data.trips || []).map((t, i) => {
+                const marge = t.marge_nette || 0;
+                const rowBg = i % 2 === 0 ? '#ffffff' : '#f9fafb';
+                const cargoLabel = [t.cargo, t.bl_number, t.container_number].filter(Boolean).join(' · ') || '—';
+                return `<tr style="border-bottom:1px solid #e2e8f0; background:${rowBg};">
+                  <td style="padding:4px 6px; font-size:8.5px; color:#475569;">${t.trip_date}</td>
+                  <td style="padding:4px 6px; font-weight:700; font-size:8.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${t.route}</td>
+                  <td style="padding:4px 6px; font-size:7.5px; color:#64748b; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${cargoLabel}</td>
+                  <td style="padding:4px 6px; text-align:right; color:#059669; font-weight:700; font-size:8.5px;">${formatFCFA(t.recette||0)}</td>
+                  <td style="padding:4px 6px; text-align:right; color:#d97706; font-size:8.5px;">${(t.dep_carburant||0)>0?formatFCFA(t.dep_carburant):'—'}</td>
+                  <td style="padding:4px 6px; text-align:right; color:#0284c7; font-size:8.5px;">${(t.pesee||0)>0?formatFCFA(t.pesee):'—'}</td>
+                  <td style="padding:4px 6px; text-align:right; color:#7c3aed; font-size:8.5px;">${(t.peage||0)>0?formatFCFA(t.peage):'—'}</td>
+                  <td style="padding:4px 6px; text-align:right; font-weight:800; color:#ea580c; font-size:8.5px;">${formatFCFA(t.montant_remis||0)}</td>
+                  <td style="padding:4px 6px; text-align:right; font-weight:700; font-size:8.5px; color:${marge>=0?'#059669':'#e11d48'};">${formatFCFA(marge)}</td>
+                </tr>`;
+              }).join('')}
+              <tr style="background:#ecfdf5; font-weight:900; border-top:2px solid #059669;">
+                <td colspan="3" style="padding:6px 6px; font-size:9px; font-weight:800;">TOTAUX PÉRIODE</td>
+                <td style="padding:6px 6px; text-align:right; color:#059669; font-size:9px; font-weight:900;">${formatFCFA(s.totalRecette||0)}</td>
+                <td style="padding:6px 6px; text-align:right; color:#d97706; font-size:9px; font-weight:900;">${formatFCFA(s.totalDepCarburant||0)}</td>
+                <td style="padding:6px 6px; text-align:right; color:#0284c7; font-size:9px; font-weight:900;">${formatFCFA(s.totalPesee||0)}</td>
+                <td style="padding:6px 6px; text-align:right; color:#7c3aed; font-size:9px; font-weight:900;">${formatFCFA(s.totalPeage||0)}</td>
+                <td style="padding:6px 6px; text-align:right; color:#ea580c; font-size:9px; font-weight:900;">${formatFCFA(s.totalMontantRemis||0)}</td>
+                <td style="padding:6px 6px; text-align:right; font-size:9px; font-weight:900; color:${(s.totalMargeNette||0)>=0?'#059669':'#e11d48'};">${formatFCFA(s.totalMargeNette||0)}</td>
               </tr>
             </tbody>
           </table>
         </div>` : ''}
+
+        <!-- RELEVÉ GÉNÉRAL CRÉDIT/DÉBIT (tableau comptable complet) -->
+        <div style="margin-top: 20px; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; page-break-before: auto;">
+          <div style="background: #1e293b; color: white; padding: 8px 16px; font-size: 11px; font-weight: 800;">
+            RELEVÉ COMPTABLE GÉNÉRAL — TOUTES OPÉRATIONS
+          </div>
+          <table class="pdf-table" style="margin:0; border-radius:0;">
+            <thead>
+              <tr>
+                <th style="width:10%;">Date</th>
+                <th style="width:12%;">Catégorie</th>
+                <th style="width:52%;">Détail</th>
+                <th style="text-align:right; width:13%;">Crédit (FCFA)</th>
+                <th style="text-align:right; width:13%;">Débit (FCFA)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml || '<tr><td colspan="5" style="text-align:center; color:#64748b;">Aucune opération sur la période.</td></tr>'}
+            </tbody>
+          </table>
+        </div>
 
         <div class="pdf-signatures" style="margin-top: 20px;">
           <div class="pdf-signature-box">
@@ -4353,9 +4415,9 @@
               <td data-label="Trajet"><strong>${t.route}</strong></td>
               <td data-label="Camion"><span class="badge badge-primary font-mono">${t.truck_id}</span></td>
               <td data-label="Recette" class="font-mono text-success"><strong>${formatFCFA(t.recette || 0)}</strong></td>
-              <td data-label="⛽ Carburant" class="font-mono text-warning">${(t.dep_carburant||0) > 0 ? formatFCFA(t.dep_carburant) : '-'}</td>
-              <td data-label="⚖️ Pesée" class="font-mono">${(t.pesee||0) > 0 ? formatFCFA(t.pesee) : '-'}</td>
-              <td data-label="🛣️ Frais de route" class="font-mono">${(t.peage||0) > 0 ? formatFCFA(t.peage) : '-'}</td>
+              <td data-label="Carburant" class="font-mono text-warning">${(t.dep_carburant||0) > 0 ? formatFCFA(t.dep_carburant) : '-'}</td>
+              <td data-label="Pesée" class="font-mono">${(t.pesee||0) > 0 ? formatFCFA(t.pesee) : '-'}</td>
+              <td data-label="Frais de route" class="font-mono">${(t.peage||0) > 0 ? formatFCFA(t.peage) : '-'}</td>
               <td data-label="Total Remis" class="font-mono" style="color: var(--warning); font-weight: 700;">${formatFCFA(remis)}</td>
               <td data-label="Marge Nette" class="font-mono ${marge >= 0 ? 'text-success' : 'text-danger'}" style="font-weight: 700;">${formatFCFA(marge)}</td>
               <td data-label="N° BL" class="font-mono">${t.bl_number || '-'}</td>
@@ -4380,9 +4442,9 @@
               <td data-label="Date">${t.trip_date}</td>
               <td data-label="Trajet"><strong>${t.route}</strong></td>
               <td data-label="Camion"><span class="badge badge-primary font-mono">${t.truck_id}</span></td>
-              <td data-label="⛽ Carburant remis" class="font-mono text-warning"><strong>${formatFCFA(t.dep_carburant || 0)}</strong></td>
-              <td data-label="⚖️ Pesée" class="font-mono">${(t.pesee||0) > 0 ? formatFCFA(t.pesee) : '-'}</td>
-              <td data-label="🛣️ Frais de route" class="font-mono">${(t.peage||0) > 0 ? formatFCFA(t.peage) : '-'}</td>
+              <td data-label="Carburant remis" class="font-mono text-warning"><strong>${formatFCFA(t.dep_carburant || 0)}</strong></td>
+              <td data-label="Pesée" class="font-mono">${(t.pesee||0) > 0 ? formatFCFA(t.pesee) : '-'}</td>
+              <td data-label="Frais de route" class="font-mono">${(t.peage||0) > 0 ? formatFCFA(t.peage) : '-'}</td>
               <td data-label="Total remis" class="font-mono" style="font-weight:700; color: var(--warning);">${formatFCFA(Number(t.montant_remis||0))}</td>
             `;
             fuelTbody.appendChild(tr);
@@ -4679,7 +4741,7 @@
       document.body.classList.add('pdf-landscape');
       printContent.innerHTML = `
         <div class="pdf-header">
-          <div class="pdf-logo">🚛</div>
+          <div class="pdf-logo"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
           <div class="pdf-header-text">
             <div class="pdf-company">RAPPORT CAMION — ${truck.code}</div>
             <div class="pdf-title">${truck.brand_model}</div>
@@ -4713,14 +4775,14 @@
 
         <!-- Analyse financière -->
         <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin-bottom:16px;">
-          <div style="font-size:11px; font-weight:800; color:#0f172a; margin-bottom:8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">📊 ANALYSE FINANCIÈRE</div>
+          <div style="font-size:11px; font-weight:800; color:#0f172a; margin-bottom:8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">ANALYSE FINANCIÈRE</div>
           <table style="width:100%; font-size:10px; border-collapse:collapse;">
             <tr><td style="padding:3px 0;">Recettes voyages</td><td style="text-align:right; font-weight:700; color:#059669;">${formatFCFA(s.totalRecette)}</td></tr>
-            <tr><td style="padding:3px 0; color:#475569;">— ⛽ Carburant (voyages)</td><td style="text-align:right; color:#d97706;">${formatFCFA(s.totalDepCarburant)}</td></tr>
-            <tr><td style="padding:3px 0; color:#475569;">— ⚖️ Pesée</td><td style="text-align:right; color:#0284c7;">${formatFCFA(s.totalPesee)}</td></tr>
-            <tr><td style="padding:3px 0; color:#475569;">— 🛣️ Frais de route</td><td style="text-align:right; color:#7c3aed;">${formatFCFA(s.totalPeage)}</td></tr>
-            <tr><td style="padding:3px 0; color:#475569;">— ⛽ Pleins station</td><td style="text-align:right; color:#d97706;">${formatFCFA(s.totalFuelCost)}</td></tr>
-            <tr><td style="padding:3px 0; color:#475569;">— 🔧 Entretien</td><td style="text-align:right; color:#dc2626;">${formatFCFA(s.totalMaintenance)}</td></tr>
+            <tr><td style="padding:3px 0; color:#475569;">— Carburant (voyages)</td><td style="text-align:right; color:#d97706;">${formatFCFA(s.totalDepCarburant)}</td></tr>
+            <tr><td style="padding:3px 0; color:#475569;">— Pesée</td><td style="text-align:right; color:#0284c7;">${formatFCFA(s.totalPesee)}</td></tr>
+            <tr><td style="padding:3px 0; color:#475569;">— Frais de route</td><td style="text-align:right; color:#7c3aed;">${formatFCFA(s.totalPeage)}</td></tr>
+            <tr><td style="padding:3px 0; color:#475569;">— Pleins station</td><td style="text-align:right; color:#d97706;">${formatFCFA(s.totalFuelCost)}</td></tr>
+            <tr><td style="padding:3px 0; color:#475569;">— Entretien</td><td style="text-align:right; color:#dc2626;">${formatFCFA(s.totalMaintenance)}</td></tr>
             <tr style="border-top:2px solid #0f172a; font-weight:800;">
               <td style="padding:4px 0;">= Bénéfice Net</td>
               <td style="text-align:right; color:${s.netProfit>=0?'#059669':'#dc2626'};">${formatFCFA(s.netProfit)}</td>
@@ -4732,7 +4794,7 @@
         ${data.trips.length > 0 ? `
         <div style="margin-bottom:16px; border:1px solid #bbf7d0; border-radius:8px; overflow:hidden;">
           <div style="background:linear-gradient(135deg,#059669,#047857); color:white; padding:8px 16px; font-size:11px; font-weight:800; display:flex; justify-content:space-between;">
-            <span>🚛 VOYAGES (${data.trips.length})</span>
+            <span>VOYAGES (${data.trips.length})</span>
             <span>Recettes: ${formatFCFA(s.totalRecette)} • Total remis: ${formatFCFA(s.totalMontantRemis)}</span>
           </div>
           <table style="width:100%; border-collapse:collapse; font-size:9px;">
@@ -4742,9 +4804,9 @@
                 <th style="padding:5px 6px; text-align:left; border-bottom:1px solid #bbf7d0;">Chauffeur</th>
                 <th style="padding:5px 6px; text-align:left; border-bottom:1px solid #bbf7d0;">Trajet</th>
                 <th style="padding:5px 6px; text-align:right; border-bottom:1px solid #bbf7d0;">Recette</th>
-                <th style="padding:5px 6px; text-align:right; border-bottom:1px solid #bbf7d0;">⛽ Carb.</th>
-                <th style="padding:5px 6px; text-align:right; border-bottom:1px solid #bbf7d0;">⚖️ Pesée</th>
-                <th style="padding:5px 6px; text-align:right; border-bottom:1px solid #bbf7d0;">🛣️ Route</th>
+                <th style="padding:5px 6px; text-align:right; border-bottom:1px solid #bbf7d0;">Carb.</th>
+                <th style="padding:5px 6px; text-align:right; border-bottom:1px solid #bbf7d0;">Pesée</th>
+                <th style="padding:5px 6px; text-align:right; border-bottom:1px solid #bbf7d0;">Route</th>
                 <th style="padding:5px 6px; text-align:right; border-bottom:1px solid #bbf7d0; font-weight:800;">Total Remis</th>
                 <th style="padding:5px 6px; text-align:right; border-bottom:1px solid #bbf7d0;">Solde Net</th>
               </tr>
@@ -4779,7 +4841,7 @@
         ${data.maintenance.length > 0 ? `
         <div style="margin-bottom:16px; border:1px solid #fecaca; border-radius:8px; overflow:hidden;">
           <div style="background:linear-gradient(135deg,#dc2626,#b91c1c); color:white; padding:8px 16px; font-size:11px; font-weight:800; display:flex; justify-content:space-between;">
-            <span>🔧 ENTRETIEN & RÉPARATIONS (${data.maintenance.length})</span>
+            <span>ENTRETIEN & RÉPARATIONS (${data.maintenance.length})</span>
             <span>Total: ${formatFCFA(s.totalMaintenance)}</span>
           </div>
           <table style="width:100%; border-collapse:collapse; font-size:9px;">
@@ -4811,7 +4873,7 @@
         ${data.fuel.length > 0 ? `
         <div style="margin-bottom:16px; border:1px solid #fde68a; border-radius:8px; overflow:hidden;">
           <div style="background:linear-gradient(135deg,#d97706,#b45309); color:white; padding:8px 16px; font-size:11px; font-weight:800; display:flex; justify-content:space-between;">
-            <span>⛽ PLEINS CARBURANT (${data.fuel.length})</span>
+            <span>PLEINS CARBURANT (${data.fuel.length})</span>
             <span>${Math.round(s.totalFuelLiters).toLocaleString('fr-FR')} L — ${formatFCFA(s.totalFuelCost)}</span>
           </div>
           <table style="width:100%; border-collapse:collapse; font-size:9px;">
@@ -4909,7 +4971,7 @@
 
       printContent.innerHTML = `
         <div class="pdf-header">
-          <div class="pdf-logo">🚛</div>
+          <div class="pdf-logo"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
           <div class="pdf-header-text">
             <div class="pdf-company">YM-TRANSIT — TABLEAU DE BORD GÉNÉRAL</div>
             <div class="pdf-title">Rapport Consolidé de la Flotte</div>
@@ -4944,7 +5006,7 @@
         <!-- Tableau camions -->
         <div style="margin-bottom:16px; border:1px solid #bfdbfe; border-radius:8px; overflow:hidden;">
           <div style="background:linear-gradient(135deg,#0284c7,#0369a1); color:white; padding:8px 16px; font-size:11px; font-weight:800;">
-            🚛 BILAN PAR CAMION (${(data.truckComparison||[]).length} camions)
+            BILAN PAR CAMION (${(data.truckComparison||[]).length} camions)
           </div>
           <table style="width:100%; border-collapse:collapse; font-size:10px;">
             <thead>
@@ -4968,7 +5030,7 @@
         ${driverRows ? `
         <div style="margin-bottom:16px; border:1px solid #d9f99d; border-radius:8px; overflow:hidden;">
           <div style="background:linear-gradient(135deg,#16a34a,#15803d); color:white; padding:8px 16px; font-size:11px; font-weight:800;">
-            👤 BILAN PAR CHAUFFEUR (ayant effectué des voyages sur la période)
+            BILAN PAR CHAUFFEUR (ayant effectué des voyages sur la période)
           </div>
           <table style="width:100%; border-collapse:collapse; font-size:10px;">
             <thead>
@@ -4990,7 +5052,7 @@
         ${(data.topRoutes||[]).length > 0 ? `
         <div style="margin-bottom:16px; border:1px solid #e9d5ff; border-radius:8px; overflow:hidden;">
           <div style="background:linear-gradient(135deg,#7c3aed,#6d28d9); color:white; padding:8px 16px; font-size:11px; font-weight:800;">
-            🛣️ TOP TRAJETS DE LA PÉRIODE
+            TOP TRAJETS DE LA PÉRIODE
           </div>
           <table style="width:100%; border-collapse:collapse; font-size:10px;">
             <thead>
@@ -5222,9 +5284,9 @@
               <td data-label="Chauffeur"><strong>${t.driver_name}</strong></td>
               <td data-label="Trajet">${t.route}</td>
               <td data-label="Recette" class="font-mono text-success"><strong>${formatFCFA(t.recette||0)}</strong></td>
-              <td data-label="⛽ Carb." class="font-mono" style="color:#d97706;">${(t.dep_carburant||0)>0?formatFCFA(t.dep_carburant):'—'}</td>
-              <td data-label="⚖️ Pesée" class="font-mono" style="color:#0284c7;">${(t.pesee||0)>0?formatFCFA(t.pesee):'—'}</td>
-              <td data-label="🛣️ Route" class="font-mono" style="color:#7c3aed;">${(t.peage||0)>0?formatFCFA(t.peage):'—'}</td>
+              <td data-label="Carb." class="font-mono" style="color:#d97706;">${(t.dep_carburant||0)>0?formatFCFA(t.dep_carburant):'—'}</td>
+              <td data-label="Pesée" class="font-mono" style="color:#0284c7;">${(t.pesee||0)>0?formatFCFA(t.pesee):'—'}</td>
+              <td data-label="Route" class="font-mono" style="color:#7c3aed;">${(t.peage||0)>0?formatFCFA(t.peage):'—'}</td>
               <td data-label="Total Remis" class="font-mono" style="color:var(--warning);font-weight:700;">${formatFCFA(t.montant_remis||0)}</td>
               <td data-label="Solde Net" class="font-mono" style="font-weight:700;color:${(t.marge_nette||0)>=0?'var(--success)':'var(--danger)'};">${formatFCFA(t.marge_nette||0)}</td>
             </tr>`).join('');
@@ -5802,7 +5864,7 @@
           const file = this.files[0];
           const url = URL.createObjectURL(file);
           link.href = url;
-          link.textContent = `📄 ${file.name} (${(file.size / 1024).toFixed(0)} Ko)`;
+          link.textContent = `${file.name} (${(file.size / 1024).toFixed(0)} Ko)`;
           preview.style.display = 'block';
         } else {
           preview.style.display = 'none';
