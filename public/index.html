@@ -3800,18 +3800,36 @@
         ? `${data.period.startDate || 'Origine'} au ${data.period.endDate || "aujourd'hui"}`
         : 'Historique complet';
 
-      // Tri chronologique décroissant pour la présentation du relevé
-      const rows = (data.timeline || []).slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+      // Livre de caisse — tri CHRONOLOGIQUE CROISSANT pour calcul solde courant
+      const cashRows = (data.timeline || []).slice().sort((a, b) => {
+        const da = new Date(a.date), db = new Date(b.date);
+        return da - db || (a.isCredit ? -1 : 1); // même jour: recettes avant dépenses
+      });
 
-      const rowsHtml = rows.map(item => `
-        <tr>
-          <td>${item.date}</td>
-          <td>${item.typeLabel}</td>
-          <td>${item.title}${item.subtitle ? ' — ' + item.subtitle : ''}</td>
-          <td style="text-align:right; color:#059669;">${item.isCredit ? formatFCFA(item.amount) : ''}</td>
-          <td style="text-align:right; color:#e11d48;">${!item.isCredit ? formatFCFA(item.amount) : ''}</td>
-        </tr>
-      `).join('');
+      // Calcul du solde courant ligne par ligne
+      let runningBalance = 0;
+      const cashbookRows = cashRows.map((item, i) => {
+        const amount = item.amount || 0;
+        if (item.isCredit) {
+          runningBalance += amount; // DÉBIT = entrée d'argent (recette)
+        } else {
+          runningBalance -= amount; // CRÉDIT = sortie d'argent (dépense)
+        }
+        const rowBg = i % 2 === 0 ? '#ffffff' : '#f8fafc';
+        const soldeColor = runningBalance >= 0 ? '#059669' : '#e11d48';
+        const mainDetail = `<span style="font-weight:700;">${item.title}</span>${item.subtitle ? '<br><span style="font-size:7.5px; color:#64748b;">' + item.subtitle + '</span>' : ''}`;
+        return `<tr style="border-bottom:1px solid #e9eef4; background:${rowBg};">
+          <td style="padding:5px 7px; font-size:8.5px; color:#475569; white-space:nowrap;">${item.date}</td>
+          <td style="padding:5px 7px; font-size:8px; font-weight:700; color:#334155; white-space:nowrap;">${item.typeLabel}</td>
+          <td style="padding:5px 7px; font-size:8.5px; color:#0f172a; line-height:1.3;">${mainDetail}</td>
+          <td style="padding:5px 7px; text-align:right; font-size:9px; font-weight:800; color:#059669;">${item.isCredit ? formatFCFA(amount) : ''}</td>
+          <td style="padding:5px 7px; text-align:right; font-size:9px; font-weight:800; color:#e11d48;">${!item.isCredit ? formatFCFA(amount) : ''}</td>
+          <td style="padding:5px 9px; text-align:right; font-size:9px; font-weight:900; color:${soldeColor}; background:${runningBalance >= 0 ? '#f0fdf4' : '#fff1f2'}; border-left:2px solid ${soldeColor};">${formatFCFA(runningBalance)}</td>
+        </tr>`;
+      });
+
+      const finalBalance = runningBalance;
+      const rowsHtml = cashbookRows.join('');
 
       const dColor = getDriverColor(d.id);
       const zone = document.getElementById('pdf-render-zone');
@@ -3831,39 +3849,6 @@
               <div style="font-size: 14px; font-weight: 800; color: white; white-space: nowrap;">${periodLabel}</div>
             </div>
             <div class="pdf-meta" style="color: rgba(255,255,255,0.65);">Généré le ${now.toLocaleDateString('fr-FR')} à ${now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div>
-          </div>
-        </div>
-
-        <div class="pdf-kpi-grid">
-          <div class="pdf-kpi-box">
-            <div class="pdf-kpi-label">Recettes Voyages</div>
-            <div class="pdf-kpi-val" style="color:#059669;">${formatFCFA(s.totalRecette || 0)}</div>
-          </div>
-          <div class="pdf-kpi-box">
-            <div class="pdf-kpi-label">Carburant remis</div>
-            <div class="pdf-kpi-val" style="color:#d97706;">${formatFCFA(s.totalDepCarburant || 0)}</div>
-          </div>
-          <div class="pdf-kpi-box">
-            <div class="pdf-kpi-label">Pesée / Pont bascule</div>
-            <div class="pdf-kpi-val" style="color:#0284c7;">${formatFCFA(s.totalPesee || 0)}</div>
-          </div>
-          <div class="pdf-kpi-box">
-            <div class="pdf-kpi-label">Frais de route</div>
-            <div class="pdf-kpi-val" style="color:#7c3aed;">${formatFCFA(s.totalPeage || 0)}</div>
-          </div>
-        </div>
-        <div class="pdf-kpi-grid" style="grid-template-columns: 1fr 1fr 1fr;">
-          <div class="pdf-kpi-box">
-            <div class="pdf-kpi-label">Total remis au chauffeur</div>
-            <div class="pdf-kpi-val" style="color:#e11d48;">${formatFCFA(s.totalMontantRemis || 0)}</div>
-          </div>
-          <div class="pdf-kpi-box">
-            <div class="pdf-kpi-label">Entretien & Réparations</div>
-            <div class="pdf-kpi-val" style="color:#e11d48;">${formatFCFA(s.totalMaintenance || 0)}</div>
-          </div>
-          <div class="pdf-kpi-box" style="text-align:center;">
-            <div class="pdf-kpi-label">Solde Net Comptable</div>
-            <div class="pdf-kpi-val" style="font-size:18px; color:${s.netBalance >= 0 ? '#059669' : '#e11d48'};">${formatFCFA(s.netBalance)}</div>
           </div>
         </div>
 
@@ -3970,25 +3955,52 @@
           </table>
         </div>` : ''}
 
-        <!-- RELEVÉ GÉNÉRAL CRÉDIT/DÉBIT (tableau comptable complet) -->
-        <div style="margin-top: 20px; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; page-break-before: auto;">
-          <div style="background: #1e293b; color: white; padding: 8px 16px; font-size: 11px; font-weight: 800;">
-            RELEVÉ COMPTABLE GÉNÉRAL — TOUTES OPÉRATIONS
+        <!-- LIVRE DE CAISSE — TOUTES OPÉRATIONS AVEC SOLDE COURANT -->
+        <div style="margin-top: 18px; border: 1px solid #cbd5e1; border-radius: 10px; overflow: hidden; page-break-before: auto;">
+          <!-- En-tête livre de caisse -->
+          <div style="background: linear-gradient(90deg, #0f172a 0%, #1e3a5f 100%); color: white; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-size: 11px; font-weight: 800; letter-spacing: 0.08em;">LIVRE DE CAISSE — TOUTES OPÉRATIONS</div>
+              <div style="font-size: 9px; color: rgba(255,255,255,0.6); margin-top: 2px;">${periodLabel} · ${cashRows.length} mouvement(s)</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size: 9px; color: rgba(255,255,255,0.6); margin-bottom:2px;">SOLDE FINAL</div>
+              <div style="font-size: 15px; font-weight: 900; color: ${finalBalance >= 0 ? '#4ade80' : '#fb7185'};">${formatFCFA(finalBalance)}</div>
+            </div>
           </div>
-          <table class="pdf-table" style="margin:0; border-radius:0;">
-            <thead>
-              <tr>
-                <th style="width:10%;">Date</th>
-                <th style="width:12%;">Catégorie</th>
-                <th style="width:52%;">Détail</th>
-                <th style="text-align:right; width:13%;">Crédit (FCFA)</th>
-                <th style="text-align:right; width:13%;">Débit (FCFA)</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${rowsHtml || '<tr><td colspan="5" style="text-align:center; color:#64748b;">Aucune opération sur la période.</td></tr>'}
-            </tbody>
-          </table>
+          <!-- Table livre de caisse -->
+          <div style="background: #ffffff; padding: 0;">
+            <table style="width:100%; border-collapse:collapse; font-size:8px; table-layout:fixed;">
+              <colgroup>
+                <col style="width:9%">
+                <col style="width:11%">
+                <col style="width:38%">
+                <col style="width:13%">
+                <col style="width:13%">
+                <col style="width:16%">
+              </colgroup>
+              <thead>
+                <tr style="background:#e2e8f0; border-bottom:1px solid #cbd5e1;">
+                  <th style="padding:5px 7px; text-align:left; font-size:7.5px; font-weight:800; color:#475569; letter-spacing:0.06em;">DATE</th>
+                  <th style="padding:5px 7px; text-align:left; font-size:7.5px; font-weight:800; color:#475569; letter-spacing:0.06em;">CATÉGORIE</th>
+                  <th style="padding:5px 7px; text-align:left; font-size:7.5px; font-weight:800; color:#475569; letter-spacing:0.06em;">DÉTAIL / RÉFÉRENCE</th>
+                  <th style="padding:5px 7px; text-align:right; font-size:7.5px; font-weight:800; color:#059669; letter-spacing:0.06em;">DÉBIT (entrée)</th>
+                  <th style="padding:5px 7px; text-align:right; font-size:7.5px; font-weight:800; color:#e11d48; letter-spacing:0.06em;">CRÉDIT (sortie)</th>
+                  <th style="padding:5px 9px; text-align:right; font-size:7.5px; font-weight:800; color:#0f172a; background:#f1f5f9; border-left:2px solid #94a3b8; letter-spacing:0.06em;">SOLDE</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rowsHtml || `<tr><td colspan="6" style="text-align:center; padding:16px; color:#94a3b8; font-size:9px;">Aucune opération sur la période sélectionnée.</td></tr>`}
+                <!-- Ligne de solde final -->
+                <tr style="background:#0f172a; border-top:2px solid #334155;">
+                  <td colspan="3" style="padding:7px 7px; font-size:9px; font-weight:800; color:rgba(255,255,255,0.9);">SOLDE FINAL DE PÉRIODE</td>
+                  <td style="padding:7px 7px; text-align:right; font-size:9px; font-weight:800; color:#4ade80;">${formatFCFA(s.totalRecette||0)}</td>
+                  <td style="padding:7px 7px; text-align:right; font-size:9px; font-weight:800; color:#fb7185;">${formatFCFA((s.totalMontantRemis||0)+(s.totalMaintenance||0)+(s.totalOtherExpenses||0))}</td>
+                  <td style="padding:7px 9px; text-align:right; font-size:10px; font-weight:900; color:${finalBalance>=0?'#4ade80':'#fb7185'};">${formatFCFA(finalBalance)}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <div class="pdf-signatures" style="margin-top: 20px;">
