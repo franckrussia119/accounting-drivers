@@ -19,6 +19,10 @@ import { maintenanceRouter } from './routes/maintenance.js';
 import { expensesRouter } from './routes/expenses.js';
 import { dashboardRouter } from './routes/dashboard.js';
 import { exportRouter } from './routes/export.js';
+import { documentsRouter } from './routes/documents.js';
+import { advancesRouter } from './routes/advances.js';
+import { analyticsRouter } from './routes/analytics.js';
+import { journalRouter } from './routes/journal.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -60,6 +64,10 @@ app.use('/api/maintenance', requireAuth, maintenanceRouter);
 app.use('/api/expenses', requireAuth, expensesRouter);
 app.use('/api/dashboard', requireAuth, dashboardRouter);
 app.use('/api/export', requireAuth, exportRouter);
+app.use('/api/documents', requireAuth, documentsRouter);
+app.use('/api/advances', requireAuth, advancesRouter);
+app.use('/api/analytics', requireAuth, analyticsRouter);
+app.use('/api/journal',   requireAuth, journalRouter);
 
 // === Upload de documents (PJ entretiens) ===
 const uploadsDir = path.join(process.cwd(), 'public', 'uploads');

@@ -6,6 +6,50 @@ import { db } from '../db.js';
 
 export const dashboardRouter = express.Router();
 
+// GET /api/dashboard/live — métriques en temps réel du jour et de la semaine
+dashboardRouter.get('/live', (req, res) => {
+  try {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm   = String(today.getMonth() + 1).padStart(2, '0');
+    const dd   = String(today.getDate()).padStart(2, '0');
+    const todayStr = `${yyyy}-${mm}-${dd}`;
+
+    // Lundi de la semaine en cours (ISO week : lundi = 1)
+    const dow = today.getDay() || 7; // dimanche → 7
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - dow + 1);
+    const mondayStr = `${monday.getFullYear()}-${String(monday.getMonth()+1).padStart(2,'0')}-${String(monday.getDate()).padStart(2,'0')}`;
+
+    // 1. Voyages enregistrés aujourd'hui
+    const todayTrips = db.prepare(
+      `SELECT COUNT(id) as cnt, COALESCE(SUM(amount_fcfa), 0) as rev FROM trips WHERE trip_date = ?`
+    ).get(todayStr);
+
+    // 2. Recette de la semaine en cours
+    const weekRevRow = db.prepare(
+      `SELECT COALESCE(SUM(amount_fcfa), 0) as rev FROM trips WHERE trip_date >= ?`
+    ).get(mondayStr);
+
+    // 3. Camions actifs cette semaine (au moins 1 voyage)
+    const activeTrucksRow = db.prepare(
+      `SELECT COUNT(DISTINCT truck_id) as cnt FROM trips WHERE trip_date >= ?`
+    ).get(mondayStr);
+
+    res.json({
+      today: todayStr,
+      weekStart: mondayStr,
+      tripsToday:    Number(todayTrips.cnt  || 0),
+      revenueToday:  Number(todayTrips.rev  || 0),
+      revenueWeek:   Number(weekRevRow.rev  || 0),
+      activeTrucks:  Number(activeTrucksRow.cnt || 0)
+    });
+  } catch (err) {
+    console.error('Erreur get dashboard/live:', err);
+    res.status(500).json({ error: 'Erreur lors du calcul des métriques live.' });
+  }
+});
+
 dashboardRouter.get('/stats', (req, res) => {
   try {
     const { startDate, endDate, truck_id } = req.query;

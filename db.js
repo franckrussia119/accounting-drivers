@@ -153,6 +153,23 @@ export function initDatabase() {
     );
   `);
 
+  // Table des documents administratifs (camions + chauffeurs)
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS fleet_documents (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      entity_type TEXT NOT NULL CHECK(entity_type IN ('truck','driver')),
+      entity_id TEXT NOT NULL,
+      doc_type TEXT NOT NULL,
+      doc_name TEXT NOT NULL,
+      file_url TEXT,
+      issue_date TEXT,
+      expiry_date TEXT,
+      notes TEXT,
+      created_by TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
   migrateAddColumnIfMissing('trips', 'bl_number', 'TEXT');
   migrateAddColumnIfMissing('trips', 'container_number', 'TEXT');
   migrateAddColumnIfMissing('trips', 'recette', 'INTEGER DEFAULT 0');
@@ -186,6 +203,22 @@ export function initDatabase() {
       detail TEXT,
       ip TEXT,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
+  // Table des avances et remboursements chauffeurs
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS driver_advances (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      driver_id INTEGER NOT NULL,
+      advance_date TEXT NOT NULL,
+      type TEXT NOT NULL CHECK(type IN ('avance','remboursement')),
+      amount_fcfa INTEGER NOT NULL,
+      motif TEXT NOT NULL,
+      notes TEXT,
+      created_by TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY(driver_id) REFERENCES drivers(id) ON DELETE CASCADE
     );
   `);
 

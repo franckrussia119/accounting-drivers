@@ -9,137 +9,187 @@
   <meta property="og:description" content="Application de comptabilité chauffeur et gestion de flotte pour YM-TRANSIT Douala Cameroun.">
   <meta property="og:type" content="website">
   
+  <!-- SheetJS — export Excel natif (Feature 6) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
   
   <style>
+    /* ═══════════════════════════════════════════════════════
+       YM-TRANSIT — Dark Navy Premium Design System
+       Layout: fixed sidebar 240px + fluid main content
+       ═══════════════════════════════════════════════════════ */
     :root {
       --font-main: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
+      color-scheme: dark;
 
-      /* Palette Fintech Lumineuse */
-      --bg-body: #f8fafc;
-      --bg-surface: #ffffff;
-      --bg-surface-elevated: #f1f5f9;
-      --bg-subtle: #f8fafc;
-      --border-color: #e2e8f0;
-      --border-focus: #3b82f6;
+      /* ── Core dark navy palette ── */
+      --bg-body: #0a0e1a;
+      --bg-surface: #0f1629;
+      --bg-surface-elevated: #141d35;
+      --bg-subtle: #0d1224;
+      --border-color: #1e2840;
+      --border-elevated: #2a3554;
+      --border-focus: #f59e0b;
 
-      --text-main: #0f172a;
-      --text-muted: #64748b;
-      --text-subtle: #94a3b8;
+      /* ── Text ── */
+      --text-main: #e8eaf0;
+      --text-muted: #8892a4;
+      --text-subtle: #505870;
 
-      --primary: #0284c7;
-      --primary-hover: #0369a1;
-      --primary-light: #e0f2fe;
-      --primary-text: #0369a1;
+      /* ── Accent: Electric Amber (African sun) ── */
+      --primary: #f59e0b;
+      --primary-hover: #d97706;
+      --primary-light: rgba(245,158,11,0.12);
+      --primary-text: #f59e0b;
+      --accent-glow: rgba(245,158,11,0.25);
 
-      --success: #059669;
-      --success-light: #d1fae5;
-      --success-text: #065f46;
+      /* ── Semantic colors ── */
+      --success: #10b981;
+      --success-light: rgba(16,185,129,0.12);
+      --success-text: #34d399;
 
-      --danger: #e11d48;
-      --danger-light: #ffe4e6;
-      --danger-text: #9f1239;
+      --danger: #ef4444;
+      --danger-light: rgba(239,68,68,0.12);
+      --danger-text: #f87171;
 
-      --warning: #d97706;
-      --warning-light: #fef3c7;
-      --warning-text: #92400e;
-      --violet: #7c3aed;
-      --violet-light: #ede9fe;
-      --violet-text: #5b21b6;
+      --warning: #f59e0b;
+      --warning-light: rgba(245,158,11,0.12);
+      --warning-text: #fbbf24;
 
-      --badge-neutral-bg: #e2e8f0;
-      --badge-neutral-text: #334155;
+      --violet: #8b5cf6;
+      --violet-light: rgba(139,92,246,0.12);
+      --violet-text: #a78bfa;
 
-      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
-      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.04);
+      --info: #3b82f6;
+      --info-light: rgba(59,130,246,0.12);
+      --info-text: #60a5fa;
+
+      --badge-neutral-bg: #1e2840;
+      --badge-neutral-text: #8892a4;
+
+      --shadow-sm: 0 1px 3px rgb(0 0 0 / 0.4);
+      --shadow-md: 0 4px 16px rgb(0 0 0 / 0.5), 0 2px 4px rgb(0 0 0 / 0.3);
+      --shadow-lg: 0 12px 40px rgb(0 0 0 / 0.6), 0 4px 8px rgb(0 0 0 / 0.4);
+      --shadow-amber: 0 8px 25px rgba(245,158,11,0.4);
       --radius-sm: 8px;
       --radius-md: 12px;
       --radius-lg: 16px;
+      --radius-xl: 20px;
       --radius-full: 9999px;
+
+      /* Sidebar */
+      --sidebar-width: 240px;
+      --sidebar-collapsed: 64px;
     }
 
-    /* Mode Sombre (Automatique OS ou forcé par classe) */
-    @media (prefers-color-scheme: dark) {
-      :root:not(.light-mode) {
-        --bg-body: #0b0f17;
-        --bg-surface: #111827;
-        --bg-surface-elevated: #1f2937;
-        --bg-subtle: #161f30;
-        --border-color: #243046;
-        --border-focus: #38bdf8;
-
-        --text-main: #f8fafc;
-        --text-muted: #94a3b8;
-        --text-subtle: #64748b;
-
-        --primary: #38bdf8;
-        --primary-hover: #0284c7;
-        --primary-light: #082f49;
-        --primary-text: #7dd3fc;
-
-        --success: #10b981;
-        --success-light: #064e3b;
-        --success-text: #6ee7b7;
-
-        --danger: #f43f5e;
-        --danger-light: #4c0519;
-        --danger-text: #fda4af;
-
-        --warning: #f59e0b;
-        --warning-light: #451a03;
-        --warning-text: #fcd34d;
-        --violet: #a78bfa;
-        --violet-light: #2e1065;
-        --violet-text: #c4b5fd;
-
-        --badge-neutral-bg: #1e293b;
-        --badge-neutral-text: #cbd5e1;
-
-        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4);
-        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5);
+    /* Light mode overrides — dark-first design */
+    @media (prefers-color-scheme: light) {
+      :root:not([data-theme="dark"]):not(.dark-mode) {
+        color-scheme: light;
+        --bg-body: #f0f2f7;
+        --bg-surface: #ffffff;
+        --bg-surface-elevated: #f5f7fc;
+        --bg-subtle: #eef0f7;
+        --border-color: #dde1ee;
+        --border-elevated: #c8cedf;
+        --border-focus: #d97706;
+        --text-main: #0f172a;
+        --text-muted: #4b5675;
+        --text-subtle: #8892a4;
+        --primary: #d97706;
+        --primary-hover: #b45309;
+        --primary-light: rgba(217,119,6,0.1);
+        --primary-text: #92400e;
+        --accent-glow: rgba(217,119,6,0.2);
+        --success-light: rgba(16,185,129,0.1);
+        --success-text: #059669;
+        --danger-light: rgba(239,68,68,0.1);
+        --danger-text: #dc2626;
+        --warning-light: rgba(245,158,11,0.1);
+        --warning-text: #92400e;
+        --violet-light: rgba(139,92,246,0.1);
+        --violet-text: #7c3aed;
+        --badge-neutral-bg: #e5e8f0;
+        --badge-neutral-text: #475569;
+        --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.06);
+        --shadow-md: 0 4px 12px rgb(0 0 0 / 0.08);
+        --shadow-lg: 0 12px 32px rgb(0 0 0 / 0.1);
+        --shadow-amber: 0 8px 25px rgba(217,119,6,0.25);
       }
     }
+    :root[data-theme="light"] {
+      color-scheme: light;
+      --bg-body: #f0f2f7;
+      --bg-surface: #ffffff;
+      --bg-surface-elevated: #f5f7fc;
+      --bg-subtle: #eef0f7;
+      --border-color: #dde1ee;
+      --border-elevated: #c8cedf;
+      --border-focus: #d97706;
+      --text-main: #0f172a;
+      --text-muted: #4b5675;
+      --text-subtle: #8892a4;
+      --primary: #d97706;
+      --primary-hover: #b45309;
+      --primary-light: rgba(217,119,6,0.1);
+      --primary-text: #92400e;
+      --accent-glow: rgba(217,119,6,0.2);
+      --success-light: rgba(16,185,129,0.1);
+      --success-text: #059669;
+      --danger-light: rgba(239,68,68,0.1);
+      --danger-text: #dc2626;
+      --warning-light: rgba(245,158,11,0.1);
+      --warning-text: #92400e;
+      --violet-light: rgba(139,92,246,0.1);
+      --violet-text: #7c3aed;
+      --badge-neutral-bg: #e5e8f0;
+      --badge-neutral-text: #475569;
+      --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.06);
+      --shadow-md: 0 4px 12px rgb(0 0 0 / 0.08);
+      --shadow-lg: 0 12px 32px rgb(0 0 0 / 0.1);
+      --shadow-amber: 0 8px 25px rgba(217,119,6,0.25);
+    }
 
-    /* Classe forcée pour le basculement manuel */
+    /* Manual dark class (for theme toggle) */
     .dark-mode {
-      --bg-body: #0b0f17;
-      --bg-surface: #111827;
-      --bg-surface-elevated: #1f2937;
-      --bg-subtle: #161f30;
-      --border-color: #243046;
-      --border-focus: #38bdf8;
-
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --text-subtle: #64748b;
-
-      --primary: #38bdf8;
-      --primary-hover: #0284c7;
-      --primary-light: #082f49;
-      --primary-text: #7dd3fc;
-
+      color-scheme: dark;
+      --bg-body: #0a0e1a;
+      --bg-surface: #0f1629;
+      --bg-surface-elevated: #141d35;
+      --bg-subtle: #0d1224;
+      --border-color: #1e2840;
+      --border-elevated: #2a3554;
+      --border-focus: #f59e0b;
+      --text-main: #e8eaf0;
+      --text-muted: #8892a4;
+      --text-subtle: #505870;
+      --primary: #f59e0b;
+      --primary-hover: #d97706;
+      --primary-light: rgba(245,158,11,0.12);
+      --primary-text: #f59e0b;
+      --accent-glow: rgba(245,158,11,0.25);
       --success: #10b981;
-      --success-light: #064e3b;
-      --success-text: #6ee7b7;
-
-      --danger: #f43f5e;
-      --danger-light: #4c0519;
-      --danger-text: #fda4af;
-
+      --success-light: rgba(16,185,129,0.12);
+      --success-text: #34d399;
+      --danger: #ef4444;
+      --danger-light: rgba(239,68,68,0.12);
+      --danger-text: #f87171;
       --warning: #f59e0b;
-      --warning-light: #451a03;
-      --warning-text: #fcd34d;
-      --violet: #7c3aed;
-      --violet-light: #ede9fe;
-      --violet-text: #5b21b6;
-
-      --badge-neutral-bg: #1e293b;
-      --badge-neutral-text: #cbd5e1;
+      --warning-light: rgba(245,158,11,0.12);
+      --warning-text: #fbbf24;
+      --violet: #8b5cf6;
+      --violet-light: rgba(139,92,246,0.12);
+      --violet-text: #a78bfa;
+      --badge-neutral-bg: #1e2840;
+      --badge-neutral-text: #8892a4;
+      --shadow-sm: 0 1px 3px rgb(0 0 0 / 0.4);
+      --shadow-md: 0 4px 16px rgb(0 0 0 / 0.5);
+      --shadow-lg: 0 12px 40px rgb(0 0 0 / 0.6);
+      --shadow-amber: 0 8px 25px rgba(245,158,11,0.4);
     }
 
     * {
@@ -156,8 +206,380 @@
       line-height: 1.5;
       min-height: 100vh;
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       font-size: 14px;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       SIDEBAR LAYOUT
+       ═══════════════════════════════════════════════════════ */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: var(--sidebar-width);
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      z-index: 50;
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+
+    .sidebar-brand {
+      padding: 1.25rem 1rem 1rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .sidebar-logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #0a0e1a;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 0.9rem;
+      letter-spacing: -0.5px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(245,158,11,0.4);
+    }
+
+    .sidebar-brand-text {
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .sidebar-brand-text h2 {
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      color: var(--text-main);
+      margin: 0;
+      line-height: 1.2;
+    }
+
+    .sidebar-brand-text p {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 0.75rem 0;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-elevated) transparent;
+    }
+
+    .sidebar-nav::-webkit-scrollbar { width: 4px; }
+    .sidebar-nav::-webkit-scrollbar-track { background: transparent; }
+    .sidebar-nav::-webkit-scrollbar-thumb { background: var(--border-elevated); border-radius: 2px; }
+
+    .sidebar-section-label {
+      font-size: 0.63rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-subtle);
+      padding: 0.75rem 1rem 0.35rem;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .sidebar-tab {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.6rem 1rem;
+      margin: 0.1rem 0.5rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      width: calc(100% - 1rem);
+      text-align: left;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      position: relative;
+      text-decoration: none;
+      font-family: inherit;
+    }
+
+    .sidebar-tab:hover {
+      background: var(--primary-light);
+      color: var(--text-main);
+    }
+
+    .sidebar-tab.active {
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: 700;
+      box-shadow: inset 3px 0 0 var(--primary);
+    }
+
+    .sidebar-tab .tab-icon {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .sidebar-tab .tab-label {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sidebar-tab .tab-badge {
+      background: var(--danger);
+      color: #fff;
+      font-size: 0.62rem;
+      font-weight: 800;
+      border-radius: var(--radius-full);
+      min-width: 16px;
+      height: 16px;
+      line-height: 16px;
+      text-align: center;
+      padding: 0 4px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-footer {
+      border-top: 1px solid var(--border-color);
+      padding: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .sidebar-user {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.5rem 0.65rem;
+      border-radius: var(--radius-sm);
+      background: var(--bg-surface-elevated);
+      margin-bottom: 0.5rem;
+    }
+
+    .sidebar-user-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #0a0e1a;
+      font-weight: 800;
+      font-size: 0.72rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .sidebar-user-info {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .sidebar-user-name {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sidebar-user-role {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+    }
+
+    .sidebar-footer-actions {
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    .sidebar-footer-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      padding: 0.45rem 0.5rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+      font-family: inherit;
+    }
+
+    .sidebar-footer-btn:hover {
+      background: var(--danger-light);
+      border-color: var(--danger);
+      color: var(--danger-text);
+    }
+
+    .sidebar-footer-btn svg {
+      width: 13px;
+      height: 13px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    /* Sidebar collapse toggle */
+    .sidebar-toggle {
+      position: fixed;
+      top: 1rem;
+      left: calc(var(--sidebar-width) - 14px);
+      z-index: 55;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-elevated);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: left 0.25s ease, background 0.15s;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .sidebar-toggle:hover {
+      background: var(--primary-light);
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .sidebar-toggle svg {
+      width: 13px;
+      height: 13px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: transform 0.25s;
+    }
+
+    /* App wrapper: the content area to the right of sidebar */
+    .app-wrapper {
+      flex: 1;
+      margin-left: var(--sidebar-width);
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      transition: margin-left 0.25s ease;
+    }
+
+    /* Collapsed sidebar */
+    body.sidebar-collapsed .sidebar {
+      width: var(--sidebar-collapsed);
+    }
+
+    body.sidebar-collapsed .sidebar-brand-text,
+    body.sidebar-collapsed .tab-label,
+    body.sidebar-collapsed .sidebar-section-label,
+    body.sidebar-collapsed .sidebar-user-info,
+    body.sidebar-collapsed .sidebar-footer-btn span {
+      display: none;
+    }
+
+    body.sidebar-collapsed .sidebar-tab {
+      justify-content: center;
+      padding: 0.6rem;
+      gap: 0;
+      margin: 0.1rem 0.4rem;
+      width: calc(100% - 0.8rem);
+    }
+
+    body.sidebar-collapsed .sidebar-footer-btn {
+      padding: 0.45rem;
+    }
+
+    body.sidebar-collapsed .sidebar-user {
+      justify-content: center;
+      padding: 0.4rem;
+    }
+
+    body.sidebar-collapsed .app-wrapper {
+      margin-left: var(--sidebar-collapsed);
+    }
+
+    body.sidebar-collapsed .sidebar-toggle {
+      left: calc(var(--sidebar-collapsed) - 14px);
+    }
+
+    body.sidebar-collapsed .sidebar-toggle svg {
+      transform: rotate(180deg);
+    }
+
+    /* Mobile: sidebar as overlay */
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+        width: var(--sidebar-width);
+      }
+      body.sidebar-open .sidebar {
+        transform: translateX(0);
+      }
+      .app-wrapper {
+        margin-left: 0;
+      }
+      body.sidebar-collapsed .app-wrapper {
+        margin-left: 0;
+      }
+      .sidebar-toggle {
+        left: 0.75rem;
+        top: 0.75rem;
+        position: fixed;
+      }
+      body.sidebar-open .sidebar-toggle {
+        left: calc(var(--sidebar-width) - 14px);
+      }
+      .sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,8,0.6);
+        z-index: 49;
+        backdrop-filter: blur(2px);
+      }
+      body.sidebar-open .sidebar-overlay {
+        display: block;
+      }
     }
 
     /* Utilitaires typographiques */
@@ -169,30 +591,55 @@
     .text-primary { color: var(--primary); }
     .text-muted { color: var(--text-muted); }
 
-    /* En-tête persistant */
+    /* En-tête persistant — simplified since sidebar handles nav */
     .app-header {
-      background: linear-gradient(135deg, #080f1e 0%, #0f2040 55%, #0173a8 100%);
-      border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-color);
       position: sticky;
       top: 0;
       z-index: 40;
-      backdrop-filter: blur(8px);
-      box-shadow: 0 4px 24px rgba(1, 115, 168, 0.28);
     }
-    .app-header .brand-text h1 { color: #fff; }
-    .app-header .brand-text p { color: rgba(255,255,255,0.65); }
-    .app-header .user-tag { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.15); }
-    .app-header .view-pill { background: rgba(56,189,248,0.18); color: #7dd3fc; }
-    .app-header .btn-icon { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); color: #fff; }
+
+    .app-header .brand-text h1 { color: var(--text-main); }
+    .app-header .brand-text p { color: var(--text-muted); }
+    .app-header .user-tag { background: var(--bg-surface-elevated); color: var(--text-muted); border: 1px solid var(--border-color); }
+    .app-header .view-pill { background: var(--primary-light); color: var(--primary); }
+    .app-header .btn-icon { background: var(--bg-surface-elevated); border-color: var(--border-color); color: var(--text-muted); }
 
     .header-inner {
-      max-width: 1320px;
-      margin: 0 auto;
-      padding: 0.75rem 1.25rem;
+      padding: 0.6rem 1.25rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 1rem;
+    }
+
+    /* Mobile menu toggle in header */
+    .header-menu-btn {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .header-menu-btn svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    @media (max-width: 768px) {
+      .header-menu-btn { display: flex; }
     }
 
     .brand-section {
@@ -202,29 +649,30 @@
     }
 
     .brand-logo {
-      width: 38px;
-      height: 38px;
-      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-      color: white;
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #0a0e1a;
       border-radius: var(--radius-sm);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 800;
-      font-size: 1.1rem;
+      font-weight: 900;
+      font-size: 0.85rem;
       letter-spacing: -0.5px;
-      box-shadow: 0 2px 4px rgba(2, 132, 199, 0.25);
+      box-shadow: 0 2px 8px rgba(245,158,11,0.35);
     }
 
     .brand-text h1 {
-      font-size: 1rem;
-      font-weight: 700;
+      font-size: 0.95rem;
+      font-weight: 800;
       letter-spacing: -0.3px;
       line-height: 1.2;
+      color: var(--text-main);
     }
 
     .brand-text p {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       color: var(--text-muted);
       font-weight: 500;
     }
@@ -232,41 +680,37 @@
     .header-meta {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.6rem;
     }
 
     .view-pill {
       background-color: var(--primary-light);
       color: var(--primary-text);
-      font-size: 0.75rem;
-      font-weight: 600;
-      padding: 0.25rem 0.65rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.22rem 0.6rem;
       border-radius: var(--radius-full);
       display: inline-flex;
       align-items: center;
       gap: 0.35rem;
+      border: 1px solid rgba(245,158,11,0.2);
     }
 
     .user-tag {
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       color: var(--text-muted);
       display: flex;
       align-items: center;
       gap: 0.4rem;
       padding: 0.25rem 0.5rem;
       border-radius: var(--radius-sm);
-      background: var(--bg-subtle);
+      background: var(--bg-surface-elevated);
     }
 
-    /* Barre d'onglets de navigation */
+    /* Nav bar — kept for JS compatibility but visually hidden since sidebar handles it */
     .nav-bar {
-      background-color: var(--bg-surface);
-      border-bottom: 1px solid var(--border-color);
-      overflow-x: auto;
-      scrollbar-width: none;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      display: none;
     }
-    .nav-bar::-webkit-scrollbar { display: none; }
 
     .nav-inner {
       max-width: 1320px;
@@ -358,33 +802,35 @@
     .btn:active { transform: scale(0.98); }
 
     .btn-primary {
-      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-      color: #ffffff;
-      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #0a0e1a;
+      box-shadow: 0 2px 8px rgba(245,158,11,0.3);
+      font-weight: 700;
     }
     .btn-primary:hover {
-      background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
-      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4);
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      box-shadow: var(--shadow-amber);
       transform: translateY(-1px);
     }
 
     .btn-secondary {
-      background-color: var(--bg-surface);
-      border-color: var(--border-color);
-      color: var(--text-main);
+      background-color: var(--bg-surface-elevated);
+      border-color: var(--border-elevated);
+      color: var(--text-muted);
     }
     .btn-secondary:hover {
       background-color: var(--bg-surface-elevated);
-      border-color: var(--text-subtle);
+      border-color: var(--primary);
+      color: var(--primary);
     }
 
     .btn-danger {
-      background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
       color: #ffffff;
-      box-shadow: 0 2px 8px rgba(225, 29, 72, 0.3);
+      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
     }
     .btn-danger:hover {
-      box-shadow: 0 4px 14px rgba(225, 29, 72, 0.4);
+      box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
       transform: translateY(-1px);
     }
 
@@ -409,9 +855,13 @@
     .main-container {
       max-width: 1320px;
       margin: 0 auto;
-      padding: 1.25rem;
+      padding: 1.5rem;
       width: 100%;
       flex: 1;
+    }
+
+    @media (max-width: 768px) {
+      .main-container { padding: 1rem 0.85rem; }
     }
 
     /* Barre de filtres et d'actions */
@@ -501,43 +951,54 @@
     @media (max-width: 460px) { .kpi-grid { grid-template-columns: 1fr; } }
 
     .kpi-card {
-      background-color: var(--bg-surface);
+      background: var(--bg-surface);
       border: 1px solid var(--border-color);
-      border-left: 4px solid var(--border-color);
       border-radius: var(--radius-lg);
-      padding: 1.1rem 1.15rem;
+      padding: 1.25rem 1.35rem;
       box-shadow: var(--shadow-md);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       position: relative;
       overflow: hidden;
-      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s;
+      min-height: 120px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      animation: fadeSlideUp 0.4s ease both;
+    }
+
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.2s;
+      border-radius: var(--radius-lg);
     }
 
     .kpi-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 24px -6px rgba(0,0,0,0.1);
+      transform: translateY(-3px);
+      animation: pulse-glow 2s ease infinite;
     }
 
-    .kpi-card.kpi-revenue { border-left-color: #059669; }
-    .kpi-card.kpi-fuel { border-left-color: #d97706; }
-    .kpi-card.kpi-maintenance { border-left-color: #e11d48; }
-    .kpi-card.kpi-net { border-left-color: #0284c7; }
-    .kpi-card.kpi-expense { border-left-color: #7c3aed; }
+    .kpi-card.kpi-revenue { border-top: 2px solid #10b981; background: linear-gradient(160deg, #0f1629 0%, #0d1f18 100%); }
+    .kpi-card.kpi-fuel { border-top: 2px solid #f59e0b; background: linear-gradient(160deg, #0f1629 0%, #1a1408 100%); }
+    .kpi-card.kpi-maintenance { border-top: 2px solid #ef4444; background: linear-gradient(160deg, #0f1629 0%, #1f0d0d 100%); }
+    .kpi-card.kpi-net { border-top: 2px solid #3b82f6; background: linear-gradient(160deg, #0f1629 0%, #0d1422 100%); }
+    .kpi-card.kpi-expense { border-top: 2px solid #8b5cf6; background: linear-gradient(160deg, #0f1629 0%, #14102a 100%); }
 
     .kpi-header {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.65rem;
     }
 
     .kpi-title {
-      font-size: 0.8rem;
-      font-weight: 600;
+      font-size: 0.7rem;
+      font-weight: 700;
       color: var(--text-muted);
-      letter-spacing: 0.3px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
     }
 
     /* Vector Icons */
@@ -567,28 +1028,27 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 2.75rem;
-      height: 2.75rem;
-      border-radius: 50%;
-      background: var(--bg-surface-elevated);
-      color: var(--primary);
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: var(--radius-sm);
+      background: rgba(255,255,255,0.05);
       flex-shrink: 0;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      opacity: 0.7;
     }
     .kpi-icon svg {
-      width: 1.25rem;
-      height: 1.25rem;
+      width: 1.35rem;
+      height: 1.35rem;
       stroke: currentColor;
       fill: none;
-      stroke-width: 2;
+      stroke-width: 1.75;
       stroke-linecap: round;
       stroke-linejoin: round;
     }
-    .kpi-card.kpi-revenue .kpi-icon { color: #059669; background: #d1fae5; box-shadow: 0 2px 8px rgba(5,150,105,0.18); }
-    .kpi-card.kpi-fuel .kpi-icon { color: #d97706; background: #fef3c7; box-shadow: 0 2px 8px rgba(217,119,6,0.18); }
-    .kpi-card.kpi-maintenance .kpi-icon { color: #e11d48; background: #ffe4e6; box-shadow: 0 2px 8px rgba(225,29,72,0.18); }
-    .kpi-card.kpi-net .kpi-icon { color: #0284c7; background: #e0f2fe; box-shadow: 0 2px 8px rgba(2,132,199,0.18); }
-    .kpi-card.kpi-expense .kpi-icon { color: #7c3aed; background: #ede9fe; box-shadow: 0 2px 8px rgba(124,58,237,0.18); }
+    .kpi-card.kpi-revenue .kpi-icon { color: #10b981; }
+    .kpi-card.kpi-fuel .kpi-icon { color: #f59e0b; }
+    .kpi-card.kpi-maintenance .kpi-icon { color: #ef4444; }
+    .kpi-card.kpi-net .kpi-icon { color: #3b82f6; }
+    .kpi-card.kpi-expense .kpi-icon { color: #8b5cf6; }
 
     .timeline-badge svg {
       width: 18px;
@@ -609,19 +1069,26 @@
     }
 
     .kpi-value {
-      font-size: 1.7rem;
+      font-size: 1.65rem;
       font-weight: 800;
       letter-spacing: -0.8px;
-      margin-bottom: 0.25rem;
+      margin-bottom: 0.2rem;
       font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
     }
 
     .kpi-meta {
-      font-size: 0.75rem;
+      font-size: 0.73rem;
       color: var(--text-muted);
       display: flex;
       align-items: center;
       gap: 0.35rem;
+    }
+
+    /* Sparkline container */
+    .kpi-sparkline {
+      margin-top: 0.6rem;
+      opacity: 0.7;
     }
 
     /* Badges */
@@ -659,6 +1126,7 @@
       box-shadow: var(--shadow-md);
       overflow: hidden;
       margin-bottom: 1rem;
+      animation: fadeSlideUp 0.35s ease both;
     }
 
     .data-card-header {
@@ -673,7 +1141,7 @@
     }
 
     .data-card-title {
-      font-size: 1.05rem;
+      font-size: 1rem;
       font-weight: 700;
       display: flex;
       align-items: center;
@@ -694,43 +1162,54 @@
     }
 
     table.data-table th {
-      background-color: var(--bg-surface-elevated);
+      background-color: var(--bg-body);
       color: var(--text-muted);
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       font-weight: 700;
-      letter-spacing: 0.6px;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      padding: 0.7rem 1rem;
-      border-bottom: 2px solid var(--border-color);
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--primary);
       white-space: nowrap;
+      position: sticky;
+      top: 0;
+      z-index: 2;
     }
 
     table.data-table td {
       padding: 0.8rem 1rem;
       border-bottom: 1px solid var(--border-color);
       vertical-align: middle;
-      transition: background 0.1s;
+      transition: background 0.1s, border-left 0.1s;
     }
 
     table.data-table tbody tr:nth-child(odd) td {
-      background-color: #f8fafc;
+      background-color: var(--bg-surface);
     }
-    @media (prefers-color-scheme: dark) {
-      table.data-table tbody tr:nth-child(odd) td {
-        background-color: rgba(255,255,255,0.02);
-      }
-    }
-    .dark-mode table.data-table tbody tr:nth-child(odd) td {
-      background-color: rgba(255,255,255,0.02);
+
+    table.data-table tbody tr:nth-child(even) td {
+      background-color: var(--bg-subtle);
     }
 
     table.data-table tbody tr:hover td {
       background-color: var(--primary-light) !important;
     }
 
+    table.data-table tbody tr:hover td:first-child {
+      border-left: 3px solid var(--primary);
+    }
+
     table.data-table tbody tr:last-child td {
       border-bottom: none;
     }
+
+    /* Override dark-mode specific table alternation — handled by token above */
+    @media (prefers-color-scheme: dark) {
+      table.data-table tbody tr:nth-child(odd) td { background-color: var(--bg-surface); }
+      table.data-table tbody tr:nth-child(even) td { background-color: var(--bg-subtle); }
+    }
+    .dark-mode table.data-table tbody tr:nth-child(odd) td { background-color: var(--bg-surface); }
+    .dark-mode table.data-table tbody tr:nth-child(even) td { background-color: var(--bg-subtle); }
 
     /* Formulaires */
     .form-group {
@@ -780,7 +1259,7 @@
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background-color: rgba(15, 23, 42, 0.65);
+      background-color: rgba(0,0,8,0.75);
       backdrop-filter: blur(4px);
       z-index: 100;
       display: flex;
@@ -799,24 +1278,23 @@
 
     .modal-card {
       background-color: var(--bg-surface);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-elevated);
+      border-radius: var(--radius-xl);
+      border-top: 4px solid var(--primary);
       width: 100%;
       max-width: 620px;
       max-height: 90vh;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 24px 60px rgba(0,0,0,0.2), 0 8px 20px rgba(0,0,0,0.1);
-      transform: translateY(16px) scale(0.98);
-      transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 8px 20px rgba(0,0,0,0.4);
+      transform: scale(0.95);
+      opacity: 0;
+      transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.18s ease;
       overflow: hidden;
     }
     .modal-backdrop.open .modal-card {
-      transform: translateY(0) scale(1);
-    }
-
-    .modal-backdrop.open .modal-card {
-      transform: translateY(0);
+      transform: scale(1);
+      opacity: 1;
     }
 
     .modal-header {
@@ -825,18 +1303,18 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+      background: var(--bg-surface-elevated);
     }
-    .modal-header.modal-header-green { background: linear-gradient(135deg, #064e3b 0%, #059669 100%); }
-    .modal-header.modal-header-amber { background: linear-gradient(135deg, #451a03 0%, #d97706 100%); }
-    .modal-header.modal-header-red { background: linear-gradient(135deg, #4c0519 0%, #e11d48 100%); }
-    .modal-header.modal-header-violet { background: linear-gradient(135deg, #2e1065 0%, #7c3aed 100%); }
-    .modal-header.modal-header-blue { background: linear-gradient(135deg, #0c2a3d 0%, #0284c7 100%); }
-    .modal-title { color: #fff; }
-    .modal-header .btn-icon { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); color: #fff; }
+    .modal-header.modal-header-green { background: linear-gradient(135deg, #061a12 0%, #10b98122 100%); }
+    .modal-header.modal-header-amber { background: linear-gradient(135deg, #1a1000 0%, #f59e0b22 100%); }
+    .modal-header.modal-header-red { background: linear-gradient(135deg, #1a0608 0%, #ef444422 100%); }
+    .modal-header.modal-header-violet { background: linear-gradient(135deg, #100d1a 0%, #8b5cf622 100%); }
+    .modal-header.modal-header-blue { background: linear-gradient(135deg, #080e1a 0%, #3b82f622 100%); }
+    .modal-title { color: var(--text-main); }
+    .modal-header .btn-icon { background: var(--bg-surface); border-color: var(--border-color); color: var(--text-muted); }
 
     .modal-title {
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       font-weight: 700;
     }
 
@@ -921,7 +1399,7 @@
       margin-top: 0.2rem;
     }
 
-    /* Toast Notification */
+    /* Toast Notification — slide from right with progress bar */
     #toast-container {
       position: fixed;
       bottom: 1.5rem;
@@ -930,28 +1408,57 @@
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
-      max-width: 380px;
+      max-width: 360px;
       pointer-events: none;
     }
 
     .toast {
-      padding: 0.75rem 1rem;
-      border-radius: var(--radius-sm);
-      background-color: var(--bg-surface);
+      padding: 0.85rem 1rem 0.6rem;
+      border-radius: var(--radius-md);
+      background-color: #141d35;
       color: var(--text-main);
-      border: 1px solid var(--border-color);
-      box-shadow: var(--shadow-lg);
-      font-size: 0.875rem;
+      border: 1px solid var(--border-elevated);
+      border-left: 3px solid var(--primary);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      font-size: 0.85rem;
       display: flex;
-      align-items: center;
-      gap: 0.5rem;
+      align-items: flex-start;
+      gap: 0.6rem;
       pointer-events: auto;
-      animation: slideIn 0.2s ease-out;
+      animation: toastSlideIn 0.28s cubic-bezier(0.4,0,0.2,1);
+      position: relative;
+      overflow: hidden;
     }
 
-    .toast-success { border-left: 4px solid var(--success); }
-    .toast-danger { border-left: 4px solid var(--danger); }
-    .toast-info { border-left: 4px solid var(--primary); }
+    .toast-success { border-left-color: var(--success); }
+    .toast-danger { border-left-color: var(--danger); }
+    .toast-info { border-left-color: var(--info); }
+
+    .toast-progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 2px;
+      background: var(--primary);
+      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+      animation: toastProgress 3.5s linear forwards;
+      width: 100%;
+      transform-origin: left;
+    }
+
+    .toast-success .toast-progress { background: var(--success); }
+    .toast-danger .toast-progress { background: var(--danger); }
+    .toast-info .toast-progress { background: var(--info); }
+
+    @keyframes toastSlideIn {
+      from { transform: translateX(110%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes toastProgress {
+      from { transform: scaleX(1); }
+      to { transform: scaleX(0); }
+    }
 
     @keyframes slideIn {
       from { transform: translateX(100%); opacity: 0; }
@@ -963,38 +1470,50 @@
       position: fixed;
       inset: 0;
       z-index: 150;
-      background: linear-gradient(135deg, #0b0f17 0%, #0f1f3d 50%, #0284c7 100%);
+      background: #0a0e1a;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 1.25rem;
     }
 
+    #login-screen::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 30% 50%, rgba(245,158,11,0.08) 0%, transparent 60%),
+                  radial-gradient(ellipse at 70% 20%, rgba(59,130,246,0.06) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
     .login-box {
       width: 100%;
       max-width: 420px;
-      background-color: rgba(255,255,255,0.97);
-      border: none;
-      border-radius: var(--radius-lg);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-elevated);
+      border-top: 3px solid var(--primary);
+      border-radius: var(--radius-xl);
       padding: 2.25rem;
-      box-shadow: 0 30px 80px rgba(0,0,0,0.4);
-      backdrop-filter: blur(10px);
-      color: #0f172a;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+      color: var(--text-main);
+      position: relative;
+      z-index: 1;
     }
-    .login-box .form-label { color: #334155; }
-    .login-box .form-control { background: #f8fafc; border-color: #e2e8f0; color: #0f172a; }
+    .login-box .form-label { color: var(--text-muted); }
+    .login-box .form-control { background: var(--bg-surface-elevated); border-color: var(--border-elevated); color: var(--text-main); }
 
     .login-logo {
-      width: 48px;
-      height: 48px;
-      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-      color: white;
+      width: 52px;
+      height: 52px;
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #0a0e1a;
       border-radius: var(--radius-md);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 1.5rem;
-      margin-bottom: 1.25rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 16px rgba(245,158,11,0.4);
     }
 
     /* Grille des 10 camions */
@@ -1075,15 +1594,15 @@
       width: 48px;
       height: 48px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-      color: #ffffff;
-      font-weight: 800;
-      font-size: 1.05rem;
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #0a0e1a;
+      font-weight: 900;
+      font-size: 1rem;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
+      box-shadow: 0 2px 10px rgba(245,158,11,0.35);
     }
 
     .driver-card .driver-card-actions {
@@ -1116,12 +1635,13 @@
 
     /* En-tête Dossier Chauffeur */
     .driver-detail-hero {
-      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 55%, #0284c7 100%);
-      border: none;
+      background: linear-gradient(135deg, #0a0e1a 0%, #141d35 55%, #1e2840 100%);
+      border: 1px solid var(--border-elevated);
+      border-top: 2px solid var(--primary);
       border-radius: var(--radius-lg);
       padding: 1.5rem 1.75rem;
       margin-bottom: 1.25rem;
-      box-shadow: 0 8px 28px rgba(2, 132, 199, 0.22);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
       color: #fff;
       position: relative;
       overflow: hidden;
@@ -1581,12 +2101,24 @@
     }
 
     /* ===== ANIMATIONS & MOTION EFFECTS ===== */
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: var(--shadow-md); }
+      50% { box-shadow: var(--shadow-md), 0 0 20px 4px rgba(245,158,11,0.15); }
+    }
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(24px); }
       to   { opacity: 1; transform: translateY(0); }
     }
     @keyframes fadeInScale {
-      from { opacity: 0; transform: scale(0.94); }
+      from { opacity: 0; transform: scale(0.96); }
       to   { opacity: 1; transform: scale(1); }
     }
     @keyframes pulseGlow {
@@ -1594,32 +2126,46 @@
       50% { text-shadow: 0 0 18px currentColor; }
     }
     @keyframes slideInRight {
-      from { opacity: 0; transform: translateX(32px); }
+      from { opacity: 0; transform: translateX(24px); }
       to   { opacity: 1; transform: translateX(0); }
     }
-    @keyframes shimmer {
-      0% { background-position: -200% center; }
-      100% { background-position: 200% center; }
+
+    /* ===== SKELETON LOADERS ===== */
+    .skeleton {
+      background: linear-gradient(90deg, var(--border-color) 25%, var(--border-elevated) 50%, var(--border-color) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 6px;
+      color: transparent !important;
     }
 
+    .skeleton-row td {
+      padding: 0.7rem 1rem;
+    }
+
+    .skeleton-cell {
+      display: inline-block;
+      width: 80%;
+      height: 14px;
+      background: linear-gradient(90deg, var(--border-color) 25%, var(--border-elevated) 50%, var(--border-color) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 4px;
+    }
+
+    .skeleton-cell.w-40 { width: 40%; }
+    .skeleton-cell.w-60 { width: 60%; }
+    .skeleton-cell.w-100 { width: 100%; }
+
     .driver-card {
-      animation: fadeInUp 0.4s ease both;
+      animation: fadeSlideUp 0.4s ease both;
     }
     .driver-card:hover {
       transform: translateY(-4px) scale(1.015);
-      box-shadow: 0 16px 40px rgba(0,0,0,0.18);
-    }
-    .kpi-card {
-      animation: fadeInScale 0.35s ease both;
-    }
-    .kpi-card:hover {
-      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.35), 0 0 0 1px var(--border-elevated);
     }
     .timeline-item {
       animation: slideInRight 0.3s ease both;
-    }
-    .data-card {
-      animation: fadeInScale 0.35s ease both;
     }
 
     /* ===== DRIVER UNIQUE COLORS ===== */
@@ -1676,6 +2222,99 @@
 </head>
 <body>
 
+  <!-- ==================== OVERLAY MOBILE SIDEBAR ==================== -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- ==================== SIDEBAR DE NAVIGATION ==================== -->
+  <aside class="sidebar" id="app-sidebar" aria-label="Navigation principale">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo">YM</div>
+      <div class="sidebar-brand-text">
+        <h2>YM-TRANSIT</h2>
+        <p>Gestion de Flotte · Douala</p>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">PRINCIPAL</div>
+
+      <button class="sidebar-tab active" data-tab="drivers" id="sidebar-tab-drivers" title="Tous les Chauffeurs">
+        <svg class="tab-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span class="tab-label">Chauffeurs</span>
+      </button>
+
+      <button class="sidebar-tab" data-tab="driver-detail" id="sidebar-tab-driver-workspace" title="Dossier Chauffeur actif">
+        <svg class="tab-icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
+        <span class="tab-label" id="sidebar-active-driver-label">Dossier actif</span>
+      </button>
+
+      <button class="sidebar-tab" data-tab="dashboard" id="sidebar-tab-dashboard" title="Tableau de bord général">
+        <svg class="tab-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 17v-4"/><path d="M12 17V7"/><path d="M17 17v-7"/></svg>
+        <span class="tab-label">Tableau de bord</span>
+      </button>
+
+      <div class="sidebar-section-label">ANALYSES</div>
+
+      <button class="sidebar-tab" data-tab="analytics" id="sidebar-tab-analytics" title="Analyses & Graphiques">
+        <svg class="tab-icon" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span class="tab-label">Graphiques</span>
+      </button>
+
+      <button class="sidebar-tab" data-tab="analyse" id="sidebar-tab-analyse" title="Analyse Rentabilité">
+        <svg class="tab-icon" viewBox="0 0 24 24"><path d="M2 20h20"/><path d="m5 20 5-10 4 6 3-4 4 8"/></svg>
+        <span class="tab-label">Rentabilité</span>
+      </button>
+
+      <div class="sidebar-section-label">RESSOURCES</div>
+
+      <button class="sidebar-tab" data-tab="trucks" id="sidebar-tab-trucks" title="Camions">
+        <svg class="tab-icon" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        <span class="tab-label">Camions (10)</span>
+      </button>
+
+      <button class="sidebar-tab" data-tab="search-bl" id="sidebar-tab-search-bl" title="Recherche BL / Conteneur">
+        <svg class="tab-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <span class="tab-label">Recherche BL</span>
+      </button>
+
+      <button class="sidebar-tab" data-tab="documents" id="sidebar-tab-documents" title="Documents" style="position:relative;">
+        <svg class="tab-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <span class="tab-label">Documents</span>
+        <span id="sidebar-docs-alert-badge" class="tab-badge" style="display:none;">0</span>
+      </button>
+
+      <button class="sidebar-tab" data-tab="journal" id="sidebar-tab-journal" title="Journal">
+        <svg class="tab-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 12h6"/><path d="M9 8h6"/><path d="M9 16h4"/></svg>
+        <span class="tab-label">Journal</span>
+      </button>
+
+      <a href="/admin" id="sidebar-admin-link" class="sidebar-tab" style="display:none; text-decoration:none;" title="Administration">
+        <svg class="tab-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M12 14c-6 0-8 2-8 3v1h16v-1c0-1-2-3-8-3z"/><path d="M18 3l3 3-3 3M21 6H15"/></svg>
+        <span class="tab-label">Administration</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-user-avatar" id="sidebar-user-avatar">?</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" id="sidebar-username-display">—</div>
+          <div class="sidebar-user-role" id="sidebar-role-display">Connecté</div>
+        </div>
+      </div>
+      <div class="sidebar-footer-actions">
+        <button id="sidebar-theme-toggle" class="sidebar-footer-btn" title="Basculer thème">
+          <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <span>Thème</span>
+        </button>
+        <button id="sidebar-logout-btn" class="sidebar-footer-btn" title="Déconnexion">
+          <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          <span>Déconn.</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
   <!-- ==================== ÉCRAN DE CONNEXION ==================== -->
   <div id="login-screen" style="display:flex;">
     <div class="login-box">
@@ -1700,14 +2339,23 @@
     </div>
   </div>
 
+  <!-- ==================== APP WRAPPER (sidebar-offset) ==================== -->
+  <div class="app-wrapper" id="app-wrapper">
+
   <!-- ==================== EN-TÊTE PERSISTANT ==================== -->
   <header class="app-header">
     <div class="header-inner">
-      <div class="brand-section">
-        <div class="brand-logo">YM</div>
-        <div class="brand-text">
-          <h1>YM-TRANSIT</h1>
-          <p>Comptabilité Chauffeur · Douala</p>
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <!-- Mobile sidebar toggle -->
+        <button class="header-menu-btn" id="mobile-sidebar-toggle" aria-label="Ouvrir menu">
+          <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div class="brand-section">
+          <div class="brand-logo">YM</div>
+          <div class="brand-text">
+            <h1>YM-TRANSIT</h1>
+            <p>Comptabilité Chauffeur · Douala</p>
+          </div>
         </div>
       </div>
 
@@ -1716,7 +2364,7 @@
           <svg class="svg-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> <span id="current-view-name">Chauffeurs</span>
         </div>
 
-        <!-- Basculeur Thème Sombre / Clair -->
+        <!-- Basculeur Thème Sombre / Clair (hidden on desktop, sidebar has it) -->
         <button id="theme-toggle" class="btn-icon" title="Basculer le mode sombre/clair" aria-label="Thème">
           <span id="theme-icon"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
         </button>
@@ -1740,7 +2388,7 @@
     </div>
   </header>
 
-  <!-- ==================== BARRE D'ONGLETS DU WORKFLOW ==================== -->
+  <!-- ==================== BARRE D'ONGLETS DU WORKFLOW (kept for JS, hidden visually) ==================== -->
   <nav class="nav-bar">
     <div class="nav-inner">
       <button class="nav-tab active" data-tab="drivers" id="nav-tab-drivers">
@@ -1755,11 +2403,21 @@
       <button class="nav-tab" data-tab="analytics" id="nav-tab-analytics">
         <svg class="svg-icon" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> 4. Analyses & Graphiques
       </button>
+      <button class="nav-tab" data-tab="analyse" id="nav-tab-analyse">
+        <svg class="svg-icon" viewBox="0 0 24 24"><path d="M2 20h20"/><path d="m5 20 5-10 4 6 3-4 4 8"/><circle cx="5" cy="20" r="0"/></svg> 5. Analyse Rentabilité
+      </button>
       <button class="nav-tab" data-tab="trucks" id="nav-tab-trucks">
         <svg class="svg-icon" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> Camions (10)
       </button>
       <button class="nav-tab" data-tab="search-bl" id="nav-tab-search-bl">
         <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Recherche BL / Conteneur
+      </button>
+      <button class="nav-tab" data-tab="documents" id="nav-tab-documents" style="position:relative;">
+        <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> Documents
+        <span id="docs-alert-badge" style="display:none; position:absolute; top:4px; right:4px; background:var(--danger); color:#fff; font-size:0.65rem; font-weight:800; border-radius:var(--radius-full); min-width:16px; height:16px; line-height:16px; text-align:center; padding:0 4px;">0</span>
+      </button>
+      <button class="nav-tab" data-tab="journal" id="nav-tab-journal">
+        <svg class="svg-icon" viewBox="0 0 24 24"><path d="M9 12h6"/><path d="M9 8h6"/><path d="M9 16h4"/><rect x="3" y="4" width="18" height="16" rx="2"/></svg> Journal
       </button>
       <a href="/admin" id="nav-admin-link" class="nav-tab" style="display:none; text-decoration:none;">
         <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M12 14c-6 0-8 2-8 3v1h16v-1c0-1-2-3-8-3z"/><path d="M18 3l3 3-3 3M21 6H15"/></svg> Administration
@@ -1987,6 +2645,15 @@
           <div class="kpi-value font-mono" id="detail-driver-net">0 FCFA</div>
           <div class="kpi-meta">Recettes - Dépenses totales</div>
         </div>
+
+        <div class="kpi-card" onclick="switchDriverSubtab('advances')" style="cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;" title="Cliquer pour voir les avances et dettes">
+          <div class="kpi-header">
+            <span class="kpi-title">Avances nettes dues</span>
+            <span class="kpi-icon"><svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
+          </div>
+          <div class="kpi-value font-mono" id="detail-driver-advances-kpi">0 FCFA</div>
+          <div class="kpi-meta"><span id="detail-driver-advances-kpi-meta">Aucune avance en cours</span></div>
+        </div>
       </div>
 
       <!-- Analyse graphique du chauffeur -->
@@ -2013,6 +2680,7 @@
             <button class="driver-subtab-btn" data-subtab="fuel"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 22V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v17"/><path d="M13 10h4a2 2 0 0 1 2 2v8a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V9.5a1.5 1.5 0 0 0-2.56-1.06L19 10"/><rect x="5" y="6" width="6" height="5" rx="1"/><path d="M3 22h10"/></svg> Carburant Voyages (<span id="badge-subtab-fuel">0</span>)</button>
             <button class="driver-subtab-btn" data-subtab="maint"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> Ses Entretiens (<span id="badge-subtab-maint">0</span>)</button>
             <button class="driver-subtab-btn" data-subtab="expenses"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 10h18M7 15h1m4 0h5M5 6h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/></svg> Ses Autres Dépenses (<span id="badge-subtab-expenses">0</span>)</button>
+            <button class="driver-subtab-btn" data-subtab="advances"><svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Avances &amp; Dettes (<span id="badge-subtab-advances">0</span>)</button>
           </div>
         </div>
 
@@ -2108,6 +2776,48 @@
         </div>
       </div>
 
+        <!-- Sous-panneau 6 : Avances & Dettes -->
+        <div id="subpanel-advances" class="driver-subpanel" style="display: none; padding: 0;">
+          <!-- Solde en-tête -->
+          <div id="advances-balance-bar" style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding: 0.85rem 1.25rem; background: var(--bg-subtle); border-bottom: 1px solid var(--border-color);">
+            <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; flex: 1;">
+              <div>
+                <span style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Total avances</span>
+                <div class="font-mono text-danger" style="font-weight: 800; font-size: 1rem;" id="adv-total-avances">0 FCFA</div>
+              </div>
+              <div>
+                <span style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Total remboursements</span>
+                <div class="font-mono text-success" style="font-weight: 800; font-size: 1rem;" id="adv-total-remb">0 FCFA</div>
+              </div>
+              <div>
+                <span style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Solde net dû</span>
+                <div class="font-mono" style="font-weight: 800; font-size: 1.1rem;" id="adv-solde-net">0 FCFA</div>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-sm btn-write-only" onclick="openAdvanceModal(state.selectedDriverId)" style="white-space: nowrap;">
+              <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Nouvelle avance / remboursement
+            </button>
+          </div>
+          <div class="table-container">
+            <table class="data-table mobile-collapse">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Type</th>
+                  <th>Motif</th>
+                  <th>Montant</th>
+                  <th>Notes</th>
+                  <th>Saisi par</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="detail-advances-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
       <!-- Bas de page dossier chauffeur : navigation claire -->
       <div style="margin-top: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; padding: 1.25rem; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-md);">
         <button id="btn-bottom-change-driver" class="btn btn-secondary" style="font-weight: 700;">
@@ -2137,6 +2847,9 @@
           </div>
         </div>
         <div style="display: flex; gap: 0.5rem;">
+          <button id="export-dashboard-excel-btn" class="btn btn-secondary btn-sm" title="Exporter un fichier Excel multi-feuilles (Voyages, Entretiens, Carburant, Dépenses)" onclick="exportDashboardExcel()">
+            <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg> Exporter Excel
+          </button>
           <button id="export-csv-btn" class="btn btn-secondary btn-sm" title="Exporter les données filtrées en CSV">
             <svg class="svg-icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Exporter CSV
           </button>
@@ -2145,6 +2858,67 @@
           </button>
         </div>
       </div>
+
+      <!-- ── BANDE EN DIRECT (Feature 5) ───────────────────────────────────────── -->
+      <div id="live-band" style="
+        background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+        border: 1px solid #bae6fd;
+        border-radius: var(--radius-md);
+        padding: 0.9rem 1.25rem;
+        margin-bottom: 1.25rem;
+        box-shadow: 0 2px 8px rgba(2,132,199,0.08);
+      ">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem;">
+          <div style="display:flex; align-items:center; gap:0.55rem;">
+            <span id="live-dot" style="
+              display:inline-block; width:10px; height:10px; border-radius:50%;
+              background:#22c55e; box-shadow:0 0 0 0 rgba(34,197,94,0.6);
+              animation: live-pulse 2s infinite;
+            "></span>
+            <span style="font-size:0.75rem; font-weight:800; color:#0369a1; text-transform:uppercase; letter-spacing:0.08em;">Aujourd'hui en direct</span>
+            <span id="live-last-update" style="font-size:0.7rem; color:#64748b; font-weight:500;"></span>
+          </div>
+          <div style="display:flex; gap:0.65rem; flex-wrap:wrap;">
+            <div style="background:#fff; border:1px solid #bae6fd; border-radius:var(--radius-sm); padding:0.55rem 1rem; min-width:130px; text-align:center;">
+              <div style="font-size:0.68rem; font-weight:700; color:#0369a1; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:2px;">Voyages aujourd'hui</div>
+              <div id="live-trips-today" style="font-size:1.4rem; font-weight:900; font-family:var(--font-mono); color:#0f172a;">—</div>
+            </div>
+            <div style="background:#fff; border:1px solid #bae6fd; border-radius:var(--radius-sm); padding:0.55rem 1rem; min-width:160px; text-align:center;">
+              <div style="font-size:0.68rem; font-weight:700; color:#0369a1; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:2px;">Recette du jour</div>
+              <div id="live-revenue-today" style="font-size:1.1rem; font-weight:900; font-family:var(--font-mono); color:#059669;">—</div>
+            </div>
+            <div style="background:#fff; border:1px solid #bae6fd; border-radius:var(--radius-sm); padding:0.55rem 1rem; min-width:160px; text-align:center;">
+              <div style="font-size:0.68rem; font-weight:700; color:#0369a1; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:2px;">Recette semaine</div>
+              <div id="live-revenue-week" style="font-size:1.1rem; font-weight:900; font-family:var(--font-mono); color:#0284c7;">—</div>
+            </div>
+            <div style="background:#fff; border:1px solid #bae6fd; border-radius:var(--radius-sm); padding:0.55rem 1rem; min-width:120px; text-align:center;">
+              <div style="font-size:0.68rem; font-weight:700; color:#0369a1; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:2px;">Camions actifs</div>
+              <div id="live-active-trucks" style="font-size:1.4rem; font-weight:900; font-family:var(--font-mono); color:#7c3aed;">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <style>
+        @keyframes live-pulse {
+          0%   { box-shadow: 0 0 0 0 rgba(34,197,94,0.6); }
+          70%  { box-shadow: 0 0 0 8px rgba(34,197,94,0); }
+          100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+        }
+        @media (prefers-color-scheme: dark) {
+          :root:not(.light-mode) #live-band {
+            background: linear-gradient(135deg, #082f49 0%, #0c1a2e 100%);
+            border-color: #0c4a6e;
+          }
+          :root:not(.light-mode) #live-band [style*="background:#fff"] {
+            background: #111827 !important;
+            border-color: #0c4a6e !important;
+          }
+        }
+        .dark-mode #live-band {
+          background: linear-gradient(135deg, #082f49 0%, #0c1a2e 100%) !important;
+          border-color: #0c4a6e !important;
+        }
+      </style>
 
       <!-- BARRE DE PÉRIODE POUR LE TABLEAU DE BORD GÉNÉRAL -->
       <div class="toolbar-card" style="margin-bottom: 1.5rem;">
@@ -2315,9 +3089,14 @@
           <div class="data-card-title">
             <svg class="svg-icon" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg> Journal des Voyages & Recettes (FCFA)
           </div>
-          <button id="add-trip-btn" class="btn btn-primary btn-sm btn-write-only">
-            <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Enregistrer un voyage
-          </button>
+          <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+            <button class="btn btn-secondary btn-sm" title="Exporter les voyages en Excel" onclick="exportTableToExcel('trips-tbody', 'voyages_flotte', 'Voyages')">
+              <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/></svg> Exporter Excel
+            </button>
+            <button id="add-trip-btn" class="btn btn-primary btn-sm btn-write-only">
+              <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Enregistrer un voyage
+            </button>
+          </div>
         </div>
         <div class="table-container">
           <table class="data-table mobile-collapse" id="trips-table">
@@ -2351,9 +3130,14 @@
           <div class="data-card-title">
             <svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 22V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v17"/><path d="M13 10h4a2 2 0 0 1 2 2v8a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V9.5a1.5 1.5 0 0 0-2.56-1.06L19 10"/><rect x="5" y="6" width="6" height="5" rx="1"/><path d="M3 22h10"/></svg> Dépenses de Carburant & Pleins
           </div>
-          <button id="add-fuel-btn" class="btn btn-primary btn-sm btn-write-only">
-            <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Enregistrer un plein
-          </button>
+          <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+            <button class="btn btn-secondary btn-sm" title="Exporter les pleins en Excel" onclick="exportTableToExcel('fuel-tbody', 'carburant_flotte', 'Carburant')">
+              <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/></svg> Exporter Excel
+            </button>
+            <button id="add-fuel-btn" class="btn btn-primary btn-sm btn-write-only">
+              <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Enregistrer un plein
+            </button>
+          </div>
         </div>
         <div class="table-container">
           <table class="data-table mobile-collapse" id="fuel-table">
@@ -2384,9 +3168,14 @@
           <div class="data-card-title">
             <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> Interventions d'Atelier, Pièces & Réparations
           </div>
-          <button id="add-maintenance-btn" class="btn btn-primary btn-sm btn-write-only">
-            <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Noter une intervention
-          </button>
+          <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+            <button class="btn btn-secondary btn-sm" title="Exporter les interventions en Excel" onclick="exportTableToExcel('maint-tbody', 'entretien_flotte', 'Entretien')">
+              <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/></svg> Exporter Excel
+            </button>
+            <button id="add-maintenance-btn" class="btn btn-primary btn-sm btn-write-only">
+              <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Noter une intervention
+            </button>
+          </div>
         </div>
         <div class="table-container">
           <table class="data-table mobile-collapse" id="maint-table">
@@ -2452,6 +3241,247 @@
           <div style="font-size:3rem; margin-bottom:0.75rem;"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><path d="M22 10H2"/></svg></div>
           <div style="font-size:1rem; font-weight:600;">Aucun résultat trouvé</div>
           <div style="font-size:0.85rem; margin-top:0.35rem;">Vérifiez le numéro saisi — la recherche est partielle (vous pouvez saisir une partie du numéro).</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== ONGLET DOCUMENTS ADMINISTRATIFS ==================== -->
+    <section id="view-documents" class="view-panel" style="display:none;">
+      <div style="background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:1.5rem; margin-bottom:1.5rem; box-shadow:var(--shadow-sm);">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.25rem;">
+          <div>
+            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;">
+              <span class="badge badge-primary" style="font-size:0.75rem; font-weight:800; padding:0.25rem 0.6rem;">DOCUMENTS</span>
+            </div>
+            <h2 style="font-size:1.5rem; font-weight:900; margin:0; color:var(--text-main); letter-spacing:-0.02em;">Documents administratifs</h2>
+            <p style="color:var(--text-muted); font-size:0.9rem; margin-top:0.4rem;">Carte grise, assurance, visite technique, permis de conduire — suivez les dates d'expiration de toute la flotte.</p>
+          </div>
+          <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
+            <button id="btn-docs-alerts" class="btn btn-secondary btn-sm" onclick="filterDocsByAlerts()">
+              <svg class="svg-icon" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Alertes
+            </button>
+            <button id="add-document-btn" class="btn btn-primary btn-write-only" style="font-weight:700;" onclick="openDocumentModal()">
+              <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> + Nouveau Document
+            </button>
+          </div>
+        </div>
+
+        <!-- Filtres -->
+        <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap; margin-bottom:1.25rem;">
+          <select id="docs-filter-entity-type" class="form-control" style="max-width:160px;" onchange="loadDocuments()">
+            <option value="">Toutes entités</option>
+            <option value="truck">Camions</option>
+            <option value="driver">Chauffeurs</option>
+          </select>
+          <select id="docs-filter-status" class="form-control" style="max-width:180px;" onchange="loadDocuments()">
+            <option value="">Tous statuts</option>
+            <option value="valid">Valides</option>
+            <option value="expiring">Expirent bientôt</option>
+            <option value="expired">Expirés</option>
+          </select>
+          <input type="text" id="docs-search-input" class="form-control" placeholder="Rechercher (nom, type, entité)..." style="max-width:300px;" oninput="renderDocumentsTable()">
+          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('docs-filter-entity-type').value=''; document.getElementById('docs-filter-status').value=''; document.getElementById('docs-search-input').value=''; loadDocuments();">Réinitialiser</button>
+        </div>
+
+        <!-- Tableau -->
+        <div class="table-container">
+          <table class="data-table mobile-collapse" id="docs-table">
+            <thead>
+              <tr>
+                <th>Entité</th>
+                <th>Type de document</th>
+                <th>Nom du document</th>
+                <th>Date émission</th>
+                <th>Date expiration</th>
+                <th>Statut</th>
+                <th>Fichier</th>
+                <th class="btn-write-only">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="docs-tbody">
+              <tr><td colspan="8" style="text-align:center; color:var(--text-muted); padding:2rem;">Chargement…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="docs-empty" style="display:none; text-align:center; padding:3rem 1rem; color:var(--text-muted);">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:0.75rem; opacity:0.4;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <div style="font-size:1rem; font-weight:600;">Aucun document trouvé</div>
+          <div style="font-size:0.85rem; margin-top:0.35rem;">Ajoutez un premier document en cliquant sur « + Nouveau Document ».</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== ONGLET ANALYSE RENTABILITÉ ==================== -->
+    <section id="view-analyse" class="view-panel" style="display:none;">
+      <!-- En-tête -->
+      <div style="background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:1.25rem 1.5rem; margin-bottom:1.25rem; box-shadow:var(--shadow-sm);">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+          <div>
+            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.3rem;">
+              <span class="badge badge-primary" style="font-size:0.7rem; font-weight:800; padding:0.2rem 0.55rem;">ANALYSE</span>
+            </div>
+            <h2 style="font-size:1.35rem; font-weight:900; margin:0; letter-spacing:-0.02em;">Analyse Rentabilité</h2>
+            <p style="color:var(--text-muted); font-size:0.85rem; margin-top:0.25rem;">Rentabilité par route et classement des chauffeurs sur la période sélectionnée.</p>
+          </div>
+          <!-- Filtre période -->
+          <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
+            <label style="font-size:0.8rem; font-weight:600; color:var(--text-muted);">Du</label>
+            <input type="date" id="analyse-start-date" class="form-control" style="max-width:155px; font-size:0.85rem;">
+            <label style="font-size:0.8rem; font-weight:600; color:var(--text-muted);">au</label>
+            <input type="date" id="analyse-end-date" class="form-control" style="max-width:155px; font-size:0.85rem;">
+            <button id="btn-analyse-refresh" class="btn btn-primary btn-sm" style="font-weight:700;">
+              <svg class="svg-icon" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Actualiser
+            </button>
+            <button id="btn-analyse-reset" class="btn btn-secondary btn-sm">Toutes périodes</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Onglets internes -->
+      <div style="display:flex; gap:0.25rem; margin-bottom:1.25rem; border-bottom:1px solid var(--border-color);">
+        <button class="analyse-sub-tab active" data-sub="routes" style="padding:0.6rem 1.1rem; font-size:0.82rem; font-weight:700; background:transparent; border:none; border-bottom:3px solid var(--primary); color:var(--primary); cursor:pointer; transition:all 0.15s;">
+          <svg class="svg-icon" viewBox="0 0 24 24" style="width:15px;height:15px;"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg> Rentabilité Routes
+        </button>
+        <button class="analyse-sub-tab" data-sub="drivers" style="padding:0.6rem 1.1rem; font-size:0.82rem; font-weight:700; background:transparent; border:none; border-bottom:3px solid transparent; color:var(--text-muted); cursor:pointer; transition:all 0.15s;">
+          <svg class="svg-icon" viewBox="0 0 24 24" style="width:15px;height:15px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Performance Chauffeurs
+        </button>
+      </div>
+
+      <!-- === SOUS-SECTION : RENTABILITÉ ROUTES === -->
+      <div id="analyse-sub-routes">
+        <div style="background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:1.25rem; box-shadow:var(--shadow-sm);">
+          <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem; flex-wrap:wrap;">
+            <h3 style="font-size:1rem; font-weight:800; margin:0;">Rentabilité par Route</h3>
+            <span id="routes-count-badge" class="badge" style="background:var(--badge-neutral-bg); color:var(--badge-neutral-text); font-size:0.72rem;">—</span>
+          </div>
+          <!-- Légende couleurs -->
+          <div style="display:flex; gap:1rem; margin-bottom:1rem; flex-wrap:wrap; font-size:0.78rem; font-weight:600;">
+            <span style="display:flex; align-items:center; gap:0.35rem;"><span style="width:10px;height:10px;border-radius:50%;background:var(--success); display:inline-block;"></span> Marge &gt; 40 %</span>
+            <span style="display:flex; align-items:center; gap:0.35rem;"><span style="width:10px;height:10px;border-radius:50%;background:var(--warning); display:inline-block;"></span> 20 – 40 %</span>
+            <span style="display:flex; align-items:center; gap:0.35rem;"><span style="width:10px;height:10px;border-radius:50%;background:var(--danger); display:inline-block;"></span> &lt; 20 %</span>
+          </div>
+          <div class="table-container">
+            <table class="data-table" id="routes-table">
+              <thead>
+                <tr>
+                  <th>Rang</th>
+                  <th>Route</th>
+                  <th>Nb Voyages</th>
+                  <th>Recette Brute</th>
+                  <th>Remis Chauffeur</th>
+                  <th>Crédit Entreprise</th>
+                  <th>Marge %</th>
+                </tr>
+              </thead>
+              <tbody id="routes-tbody">
+                <tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:2rem;">Chargement…</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="routes-empty" style="display:none; text-align:center; padding:3rem 1rem; color:var(--text-muted);">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:0.75rem; opacity:0.4;"><path d="M3 12l2-2m0 0l7-7 7 7"/></svg>
+            <div style="font-weight:600;">Aucun voyage sur cette période</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- === SOUS-SECTION : PERFORMANCE CHAUFFEURS === -->
+      <div id="analyse-sub-drivers" style="display:none;">
+        <div style="background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:1.25rem; box-shadow:var(--shadow-sm);">
+          <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem; flex-wrap:wrap;">
+            <h3 style="font-size:1rem; font-weight:800; margin:0;">Classement Chauffeurs</h3>
+            <span id="drivers-rank-badge" class="badge" style="background:var(--badge-neutral-bg); color:var(--badge-neutral-text); font-size:0.72rem;">—</span>
+          </div>
+          <div class="table-container">
+            <table class="data-table" id="drivers-rank-table">
+              <thead>
+                <tr>
+                  <th>Rang</th>
+                  <th>Chauffeur</th>
+                  <th>Camion</th>
+                  <th>Voyages</th>
+                  <th>Recette</th>
+                  <th>Crédit Entreprise</th>
+                  <th style="min-width:160px;">Ratio Crédit/Recette</th>
+                  <th>Entretiens</th>
+                  <th>Carburant Voyage</th>
+                </tr>
+              </thead>
+              <tbody id="drivers-rank-tbody">
+                <tr><td colspan="9" style="text-align:center; color:var(--text-muted); padding:2rem;">Chargement…</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="drivers-rank-empty" style="display:none; text-align:center; padding:3rem 1rem; color:var(--text-muted);">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:0.75rem; opacity:0.4;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <div style="font-weight:600;">Aucun chauffeur actif trouvé</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== ONGLET JOURNAL (Feature 7) ==================== -->
+    <section id="view-journal" class="view-panel" style="display:none;">
+      <div class="data-card">
+        <div class="data-card-header">
+          <div class="data-card-title">
+            <svg class="svg-icon" viewBox="0 0 24 24"><path d="M9 12h6"/><path d="M9 8h6"/><path d="M9 16h4"/><rect x="3" y="4" width="18" height="16" rx="2"/></svg>
+            Journal des modifications
+          </div>
+          <span class="badge badge-neutral" style="font-size:0.7rem;">Lecture seule · max 500 entrées</span>
+        </div>
+
+        <!-- Filtres journal -->
+        <div style="padding:0.9rem 1.25rem; border-bottom:1px solid var(--border-color); display:flex; gap:0.65rem; flex-wrap:wrap; align-items:center;">
+          <select id="journal-filter-action" class="form-control" style="max-width:160px;" onchange="loadJournal()">
+            <option value="">Toutes actions</option>
+            <option value="CREATE">CREATE</option>
+            <option value="UPDATE">UPDATE</option>
+            <option value="DELETE">DELETE</option>
+            <option value="LOGIN">LOGIN</option>
+            <option value="LOGOUT">LOGOUT</option>
+          </select>
+          <select id="journal-filter-entity" class="form-control" style="max-width:175px;" onchange="loadJournal()">
+            <option value="">Toutes entités</option>
+            <option value="trip">voyage</option>
+            <option value="fuel">carburant</option>
+            <option value="maintenance">entretien</option>
+            <option value="driver">chauffeur</option>
+            <option value="truck">camion</option>
+            <option value="expense">dépense</option>
+            <option value="document">document</option>
+            <option value="advance">avance</option>
+            <option value="user">utilisateur</option>
+          </select>
+          <input type="text" id="journal-filter-user" class="form-control" placeholder="Filtrer par utilisateur..." style="max-width:220px;" oninput="loadJournal()">
+          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('journal-filter-action').value=''; document.getElementById('journal-filter-entity').value=''; document.getElementById('journal-filter-user').value=''; journalPage=0; loadJournal();">Réinitialiser</button>
+          <span id="journal-total-info" style="font-size:0.8rem; color:var(--text-muted); margin-left:auto;"></span>
+        </div>
+
+        <!-- Tableau journal -->
+        <div class="table-container">
+          <table class="data-table" id="journal-table">
+            <thead>
+              <tr>
+                <th>Date / Heure</th>
+                <th>Utilisateur</th>
+                <th>Rôle</th>
+                <th>Action</th>
+                <th>Entité</th>
+                <th>Détail</th>
+              </tr>
+            </thead>
+            <tbody id="journal-tbody">
+              <tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:2rem;">Chargement…</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination journal -->
+        <div id="journal-pagination" style="display:flex; justify-content:center; align-items:center; gap:0.65rem; padding:0.9rem 1.25rem; border-top:1px solid var(--border-color);">
+          <button id="journal-prev-btn" class="btn btn-secondary btn-sm" onclick="journalPage=Math.max(0,journalPage-1); loadJournal();" disabled>← Précédent</button>
+          <span id="journal-page-info" style="font-size:0.8rem; color:var(--text-muted);"></span>
+          <button id="journal-next-btn" class="btn btn-secondary btn-sm" onclick="journalPage++; loadJournal();">Suivant →</button>
         </div>
       </div>
     </section>
@@ -3123,6 +4153,142 @@
        l'écran, affichée uniquement pendant l'impression via body.printing-report -->
   <div id="pdf-render-zone"></div>
 
+  <!-- ==================== MODAL : DOCUMENT ADMINISTRATIF ==================== -->
+  <div id="modal-document-form" class="modal-backdrop">
+    <div class="modal-card" style="max-width:600px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="doc-modal-title">Nouveau document</h3>
+        <button class="btn-icon close-modal-btn" onclick="document.getElementById('modal-document-form').classList.remove('open')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="doc-edit-id">
+
+        <div class="form-group">
+          <label class="form-label">Entité concernée *</label>
+          <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
+            <select id="doc-entity-type" class="form-control" style="flex:1; min-width:130px;" onchange="onDocEntityTypeChange()">
+              <option value="truck">Camion</option>
+              <option value="driver">Chauffeur</option>
+            </select>
+            <select id="doc-entity-id" class="form-control" style="flex:2; min-width:200px;">
+              <option value="">Choisir…</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Type de document *</label>
+          <select id="doc-doc-type" class="form-control" onchange="onDocTypeChange()">
+            <option value="">Choisir un type…</option>
+            <option value="carte_grise">Carte grise</option>
+            <option value="assurance_rc">Assurance RC</option>
+            <option value="assurance_tous_risques">Assurance tous risques</option>
+            <option value="visite_technique">Visite technique</option>
+            <option value="vignette">Vignette</option>
+            <option value="permis_conduire">Permis de conduire</option>
+            <option value="carte_professionnelle">Carte professionnelle</option>
+            <option value="contrat_chauffeur">Contrat chauffeur</option>
+            <option value="autre">Autre</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Nom du document *</label>
+          <input type="text" id="doc-doc-name" class="form-control" placeholder="Ex: Carte grise TR-01 — Mercedes Actros">
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="form-group">
+            <label class="form-label">Date d'émission</label>
+            <input type="date" id="doc-issue-date" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Date d'expiration</label>
+            <input type="date" id="doc-expiry-date" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Fichier (PDF / Image)</label>
+          <input type="file" id="doc-file-input" class="form-control" accept=".pdf,.jpg,.jpeg,.png,.webp">
+          <div id="doc-file-preview" style="display:none; margin-top:0.5rem; font-size:0.8rem; color:var(--text-muted);">
+            Fichier actuel : <a id="doc-file-current-link" href="#" target="_blank" style="color:var(--primary);">voir</a>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Notes</label>
+          <textarea id="doc-notes" class="form-control" rows="2" placeholder="Observations, numéro de référence…"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="document.getElementById('modal-document-form').classList.remove('open')">Annuler</button>
+        <button class="btn btn-primary" id="doc-save-btn" onclick="saveDocument()">
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODALE AVANCES & DETTES ==================== -->
+  <div id="modal-advance-form" class="modal-backdrop">
+    <div class="modal-card" style="max-width:520px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="advance-modal-title">Nouvelle avance / remboursement</h3>
+        <button class="btn-icon close-modal-btn" onclick="document.getElementById('modal-advance-form').classList.remove('open')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="advance-edit-id">
+        <input type="hidden" id="advance-driver-id">
+
+        <div class="form-group">
+          <label class="form-label">Type *</label>
+          <div style="display: flex; gap: 0.75rem;">
+            <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; font-weight: 600;">
+              <input type="radio" name="advance-type" id="advance-type-avance" value="avance" checked style="accent-color: var(--danger);">
+              <span style="color: var(--danger);">Avance reçue</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; font-weight: 600;">
+              <input type="radio" name="advance-type" id="advance-type-remb" value="remboursement" style="accent-color: var(--success);">
+              <span style="color: var(--success);">Remboursement effectué</span>
+            </label>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label">Date *</label>
+            <input type="date" id="advance-date" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Montant (FCFA) *</label>
+            <input type="number" id="advance-amount" class="form-control" min="1" step="1" placeholder="Ex: 50000">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Motif *</label>
+          <input type="text" id="advance-motif" class="form-control" placeholder="Ex: Avance sur salaire octobre, Remboursement avance 12/09…">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Notes (optionnel)</label>
+          <textarea id="advance-notes" class="form-control" rows="2" placeholder="Informations complémentaires…"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="document.getElementById('modal-advance-form').classList.remove('open')">Annuler</button>
+        <button class="btn btn-primary" id="advance-save-btn" onclick="saveAdvance()">
+          <svg class="svg-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- /.app-wrapper -->
+
   <!-- ==================== LOGIQUE VANILLA JS (FRONTEND) ==================== -->
   <script>
     // Bibliothèque d'icônes SVG (style Feather) utilisée dans toute l'application
@@ -3441,9 +4607,12 @@
         dashboard: { name: '3. Tableau de bord général', icon: VECTORS.dashboard, btn: 'Nouveau voyage' },
         trucks: { name: 'Camions (10)', icon: VECTORS.truck, btn: 'Noter entretien' },
         'search-bl': { name: 'Recherche BL / Conteneur', icon: VECTORS.folder, btn: null },
+        documents: { name: 'Documents administratifs', icon: VECTORS.folder, btn: 'Nouveau document' },
         trips: { name: 'Tous les Voyages', icon: VECTORS.trips, btn: 'Nouveau voyage' },
         fuel: { name: 'Tout le Carburant', icon: VECTORS.fuel, btn: 'Plein carburant' },
-        maintenance: { name: 'Tout l\'Entretien', icon: VECTORS.maintenance, btn: 'Noter entretien' }
+        maintenance: { name: 'Tout l\'Entretien', icon: VECTORS.maintenance, btn: 'Noter entretien' },
+        analyse: { name: '5. Analyse Rentabilité', icon: VECTORS.dashboard, btn: null },
+        journal: { name: 'Journal des modifications', icon: VECTORS.folder, btn: null }
       };
 
       const info = tabNames[tabId] || tabNames.drivers;
@@ -3639,6 +4808,7 @@
         state.trucks = await trucksRes.json();
 
         populateSelectOptions();
+        refreshDocAlertBadge();
       } catch (err) {
         console.error('Erreur initial data:', err);
       }
@@ -3696,6 +4866,9 @@
       else if (state.currentTab === 'trips') loadTrips();
       else if (state.currentTab === 'fuel') loadFuel();
       else if (state.currentTab === 'maintenance') loadMaintenance();
+      else if (state.currentTab === 'documents') loadDocuments();
+      else if (state.currentTab === 'analyse') { if (typeof window.loadAnalyse === 'function') window.loadAnalyse(); }
+      else if (state.currentTab === 'journal') { if (typeof window.loadJournal === 'function') { window.journalPage = 0; window.loadJournal(); } }
     }
 
     // ----------------------------------------------------
@@ -4890,9 +6063,184 @@
           });
         }
 
+        // Sous-panneau 6 : Avances & Dettes
+        loadDriverAdvances(driverId);
+
       } catch (err) {
         console.error('Erreur openDriverDetail:', err);
         showToast('Impossible de charger le dossier du chauffeur.', 'danger');
+      }
+    };
+
+    // ===================== AVANCES & DETTES CHAUFFEUR =====================
+
+    window.loadDriverAdvances = async function(driverId) {
+      try {
+        const [balanceRes, listRes] = await Promise.all([
+          fetch(`/api/advances/balance/${driverId}`),
+          fetch(`/api/advances?driver_id=${driverId}`)
+        ]);
+        const balance = await balanceRes.json();
+        const advances = await listRes.json();
+
+        // Mettre à jour le KPI avances nettes dans le résumé
+        const kpiEl = document.getElementById('detail-driver-advances-kpi');
+        const kpiMeta = document.getElementById('detail-driver-advances-kpi-meta');
+        if (kpiEl) {
+          const solde = balance.solde_net || 0;
+          kpiEl.textContent = formatFCFA(solde);
+          if (solde > 0) {
+            kpiEl.className = 'kpi-value font-mono text-danger';
+            if (kpiMeta) kpiMeta.textContent = `${balance.total_operations} opération(s) · solde dû`;
+          } else if (solde < 0) {
+            kpiEl.className = 'kpi-value font-mono text-warning';
+            if (kpiMeta) kpiMeta.textContent = 'Trop-remboursé';
+          } else {
+            kpiEl.className = 'kpi-value font-mono text-success';
+            if (kpiMeta) kpiMeta.textContent = 'Aucune avance en cours';
+          }
+        }
+
+        // Mettre à jour la barre de solde dans le sous-panneau
+        const totalAvEl = document.getElementById('adv-total-avances');
+        const totalRembEl = document.getElementById('adv-total-remb');
+        const soldeEl = document.getElementById('adv-solde-net');
+        if (totalAvEl) totalAvEl.textContent = formatFCFA(balance.total_avances || 0);
+        if (totalRembEl) totalRembEl.textContent = formatFCFA(balance.total_remboursements || 0);
+        if (soldeEl) {
+          const s = balance.solde_net || 0;
+          soldeEl.textContent = formatFCFA(s);
+          soldeEl.className = `font-mono ${s > 0 ? 'text-danger' : (s < 0 ? 'text-warning' : 'text-success')}`;
+          soldeEl.style.fontWeight = '800';
+          soldeEl.style.fontSize = '1.1rem';
+        }
+
+        // Badge du sous-onglet
+        const badge = document.getElementById('badge-subtab-advances');
+        if (badge) badge.textContent = Array.isArray(advances) ? advances.length : 0;
+
+        // Tableau des avances
+        const tbody = document.getElementById('detail-advances-tbody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        if (!Array.isArray(advances) || advances.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Aucune avance ou remboursement enregistré pour ce chauffeur.</td></tr>';
+          return;
+        }
+        advances.forEach(a => {
+          const isAvance = a.type === 'avance';
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td data-label="Date">${a.advance_date}</td>
+            <td data-label="Type">
+              <span class="badge ${isAvance ? 'badge-danger' : 'badge-success'}" style="font-size:0.72rem; font-weight:700;">
+                ${isAvance ? '▼ Avance' : '▲ Remboursement'}
+              </span>
+            </td>
+            <td data-label="Motif"><strong>${a.motif}</strong></td>
+            <td data-label="Montant" class="font-mono ${isAvance ? 'text-danger' : 'text-success'}" style="font-weight:700;">
+              ${isAvance ? '-' : '+'}${formatFCFA(a.amount_fcfa)}
+            </td>
+            <td data-label="Notes" style="color:var(--text-muted); font-size:0.82rem;">${a.notes || '-'}</td>
+            <td data-label="Saisi par" style="font-size:0.78rem; color:var(--text-muted);">${a.created_by || '-'}</td>
+            <td data-label="Actions" style="white-space:nowrap;">
+              <button class="btn btn-secondary btn-sm btn-write-only" onclick="openAdvanceModal(${a.driver_id}, ${a.id})" title="Modifier" style="margin-right:0.25rem;">${VECTORS.pencil}</button>
+              <button class="btn btn-danger btn-sm btn-write-only" onclick="deleteAdvance(${a.id})" title="Supprimer">${VECTORS.trash}</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error('Erreur loadDriverAdvances:', err);
+      }
+    };
+
+    window.openAdvanceModal = async function(driverId, advanceId = null) {
+      document.getElementById('advance-edit-id').value = advanceId || '';
+      document.getElementById('advance-driver-id').value = driverId;
+      document.getElementById('advance-date').value = new Date().toISOString().split('T')[0];
+      document.getElementById('advance-amount').value = '';
+      document.getElementById('advance-motif').value = '';
+      document.getElementById('advance-notes').value = '';
+      document.querySelector('input[name="advance-type"][value="avance"]').checked = true;
+
+      const titleEl = document.getElementById('advance-modal-title');
+
+      if (advanceId) {
+        titleEl.textContent = 'Modifier l\'avance / remboursement';
+        try {
+          // Charger les données existantes depuis la liste (déjà en mémoire dans le tbody)
+          const res = await fetch(`/api/advances?driver_id=${driverId}`);
+          const list = await res.json();
+          const existing = list.find(a => a.id === Number(advanceId));
+          if (existing) {
+            document.getElementById('advance-date').value = existing.advance_date;
+            document.getElementById('advance-amount').value = existing.amount_fcfa;
+            document.getElementById('advance-motif').value = existing.motif;
+            document.getElementById('advance-notes').value = existing.notes || '';
+            const radioEl = document.querySelector(`input[name="advance-type"][value="${existing.type}"]`);
+            if (radioEl) radioEl.checked = true;
+          }
+        } catch (e) { /* ignore */ }
+      } else {
+        titleEl.textContent = 'Nouvelle avance / remboursement';
+      }
+
+      document.getElementById('modal-advance-form').classList.add('open');
+    };
+
+    window.saveAdvance = async function() {
+      const id = document.getElementById('advance-edit-id').value;
+      const driverId = document.getElementById('advance-driver-id').value;
+      const type = document.querySelector('input[name="advance-type"]:checked')?.value;
+      const advance_date = document.getElementById('advance-date').value;
+      const amount_fcfa = parseInt(document.getElementById('advance-amount').value, 10);
+      const motif = document.getElementById('advance-motif').value.trim();
+      const notes = document.getElementById('advance-notes').value.trim();
+
+      if (!advance_date || !type || !motif || isNaN(amount_fcfa) || amount_fcfa <= 0) {
+        showToast('Veuillez remplir tous les champs obligatoires (date, type, montant, motif).', 'warning');
+        return;
+      }
+
+      const body = { driver_id: driverId, advance_date, type, amount_fcfa, motif, notes: notes || null };
+      const url = id ? `/api/advances/${id}` : '/api/advances';
+      const method = id ? 'PUT' : 'POST';
+
+      try {
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          showToast(err.error || 'Erreur lors de l\'enregistrement.', 'danger');
+          return;
+        }
+        document.getElementById('modal-advance-form').classList.remove('open');
+        showToast(id ? 'Avance modifiée avec succès.' : 'Avance enregistrée avec succès.', 'success');
+        loadDriverAdvances(driverId);
+      } catch (err) {
+        console.error('Erreur saveAdvance:', err);
+        showToast('Erreur réseau.', 'danger');
+      }
+    };
+
+    window.deleteAdvance = async function(id) {
+      if (!confirm('Supprimer cet enregistrement ? Cette action est irréversible.')) return;
+      try {
+        const res = await fetch(`/api/advances/${id}`, { method: 'DELETE' });
+        if (!res.ok) {
+          const err = await res.json();
+          showToast(err.error || 'Erreur lors de la suppression.', 'danger');
+          return;
+        }
+        showToast('Enregistrement supprimé.', 'success');
+        if (state.selectedDriverId) loadDriverAdvances(state.selectedDriverId);
+      } catch (err) {
+        console.error('Erreur deleteAdvance:', err);
+        showToast('Erreur réseau.', 'danger');
       }
     };
 
@@ -6460,6 +7808,967 @@
           preview.style.display = 'none';
         }
       });
+    }
+
+    // ============================================================
+    // GESTION DES DOCUMENTS ADMINISTRATIFS
+    // ============================================================
+
+    let _docsData = []; // Cache des documents chargés
+
+    const DOC_TYPE_LABELS = {
+      carte_grise: 'Carte grise',
+      assurance_rc: 'Assurance RC',
+      assurance_tous_risques: 'Assurance tous risques',
+      visite_technique: 'Visite technique',
+      vignette: 'Vignette',
+      permis_conduire: 'Permis de conduire',
+      carte_professionnelle: 'Carte professionnelle',
+      contrat_chauffeur: 'Contrat chauffeur',
+      autre: 'Autre'
+    };
+
+    /** Calcule le statut d'un document à partir de sa date d'expiration */
+    function getDocStatus(expiry_date) {
+      if (!expiry_date) return { label: 'Sans expiration', cls: 'badge-neutral' };
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const in30 = new Date(today); in30.setDate(in30.getDate() + 30);
+      const exp = new Date(expiry_date);
+      if (exp < today) return { label: 'Expiré', cls: 'badge-danger' };
+      if (exp <= in30) return { label: 'Expire bientôt', cls: 'badge-warning' };
+      return { label: 'Valide', cls: 'badge-success' };
+    }
+
+    /** Charge les documents depuis l'API selon les filtres sélectionnés */
+    async function loadDocuments() {
+      try {
+        const entityType = document.getElementById('docs-filter-entity-type')?.value || '';
+        const status = document.getElementById('docs-filter-status')?.value || '';
+        let url = '/api/documents?';
+        if (entityType) url += `entity_type=${encodeURIComponent(entityType)}&`;
+        if (status) url += `status=${encodeURIComponent(status)}&`;
+
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Erreur réseau');
+        _docsData = await res.json();
+        renderDocumentsTable();
+        await refreshDocAlertBadge();
+      } catch (err) {
+        console.error('Erreur loadDocuments:', err);
+        showToast('Erreur lors du chargement des documents.', 'danger');
+      }
+    }
+
+    /** Filtre côté client et affiche le tableau */
+    function renderDocumentsTable() {
+      const tbody = document.getElementById('docs-tbody');
+      const emptyDiv = document.getElementById('docs-empty');
+      const tableEl = document.getElementById('docs-table');
+      if (!tbody) return;
+
+      const search = (document.getElementById('docs-search-input')?.value || '').toLowerCase().trim();
+
+      let rows = _docsData;
+      if (search) {
+        rows = rows.filter(d => {
+          const label = DOC_TYPE_LABELS[d.doc_type] || d.doc_type;
+          return (
+            d.doc_name.toLowerCase().includes(search) ||
+            label.toLowerCase().includes(search) ||
+            d.entity_id.toLowerCase().includes(search)
+          );
+        });
+      }
+
+      if (rows.length === 0) {
+        tbody.innerHTML = '';
+        if (tableEl) tableEl.style.display = 'none';
+        if (emptyDiv) emptyDiv.style.display = 'block';
+        return;
+      }
+
+      if (tableEl) tableEl.style.display = '';
+      if (emptyDiv) emptyDiv.style.display = 'none';
+
+      const canWrite = state.currentUser && ['superadmin', 'editor'].includes(state.currentUser.role);
+
+      tbody.innerHTML = rows.map(d => {
+        const { label, cls } = getDocStatus(d.expiry_date);
+        const typeLabel = DOC_TYPE_LABELS[d.doc_type] || d.doc_type;
+        const entityLabel = d.entity_type === 'truck' ? `${VECTORS.truck} ${d.entity_id}` : `${VECTORS.user} ${d.entity_id}`;
+        const issueStr = d.issue_date ? new Date(d.issue_date).toLocaleDateString('fr-FR') : '—';
+        const expiryStr = d.expiry_date ? new Date(d.expiry_date).toLocaleDateString('fr-FR') : '—';
+        const fileBtn = d.file_url
+          ? `<a href="${d.file_url}" target="_blank" class="btn btn-sm btn-secondary" title="Voir le fichier"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></a>`
+          : '<span style="color:var(--text-subtle); font-size:0.8rem;">—</span>';
+        const actionsBtn = canWrite ? `
+          <div style="display:flex; gap:0.35rem;">
+            <button class="btn btn-sm btn-secondary" onclick="openDocumentModal(${d.id})" title="Modifier">${VECTORS.pencil}</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteDocument(${d.id}, '${d.doc_name.replace(/'/g, "\\'")}')" title="Supprimer">${VECTORS.trash}</button>
+          </div>` : '—';
+
+        return `<tr>
+          <td data-label="Entité"><strong>${entityLabel}</strong></td>
+          <td data-label="Type">${typeLabel}</td>
+          <td data-label="Nom">${d.doc_name}</td>
+          <td data-label="Émission">${issueStr}</td>
+          <td data-label="Expiration">${expiryStr}</td>
+          <td data-label="Statut"><span class="badge ${cls}">${label}</span></td>
+          <td data-label="Fichier">${fileBtn}</td>
+          <td data-label="Actions" class="btn-write-only">${actionsBtn}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    /** Met à jour le badge d'alerte sur le nav item Documents */
+    async function refreshDocAlertBadge() {
+      try {
+        const res = await fetch('/api/documents/alerts');
+        if (!res.ok) return;
+        const data = await res.json();
+        const badge = document.getElementById('docs-alert-badge');
+        if (badge) {
+          if (data.total > 0) {
+            badge.textContent = data.total;
+            badge.style.display = 'inline-block';
+          } else {
+            badge.style.display = 'none';
+          }
+        }
+      } catch (e) { /* silencieux */ }
+    }
+
+    /** Filtre rapide sur les alertes */
+    function filterDocsByAlerts() {
+      document.getElementById('docs-filter-status').value = 'expiring';
+      loadDocuments();
+      // Afficher aussi les expirés
+      document.getElementById('docs-filter-status').value = '';
+      // On filtre manuellement
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const in30 = new Date(today); in30.setDate(in30.getDate() + 30);
+      _docsData = _docsData.filter(d => {
+        if (!d.expiry_date) return false;
+        const exp = new Date(d.expiry_date);
+        return exp <= in30;
+      });
+      renderDocumentsTable();
+    }
+
+    /** Ouvre la modale en mode création ou édition */
+    async function openDocumentModal(docId = null) {
+      const modal = document.getElementById('modal-document-form');
+      const title = document.getElementById('doc-modal-title');
+      document.getElementById('doc-edit-id').value = '';
+      document.getElementById('doc-entity-type').value = 'truck';
+      document.getElementById('doc-doc-type').value = '';
+      document.getElementById('doc-doc-name').value = '';
+      document.getElementById('doc-issue-date').value = '';
+      document.getElementById('doc-expiry-date').value = '';
+      document.getElementById('doc-notes').value = '';
+      document.getElementById('doc-file-input').value = '';
+      document.getElementById('doc-file-preview').style.display = 'none';
+
+      await populateDocEntitySelect('truck');
+
+      if (docId) {
+        title.textContent = 'Modifier le document';
+        try {
+          const res = await fetch(`/api/documents/${docId}`);
+          if (!res.ok) { showToast('Document introuvable.', 'danger'); return; }
+          const d = await res.json();
+          document.getElementById('doc-edit-id').value = d.id;
+          document.getElementById('doc-entity-type').value = d.entity_type;
+          await populateDocEntitySelect(d.entity_type);
+          document.getElementById('doc-entity-id').value = d.entity_id;
+          document.getElementById('doc-doc-type').value = d.doc_type;
+          document.getElementById('doc-doc-name').value = d.doc_name;
+          document.getElementById('doc-issue-date').value = d.issue_date || '';
+          document.getElementById('doc-expiry-date').value = d.expiry_date || '';
+          document.getElementById('doc-notes').value = d.notes || '';
+          if (d.file_url) {
+            const preview = document.getElementById('doc-file-preview');
+            document.getElementById('doc-file-current-link').href = d.file_url;
+            preview.style.display = 'block';
+          }
+        } catch (e) {
+          showToast('Erreur lors du chargement.', 'danger');
+          return;
+        }
+      } else {
+        title.textContent = 'Nouveau document';
+      }
+
+      modal.classList.add('open');
+    }
+
+    /** Remplit le select entity_id selon le type (truck ou driver) */
+    async function populateDocEntitySelect(entityType) {
+      const sel = document.getElementById('doc-entity-id');
+      sel.innerHTML = '<option value="">Choisir…</option>';
+      try {
+        if (entityType === 'truck') {
+          const res = await fetch('/api/trucks');
+          const trucks = await res.json();
+          trucks.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t.code;
+            opt.textContent = `${t.code} — ${t.brand_model} (${t.license_plate})`;
+            sel.appendChild(opt);
+          });
+        } else {
+          const res = await fetch('/api/drivers');
+          const drivers = await res.json();
+          drivers.forEach(d => {
+            const opt = document.createElement('option');
+            opt.value = d.id;
+            opt.textContent = `${d.name}${d.assigned_truck ? ' — ' + d.assigned_truck : ''}`;
+            sel.appendChild(opt);
+          });
+        }
+      } catch (e) { console.error('populateDocEntitySelect:', e); }
+    }
+
+    /** Déclenché quand l'utilisateur change le type d'entité dans la modale */
+    async function onDocEntityTypeChange() {
+      const t = document.getElementById('doc-entity-type').value;
+      await populateDocEntitySelect(t);
+    }
+
+    /** Pré-remplit le nom du document selon le type sélectionné */
+    function onDocTypeChange() {
+      const type = document.getElementById('doc-doc-type').value;
+      const nameField = document.getElementById('doc-doc-name');
+      if (nameField && !nameField.value && type && DOC_TYPE_LABELS[type]) {
+        const entitySel = document.getElementById('doc-entity-id');
+        const entityVal = entitySel.options[entitySel.selectedIndex]?.text || '';
+        nameField.value = `${DOC_TYPE_LABELS[type]}${entityVal ? ' — ' + entityVal.split(' — ')[0] : ''}`;
+      }
+    }
+
+    /** Sauvegarde le document (création ou mise à jour) */
+    async function saveDocument() {
+      const id = document.getElementById('doc-edit-id').value;
+      const entity_type = document.getElementById('doc-entity-type').value;
+      const entity_id = document.getElementById('doc-entity-id').value;
+      const doc_type = document.getElementById('doc-doc-type').value;
+      const doc_name = document.getElementById('doc-doc-name').value.trim();
+      const issue_date = document.getElementById('doc-issue-date').value;
+      const expiry_date = document.getElementById('doc-expiry-date').value;
+      const notes = document.getElementById('doc-notes').value.trim();
+      const fileInput = document.getElementById('doc-file-input');
+
+      if (!entity_id) { showToast('Veuillez choisir une entité.', 'danger'); return; }
+      if (!doc_type) { showToast('Veuillez choisir un type de document.', 'danger'); return; }
+      if (!doc_name) { showToast('Le nom du document est obligatoire.', 'danger'); return; }
+
+      const btn = document.getElementById('doc-save-btn');
+      btn.disabled = true;
+
+      try {
+        let file_url = null;
+
+        // Upload du fichier si un nouveau fichier est sélectionné
+        if (fileInput.files && fileInput.files[0]) {
+          const formData = new FormData();
+          formData.append('document', fileInput.files[0]);
+          const upRes = await fetch('/api/upload/document', { method: 'POST', body: formData });
+          if (!upRes.ok) { showToast('Erreur lors de l\'upload du fichier.', 'danger'); btn.disabled = false; return; }
+          const upData = await upRes.json();
+          file_url = upData.url;
+        }
+
+        const body = { entity_type, entity_id, doc_type, doc_name, issue_date, expiry_date, notes };
+        if (file_url) body.file_url = file_url;
+
+        const url = id ? `/api/documents/${id}` : '/api/documents';
+        const method = id ? 'PUT' : 'POST';
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          showToast(err.error || 'Erreur lors de l\'enregistrement.', 'danger');
+          btn.disabled = false;
+          return;
+        }
+
+        document.getElementById('modal-document-form').classList.remove('open');
+        showToast(id ? 'Document mis à jour.' : 'Document ajouté.');
+        await loadDocuments();
+      } catch (e) {
+        showToast('Erreur réseau.', 'danger');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    /** Supprime un document après confirmation */
+    async function deleteDocument(id, name) {
+      if (!confirm(`Supprimer le document « ${name} » ? Cette action est irréversible.`)) return;
+      try {
+        const res = await fetch(`/api/documents/${id}`, { method: 'DELETE' });
+        if (!res.ok) { showToast('Erreur lors de la suppression.', 'danger'); return; }
+        showToast('Document supprimé.');
+        await loadDocuments();
+      } catch (e) {
+        showToast('Erreur réseau.', 'danger');
+      }
+    }
+
+    // =====================================================================
+    // SECTION ANALYSE — Rentabilité Routes & Comparaison Chauffeurs
+    // =====================================================================
+
+    (function initAnalyse() {
+      // -- Sous-onglets internes --
+      document.querySelectorAll('.analyse-sub-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const sub = btn.dataset.sub;
+          document.querySelectorAll('.analyse-sub-tab').forEach(b => {
+            const isActive = b.dataset.sub === sub;
+            b.style.borderBottomColor = isActive ? 'var(--primary)' : 'transparent';
+            b.style.color = isActive ? 'var(--primary)' : 'var(--text-muted)';
+          });
+          document.getElementById('analyse-sub-routes').style.display = sub === 'routes' ? 'block' : 'none';
+          document.getElementById('analyse-sub-drivers').style.display = sub === 'drivers' ? 'block' : 'none';
+        });
+      });
+
+      // -- Bouton Actualiser --
+      document.getElementById('btn-analyse-refresh').addEventListener('click', loadAnalyse);
+
+      // -- Bouton Toutes périodes --
+      document.getElementById('btn-analyse-reset').addEventListener('click', () => {
+        document.getElementById('analyse-start-date').value = '';
+        document.getElementById('analyse-end-date').value = '';
+        loadAnalyse();
+      });
+
+      // Sync dates initiales depuis les filtres globaux si disponibles
+      function syncDatesFromGlobal() {
+        const sd = document.getElementById('analyse-start-date');
+        const ed = document.getElementById('analyse-end-date');
+        if (!sd.value && state.startDate) sd.value = state.startDate;
+        if (!ed.value && state.endDate) ed.value = state.endDate;
+      }
+
+      // -- Chargement principal --
+      async function loadAnalyse() {
+        syncDatesFromGlobal();
+        await Promise.all([loadAnalyseRoutes(), loadAnalyseDrivers()]);
+      }
+
+      // -- Rentabilité Routes --
+      async function loadAnalyseRoutes() {
+        const tbody = document.getElementById('routes-tbody');
+        const empty = document.getElementById('routes-empty');
+        const badge = document.getElementById('routes-count-badge');
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:2rem;">Chargement…</td></tr>';
+        empty.style.display = 'none';
+
+        const sd = document.getElementById('analyse-start-date').value;
+        const ed = document.getElementById('analyse-end-date').value;
+        const params = new URLSearchParams();
+        if (sd) params.set('startDate', sd);
+        if (ed) params.set('endDate', ed);
+
+        try {
+          const res = await fetch('/api/analytics/routes?' + params.toString());
+          if (!res.ok) throw new Error();
+          const rows = await res.json();
+
+          badge.textContent = rows.length + ' route' + (rows.length !== 1 ? 's' : '');
+
+          if (!rows.length) {
+            tbody.innerHTML = '';
+            empty.style.display = 'block';
+            return;
+          }
+
+          tbody.innerHTML = rows.map(r => {
+            const pct = r.taux_marge_pct;
+            const [bgColor, fgColor] =
+              pct >= 40 ? ['var(--success-light)', 'var(--success-text)']
+              : pct >= 20 ? ['var(--warning-light)', 'var(--warning-text)']
+              : ['var(--danger-light)', 'var(--danger-text)'];
+
+            const medalMap = { 1: '#1', 2: '#2', 3: '#3' };
+            const medal = medalMap[r.rang] || '';
+
+            return `<tr>
+              <td class="font-mono" style="font-weight:700; text-align:center;">${medal}${medal ? '' : '#' + r.rang}</td>
+              <td style="font-weight:700;">${escHtml(r.route)}</td>
+              <td class="font-mono" style="text-align:center;">${r.nb_voyages}</td>
+              <td class="font-mono text-primary" style="text-align:right;">${formatFCFA(r.recette_totale)}</td>
+              <td class="font-mono text-warning" style="text-align:right;">${formatFCFA(r.remis_chauffeur_total)}</td>
+              <td class="font-mono text-success" style="text-align:right; font-weight:700;">${formatFCFA(r.credit_entreprise_total)}</td>
+              <td style="text-align:center;">
+                <span style="display:inline-block; padding:0.2rem 0.6rem; border-radius:var(--radius-full); font-size:0.78rem; font-weight:800; background:${bgColor}; color:${fgColor};">${pct} %</span>
+              </td>
+            </tr>`;
+          }).join('');
+        } catch (e) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--danger);padding:1.5rem;">Erreur de chargement.</td></tr>';
+        }
+      }
+
+      // -- Classement Chauffeurs --
+      async function loadAnalyseDrivers() {
+        const tbody = document.getElementById('drivers-rank-tbody');
+        const empty = document.getElementById('drivers-rank-empty');
+        const badge = document.getElementById('drivers-rank-badge');
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:2rem;">Chargement…</td></tr>';
+        empty.style.display = 'none';
+
+        const sd = document.getElementById('analyse-start-date').value;
+        const ed = document.getElementById('analyse-end-date').value;
+        const params = new URLSearchParams();
+        if (sd) params.set('startDate', sd);
+        if (ed) params.set('endDate', ed);
+
+        try {
+          const res = await fetch('/api/analytics/drivers?' + params.toString());
+          if (!res.ok) throw new Error();
+          const rows = await res.json();
+
+          badge.textContent = rows.length + ' chauffeur' + (rows.length !== 1 ? 's' : '');
+
+          if (!rows.length) {
+            tbody.innerHTML = '';
+            empty.style.display = 'block';
+            return;
+          }
+
+          // Max crédit pour les barres de progression
+          const maxCredit = Math.max(...rows.map(r => r.credit_entreprise), 1);
+
+          const medalMap = { 1: '#1', 2: '#2', 3: '#3' };
+          tbody.innerHTML = rows.map(r => {
+            const medal = medalMap[r.rang] || ('#' + r.rang);
+            const pct = r.ratio_credit_pct;
+            const barColor = pct >= 40 ? 'var(--success)' : pct >= 20 ? 'var(--warning)' : 'var(--danger)';
+            const barWidth = maxCredit > 0 ? Math.round((r.credit_entreprise / maxCredit) * 100) : 0;
+
+            return `<tr>
+              <td style="text-align:center; font-size:1rem; font-weight:800;">${medal}</td>
+              <td style="font-weight:700;">${escHtml(r.name)}</td>
+              <td><span class="badge" style="background:var(--badge-neutral-bg); color:var(--badge-neutral-text); font-size:0.72rem;">${escHtml(r.assigned_truck)}</span></td>
+              <td class="font-mono" style="text-align:center;">${r.nb_voyages}</td>
+              <td class="font-mono text-primary" style="text-align:right;">${formatFCFA(r.recette_totale)}</td>
+              <td class="font-mono text-success" style="text-align:right; font-weight:700;">
+                <div style="display:flex; flex-direction:column; align-items:flex-end; gap:0.2rem;">
+                  <span>${formatFCFA(r.credit_entreprise)}</span>
+                  <div style="width:100px; height:5px; background:var(--bg-surface-elevated); border-radius:4px; overflow:hidden;">
+                    <div style="width:${barWidth}%; height:100%; background:${barColor}; border-radius:4px; transition:width 0.4s;"></div>
+                  </div>
+                </div>
+              </td>
+              <td style="text-align:center;">
+                <span style="display:inline-block; padding:0.2rem 0.55rem; border-radius:var(--radius-full); font-size:0.78rem; font-weight:800; background:${pct >= 40 ? 'var(--success-light)' : pct >= 20 ? 'var(--warning-light)' : 'var(--danger-light)'}; color:${pct >= 40 ? 'var(--success-text)' : pct >= 20 ? 'var(--warning-text)' : 'var(--danger-text)'};">${pct} %</span>
+              </td>
+              <td class="font-mono text-warning" style="text-align:right;">${formatFCFA(r.cout_entretien)}</td>
+              <td class="font-mono text-muted" style="text-align:right;">${formatFCFA(r.carburant_voyage)}</td>
+            </tr>`;
+          }).join('');
+        } catch (e) {
+          tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--danger);padding:1.5rem;">Erreur de chargement.</td></tr>';
+        }
+      }
+
+      // Helper échappement HTML
+      function escHtml(s) {
+        if (!s) return '';
+        return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      }
+
+      // Exposer pour le switchTab
+      window.loadAnalyse = loadAnalyse;
+    })();
+
+    // ══════════════════════════════════════════════════════════════════
+    // UTILITAIRES PARTAGÉS FEATURES 5-6-7
+    // ══════════════════════════════════════════════════════════════════
+    function _esc(s) {
+      if (!s) return '';
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    // FEATURE 5 — Tableau de bord EN DIRECT (auto-refresh 60s)
+    // ══════════════════════════════════════════════════════════════════
+    let liveRefreshInterval = null;
+
+    async function loadLiveDashboard() {
+      try {
+        const res = await fetch('/api/dashboard/live');
+        if (!res.ok) return;
+        const d = await res.json();
+
+        const ge = id => document.getElementById(id);
+        ge('live-trips-today').textContent   = d.tripsToday;
+        ge('live-revenue-today').textContent  = formatFCFA(d.revenueToday);
+        ge('live-revenue-week').textContent   = formatFCFA(d.revenueWeek);
+        ge('live-active-trucks').textContent  = d.activeTrucks;
+
+        const now = new Date();
+        const hm  = now.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
+        const lastUpd = ge('live-last-update');
+        if (lastUpd) lastUpd.textContent = `· mis à jour à ${hm}`;
+      } catch (_) { /* silencieux */ }
+    }
+
+    function startLiveRefresh() {
+      loadLiveDashboard();
+      if (liveRefreshInterval) clearInterval(liveRefreshInterval);
+      liveRefreshInterval = setInterval(loadLiveDashboard, 60_000);
+    }
+
+    function stopLiveRefresh() {
+      if (liveRefreshInterval) { clearInterval(liveRefreshInterval); liveRefreshInterval = null; }
+    }
+
+    // Observer les clics sur les onglets pour démarrer/stopper le live refresh
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const target = tab.dataset.tab;
+        if (!target) return;
+        if (target === 'dashboard') startLiveRefresh();
+        else stopLiveRefresh();
+      });
+    });
+
+    // Démarrer si l'onglet dashboard est déjà actif au chargement
+    if (document.getElementById('nav-tab-dashboard')?.classList.contains('active')) {
+      startLiveRefresh();
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    // FEATURE 6 — Export Excel avec SheetJS
+    // ══════════════════════════════════════════════════════════════════
+
+    /**
+     * Fonction utilitaire : exporte un tableau d'objets en fichier .xlsx
+     * @param {Object[]} data - tableau d'objets JS
+     * @param {string}   filename - nom du fichier sans extension
+     * @param {string}   sheetName - nom de la feuille
+     */
+    function exportToExcel(data, filename, sheetName) {
+      if (!window.XLSX) { showToast('SheetJS non chargé. Rechargez la page.', 'danger'); return; }
+      if (!data || !data.length) { showToast('Aucune donnée à exporter.', 'info'); return; }
+
+      // Nettoyer les colonnes internes
+      const SKIP_COLS = new Set(['created_at', 'updated_at', 'password', 'ip', 'token']);
+      const cleanRows = data.map(row => {
+        const out = {};
+        for (const [k, v] of Object.entries(row)) {
+          if (SKIP_COLS.has(k)) continue;
+          out[k] = v;
+        }
+        return out;
+      });
+
+      const ws = XLSX.utils.json_to_sheet(cleanRows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, sheetName.substring(0, 31));
+      XLSX.writeFile(wb, `${filename}_${new Date().toISOString().slice(0,10)}.xlsx`);
+    }
+
+    /**
+     * Exporte les lignes visibles d'un <tbody> sous forme de tableau d'objets
+     * en lisant les en-têtes du <thead> parent.
+     */
+    function exportTableToExcel(tbodyId, filename, sheetName) {
+      if (!window.XLSX) { showToast('SheetJS non chargé. Rechargez la page.', 'danger'); return; }
+      const tbody = document.getElementById(tbodyId);
+      if (!tbody) { showToast('Tableau introuvable.', 'danger'); return; }
+
+      // Récupérer les en-têtes
+      const table  = tbody.closest('table');
+      const thEls  = table ? [...table.querySelectorAll('thead th')] : [];
+      const headers = thEls.map(th => th.textContent.trim()).filter(h => h && h !== 'Actions');
+
+      const rows = [...tbody.querySelectorAll('tr')].filter(tr => tr.cells.length > 1);
+      if (!rows.length) { showToast('Aucune donnée à exporter.', 'info'); return; }
+
+      const data = rows.map(tr => {
+        const obj = {};
+        [...tr.cells].forEach((td, i) => {
+          const key = headers[i] || `Col${i+1}`;
+          if (key === 'Actions') return;
+          obj[key] = td.textContent.trim();
+        });
+        return obj;
+      });
+
+      exportToExcel(data, filename, sheetName);
+      showToast(`Export Excel "${sheetName}" généré.`, 'success');
+    }
+
+    /**
+     * Export multi-feuilles depuis le tableau de bord
+     */
+    async function exportDashboardExcel() {
+      if (!window.XLSX) { showToast('SheetJS non chargé. Rechargez la page.', 'danger'); return; }
+      showToast('Préparation du fichier Excel…', 'info');
+
+      const sd  = (state.dashStartDate || '');
+      const ed  = (state.dashEndDate   || '');
+      const qp  = new URLSearchParams();
+      if (sd) qp.set('startDate', sd);
+      if (ed) qp.set('endDate',   ed);
+      const qs = qp.toString() ? '?' + qp.toString() : '';
+
+      const SKIP = new Set(['created_at', 'updated_at', 'password', 'ip', 'token']);
+      function clean(arr) {
+        return (arr || []).map(r => {
+          const o = {};
+          for (const [k, v] of Object.entries(r)) { if (!SKIP.has(k)) o[k] = v; }
+          return o;
+        });
+      }
+
+      try {
+        const [tripsRes, fuelRes, maintRes, expRes] = await Promise.all([
+          fetch('/api/trips'       + qs).then(r => r.ok ? r.json() : []),
+          fetch('/api/fuel'        + qs).then(r => r.ok ? r.json() : []),
+          fetch('/api/maintenance' + qs).then(r => r.ok ? r.json() : []),
+          fetch('/api/expenses'    + qs).then(r => r.ok ? r.json() : []),
+        ]);
+
+        const wb = XLSX.utils.book_new();
+        const sheets = [
+          { name:'Voyages',   data: clean(tripsRes) },
+          { name:'Entretien', data: clean(maintRes) },
+          { name:'Carburant', data: clean(fuelRes)  },
+          { name:'Dépenses',  data: clean(expRes)   },
+        ];
+        sheets.forEach(({ name, data }) => {
+          const ws = XLSX.utils.json_to_sheet(data.length ? data : [{ 'Aucune donnée': '' }]);
+          XLSX.utils.book_append_sheet(wb, ws, name);
+        });
+
+        const fname = `ym_transit_dashboard_${new Date().toISOString().slice(0,10)}.xlsx`;
+        XLSX.writeFile(wb, fname);
+        showToast('Export Excel multi-feuilles généré.', 'success');
+      } catch (e) {
+        console.error(e);
+        showToast('Erreur lors de la génération du fichier Excel.', 'danger');
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    // FEATURE 7 — Journal des modifications
+    // ══════════════════════════════════════════════════════════════════
+    window.journalPage = 0;
+    const JOURNAL_PAGE_SIZE = 50;
+
+    const ACTION_BADGES = {
+      CREATE:  { bg: 'var(--success-light)', fg: 'var(--success-text)' },
+      UPDATE:  { bg: 'var(--primary-light)', fg: 'var(--primary-text)' },
+      DELETE:  { bg: 'var(--danger-light)',  fg: 'var(--danger-text)'  },
+      LOGIN:   { bg: 'var(--badge-neutral-bg)', fg: 'var(--badge-neutral-text)' },
+      LOGOUT:  { bg: 'var(--badge-neutral-bg)', fg: 'var(--badge-neutral-text)' },
+    };
+
+    const ROLE_BADGES = {
+      superadmin: { bg:'#f3e8ff', fg:'#6d28d9' },
+      editor:     { bg:'var(--primary-light)', fg:'var(--primary-text)' },
+      viewer:     { bg:'var(--badge-neutral-bg)', fg:'var(--badge-neutral-text)' },
+    };
+
+    function badgeSpan(label, bg, fg) {
+      return `<span style="display:inline-block;padding:0.15rem 0.5rem;border-radius:var(--radius-full);font-size:0.7rem;font-weight:800;background:${bg};color:${fg};">${_esc(label)}</span>`;
+    }
+
+    async function loadJournal() {
+      const tbody    = document.getElementById('journal-tbody');
+      const infoEl   = document.getElementById('journal-total-info');
+      const pageEl   = document.getElementById('journal-page-info');
+      const prevBtn  = document.getElementById('journal-prev-btn');
+      const nextBtn  = document.getElementById('journal-next-btn');
+
+      if (!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:2rem;">Chargement…</td></tr>';
+
+      const action = document.getElementById('journal-filter-action')?.value || '';
+      const entity = document.getElementById('journal-filter-entity')?.value || '';
+      const user   = document.getElementById('journal-filter-user')?.value   || '';
+
+      const params = new URLSearchParams({ limit: JOURNAL_PAGE_SIZE, offset: journalPage * JOURNAL_PAGE_SIZE });
+      if (action) params.set('action',   action);
+      if (entity) params.set('entity',   entity);
+      if (user)   params.set('username', user);
+
+      try {
+        const res  = await fetch('/api/journal?' + params.toString());
+        if (!res.ok) throw new Error();
+        const json = await res.json();
+        const rows = json.rows || [];
+        const total = json.total || 0;
+        const totalPages = Math.max(1, Math.ceil(total / JOURNAL_PAGE_SIZE));
+
+        if (infoEl) infoEl.textContent = `${total} entrée${total !== 1 ? 's' : ''} trouvée${total !== 1 ? 's' : ''}`;
+        if (pageEl) pageEl.textContent = `Page ${journalPage + 1} / ${totalPages}`;
+        if (prevBtn) prevBtn.disabled = journalPage === 0;
+        if (nextBtn) nextBtn.disabled = (journalPage + 1) >= totalPages;
+
+        if (!rows.length) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:2rem;">Aucune entrée trouvée.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = rows.map(r => {
+          const ab = ACTION_BADGES[r.action] || ACTION_BADGES.LOGIN;
+          const rb = ROLE_BADGES[r.role]     || ROLE_BADGES.viewer;
+          const dt = r.created_at ? r.created_at.replace('T', ' ').slice(0, 16) : '—';
+          return `<tr>
+            <td class="font-mono" style="font-size:0.78rem; white-space:nowrap;">${_esc(dt)}</td>
+            <td style="font-weight:700;">${_esc(r.username || '—')}</td>
+            <td>${badgeSpan(r.role || '—', rb.bg, rb.fg)}</td>
+            <td>${badgeSpan(r.action || '—', ab.bg, ab.fg)}</td>
+            <td style="font-size:0.82rem; color:var(--text-muted);">${_esc(r.entity || '—')}${r.entity_id ? ' #' + r.entity_id : ''}</td>
+            <td style="font-size:0.82rem; max-width:340px; word-break:break-word;">${_esc(r.detail || '—')}</td>
+          </tr>`;
+        }).join('');
+      } catch (_) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--danger);padding:1.5rem;">Erreur de chargement du journal.</td></tr>';
+      }
+    }
+
+    window.loadJournal = loadJournal;
+
+    // ══════════════════════════════════════════════════════════════════
+    // SIDEBAR NAVIGATION — sync sidebar tabs with nav-tab state
+    // ══════════════════════════════════════════════════════════════════
+    function initSidebar() {
+      // Wire sidebar tabs to switchTab
+      document.querySelectorAll('.sidebar-tab[data-tab]').forEach(tab => {
+        tab.addEventListener('click', () => {
+          const target = tab.dataset.tab;
+          switchTab(target);
+          // Close sidebar on mobile after navigation
+          if (window.innerWidth <= 768) {
+            document.body.classList.remove('sidebar-open');
+          }
+        });
+      });
+
+      // Sync sidebar active state when switchTab is called
+      const origSwitchTab = window.switchTab || switchTab;
+      function syncSidebarActive(tabId) {
+        document.querySelectorAll('.sidebar-tab[data-tab]').forEach(t => {
+          t.classList.toggle('active', t.dataset.tab === tabId);
+        });
+      }
+
+      // Patch switchTab to also sync sidebar
+      const _origSwitchTab = switchTab;
+      window.switchTab = function(tabId) {
+        _origSwitchTab(tabId);
+        syncSidebarActive(state.currentTab || tabId);
+      };
+      // Also patch existing usages — re-attach listener override
+      document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          syncSidebarActive(tab.dataset.tab);
+        });
+      });
+
+      // Mobile toggle
+      const mobileSidebarToggle = document.getElementById('mobile-sidebar-toggle');
+      const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+      if (mobileSidebarToggle) {
+        mobileSidebarToggle.addEventListener('click', () => {
+          document.body.classList.toggle('sidebar-open');
+        });
+      }
+
+      if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', () => {
+          document.body.classList.remove('sidebar-open');
+        });
+      }
+
+      // Sync sidebar logout with existing logout btn
+      const sidebarLogout = document.getElementById('sidebar-logout-btn');
+      const mainLogout = document.getElementById('logout-btn');
+      if (sidebarLogout && mainLogout) {
+        sidebarLogout.addEventListener('click', () => mainLogout.click());
+      }
+
+      // Sync sidebar theme toggle with existing theme toggle
+      const sidebarThemeToggle = document.getElementById('sidebar-theme-toggle');
+      const mainThemeToggle = document.getElementById('theme-toggle');
+      if (sidebarThemeToggle && mainThemeToggle) {
+        sidebarThemeToggle.addEventListener('click', () => mainThemeToggle.click());
+      }
+
+      // Sync docs alert badge to sidebar badge
+      const origDocsBadge = document.getElementById('docs-alert-badge');
+      const sidebarDocsBadge = document.getElementById('sidebar-docs-alert-badge');
+      if (origDocsBadge && sidebarDocsBadge) {
+        const observer = new MutationObserver(() => {
+          sidebarDocsBadge.textContent = origDocsBadge.textContent;
+          sidebarDocsBadge.style.display = origDocsBadge.style.display;
+        });
+        observer.observe(origDocsBadge, { attributes: true, childList: true, characterData: true });
+      }
+
+      // Update sidebar user info when user logs in
+      window.updateSidebarUser = function(user) {
+        const nameEl = document.getElementById('sidebar-username-display');
+        const roleEl = document.getElementById('sidebar-role-display');
+        const avatarEl = document.getElementById('sidebar-user-avatar');
+        if (nameEl && user) nameEl.textContent = user.username || '—';
+        if (roleEl && user) roleEl.textContent = user.role || 'Utilisateur';
+        if (avatarEl && user && user.username) {
+          avatarEl.textContent = user.username.slice(0,2).toUpperCase();
+        }
+      };
+
+      // Sync sidebar admin link visibility with nav admin link
+      const navAdminLink = document.getElementById('nav-admin-link');
+      const sidebarAdminLink = document.getElementById('sidebar-admin-link');
+      if (navAdminLink && sidebarAdminLink) {
+        const adminObserver = new MutationObserver(() => {
+          sidebarAdminLink.style.display = navAdminLink.style.display;
+        });
+        adminObserver.observe(navAdminLink, { attributes: true });
+      }
+
+      // Active driver label sync
+      const navDriverLabel = document.getElementById('nav-active-driver-label');
+      const sidebarDriverLabel = document.getElementById('sidebar-active-driver-label');
+      if (navDriverLabel && sidebarDriverLabel) {
+        const driverLabelObserver = new MutationObserver(() => {
+          sidebarDriverLabel.textContent = navDriverLabel.textContent;
+        });
+        driverLabelObserver.observe(navDriverLabel, { childList: true, characterData: true });
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    // SKELETON LOADERS — show/hide skeleton rows in tables
+    // ══════════════════════════════════════════════════════════════════
+    function showSkeleton(tbodyId, cols = 6) {
+      const tbody = document.getElementById(tbodyId);
+      if (!tbody) return;
+      const skeletonRows = Array.from({ length: 5 }, () => {
+        const cells = Array.from({ length: cols }, (_, i) => {
+          const w = i === 0 ? 'w-40' : (i === cols - 1 ? 'w-60' : 'w-100');
+          return `<td><span class="skeleton-cell ${w}"></span></td>`;
+        }).join('');
+        return `<tr class="skeleton-row">${cells}</tr>`;
+      }).join('');
+      tbody.innerHTML = skeletonRows;
+    }
+
+    function hideSkeleton(tbodyId) {
+      // Skeleton is replaced by real data when tbody is filled — no-op
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    // SPARKLINES — mini SVG trend lines for KPI cards
+    // ══════════════════════════════════════════════════════════════════
+    function buildSparkline(values, color = '#f59e0b') {
+      if (!values || values.length < 2) return '';
+      const W = 60, H = 24;
+      const min = Math.min(...values);
+      const max = Math.max(...values);
+      const range = max - min || 1;
+      const pts = values.map((v, i) => {
+        const x = (i / (values.length - 1)) * W;
+        const y = H - ((v - min) / range) * (H - 4) - 2;
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+      });
+      const polyline = pts.join(' ');
+      // Area fill path
+      const first = pts[0];
+      const last = pts[pts.length - 1];
+      const firstX = first.split(',')[0];
+      const lastX = last.split(',')[0];
+      const areaPath = `M${firstX},${H} L${pts.join(' L')} L${lastX},${H} Z`;
+      return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block;overflow:visible;">
+        <defs>
+          <linearGradient id="sg-${color.replace('#','')}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="${color}" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <path d="${areaPath}" fill="url(#sg-${color.replace('#','')})" />
+        <polyline points="${polyline}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="${lastX}" cy="${last.split(',')[1]}" r="2.5" fill="${color}"/>
+      </svg>`;
+    }
+
+    function addSparklinesToKpiCards() {
+      const sparklineData = {
+        'detail-driver-revenue': { color: '#10b981' },
+        'detail-driver-fuel':    { color: '#f59e0b' },
+        'detail-driver-maint':   { color: '#ef4444' },
+        'detail-driver-expenses':{ color: '#8b5cf6' },
+        'detail-driver-net':     { color: '#3b82f6' },
+      };
+      Object.entries(sparklineData).forEach(([id, { color }]) => {
+        const valueEl = document.getElementById(id);
+        if (!valueEl) return;
+        const card = valueEl.closest('.kpi-card');
+        if (!card || card.querySelector('.kpi-sparkline')) return;
+        // Generate decorative random-ish trend data
+        const seed = id.length;
+        const vals = Array.from({ length: 8 }, (_, i) =>
+          Math.abs(Math.sin((i + seed) * 0.8) * 60 + Math.cos(i * 1.3) * 30 + 50)
+        );
+        const sparklineEl = document.createElement('div');
+        sparklineEl.className = 'kpi-sparkline';
+        sparklineEl.innerHTML = buildSparkline(vals, color);
+        card.appendChild(sparklineEl);
+      });
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    // ENHANCED TOAST — with progress bar
+    // ══════════════════════════════════════════════════════════════════
+    const _origShowToast = showToast;
+    showToast = function(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      const icon = type === 'success' ? VECTORS.check : (type === 'danger' ? VECTORS.alert : VECTORS.info);
+      const progressBar = `<div class="toast-progress"></div>`;
+      toast.innerHTML = `<span style="flex-shrink:0;">${icon}</span><div style="flex:1;">${message}</div>${progressBar}`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(110%)';
+        toast.style.transition = 'opacity 0.3s, transform 0.3s';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    };
+
+    // Patch showApp to also init sidebar after auth
+    const _origShowApp = showApp;
+    function showApp(user) {
+      document.getElementById('login-screen').style.display = 'none';
+      startApp(user).then ? startApp(user).then(() => {
+        setTimeout(() => {
+          initSidebar();
+          if (window.updateSidebarUser) window.updateSidebarUser(user);
+          addSparklinesToKpiCards();
+        }, 150);
+      }) : (() => {
+        startApp(user);
+        setTimeout(() => {
+          initSidebar();
+          if (window.updateSidebarUser) window.updateSidebarUser(user);
+          addSparklinesToKpiCards();
+        }, 150);
+      })();
     }
 
     // Démarrage de l'application
