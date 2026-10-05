@@ -54,6 +54,22 @@ maintenanceRouter.get('/', (req, res) => {
   }
 });
 
+// Récupération d'une intervention par ID
+maintenanceRouter.get('/:id', (req, res) => {
+  try {
+    const record = db.prepare(`
+      SELECT m.*, d.name as driver_name
+      FROM maintenance_records m
+      LEFT JOIN drivers d ON d.id = m.driver_id
+      WHERE m.id = ?
+    `).get(req.params.id);
+    if (!record) return res.status(404).json({ error: 'Intervention introuvable.' });
+    res.json(record);
+  } catch (err) {
+    res.status(500).json({ error: 'Erreur serveur.' });
+  }
+});
+
 // Enregistrement d'une intervention
 maintenanceRouter.post('/', requireRole('superadmin', 'editor'), (req, res) => {
   try {

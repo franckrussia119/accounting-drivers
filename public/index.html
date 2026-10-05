@@ -3573,10 +3573,25 @@
       document.getElementById('trip-modal-title').textContent = 'Enregistrer un voyage';
     }
 
+    function resetMaintModal() {
+      document.getElementById('maint-id').value = '';
+      document.getElementById('maint-modal-title').textContent = 'Noter une intervention d\'entretien';
+      const submitBtn = document.querySelector('#form-maint [type="submit"]');
+      if (submitBtn) submitBtn.textContent = 'Enregistrer l\'entretien';
+      // Remettre le montant en lecture seule
+      const amtField = document.getElementById('maint-amount');
+      if (amtField) {
+        amtField.setAttribute('readonly', '');
+        amtField.style.background = 'var(--bg-subtle)';
+        amtField.style.cursor = 'not-allowed';
+      }
+    }
+
     document.querySelectorAll('.close-modal-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('open'));
         resetTripModal();
+        resetMaintModal();
       });
     });
 
@@ -3923,6 +3938,80 @@
     // - Les en-têtes avec fond foncé → blanc + bordure noire gauche épaisse + texte noir gras
     // - Textes colorés → noir (dépenses CRÉDIT → italique pour distinction)
     // - Bordures colorées → noir
+    // ── TAMPON / CACHET PDF ──────────────────────────────────────────────────
+    // Génère un cachet SVG circulaire YM-TRANSIT avec le nom de l'utilisateur.
+    // username  : nom affiché dans l'arc inférieur
+    // date      : date de génération (format ISO YYYY-MM-DD ou objet Date)
+    function buildStampSVG(username, date) {
+      const d = date instanceof Date ? date : new Date(date || Date.now());
+      const dateStr = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      const user = (username || 'SYSTÈME').toUpperCase();
+
+      // Couleurs — navy profond; print-safe
+      const ink   = '#1a3560';
+      const inkLt = '#2a5299';
+      const bg    = '#ffffff';
+
+      // Chemin de texte en arc supérieur (CERTIFIÉ AUTHENTIQUE)
+      // Chemin de texte en arc inférieur (nom utilisateur)
+      // Rayon de référence r=90, centre (100,100), viewBox 200×200
+      const topArcPath    = 'M 15,100 A 85,85 0 1,1 185,100'; // arc supérieur (antihoraire)
+      const bottomArcPath = 'M 22,112 A 80,80 0 0,0 178,112'; // arc inférieur (horaire)
+
+      return `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="140" height="140"
+             style="position:absolute; bottom:0; right:0; opacity:0.82; transform:rotate(10deg); pointer-events:none;"
+             aria-hidden="true">
+          <defs>
+            <path id="arcTop" d="${topArcPath}"/>
+            <path id="arcBot" d="${bottomArcPath}"/>
+          </defs>
+
+          <!-- Anneau extérieur — double filet -->
+          <circle cx="100" cy="100" r="97" fill="none" stroke="${ink}" stroke-width="3.5"/>
+          <circle cx="100" cy="100" r="90" fill="none" stroke="${ink}" stroke-width="1"/>
+
+          <!-- Remplissage intérieur -->
+          <circle cx="100" cy="100" r="89" fill="${bg}"/>
+
+          <!-- Anneau intérieur décoratif -->
+          <circle cx="100" cy="100" r="76" fill="none" stroke="${inkLt}" stroke-width="0.8" stroke-dasharray="3 3"/>
+
+          <!-- Losanges aux 4 points cardinaux (séparateurs) -->
+          <polygon points="100,4 104,10 100,16 96,10" fill="${ink}"/>
+          <polygon points="100,184 104,190 100,196 96,190" fill="${ink}"/>
+          <polygon points="4,100 10,96 16,100 10,104" fill="${ink}"/>
+          <polygon points="184,100 190,96 196,100 190,104" fill="${ink}"/>
+
+          <!-- Texte arc supérieur : CERTIFIÉ AUTHENTIQUE -->
+          <text font-family="'Arial Narrow', Arial, sans-serif" font-size="11" font-weight="700"
+                letter-spacing="3" fill="${ink}" text-anchor="middle">
+            <textPath href="#arcTop" startOffset="50%">CERTIFIÉ AUTHENTIQUE</textPath>
+          </text>
+
+          <!-- Ligne horizontale centrale -->
+          <line x1="34" y1="95" x2="166" y2="95" stroke="${ink}" stroke-width="1"/>
+
+          <!-- Logo / nom principal -->
+          <text x="100" y="87" font-family="'Arial Black', 'Arial Bold', sans-serif" font-size="19"
+                font-weight="900" fill="${ink}" text-anchor="middle" letter-spacing="1">YM-TRANSIT</text>
+
+          <!-- Ligne sous-titre -->
+          <line x1="42" y1="99" x2="158" y2="99" stroke="${inkLt}" stroke-width="0.7"/>
+
+          <!-- Date -->
+          <text x="100" y="113" font-family="Arial, sans-serif" font-size="9.5" fill="${inkLt}"
+                text-anchor="middle" letter-spacing="1">${dateStr}</text>
+
+          <!-- Texte arc inférieur : nom utilisateur -->
+          <text font-family="'Arial Narrow', Arial, sans-serif" font-size="10" font-weight="700"
+                letter-spacing="2" fill="${ink}" text-anchor="middle">
+            <textPath href="#arcBot" startOffset="50%">${user}</textPath>
+          </text>
+        </svg>
+      `.trim();
+    }
+
     function applyPrintBW(zone) {
       if (!zone) return;
 
@@ -4283,13 +4372,14 @@
           </div>
         </div>
 
-        <div class="pdf-signatures" style="margin-top: 20px;">
+        <div class="pdf-signatures" style="margin-top: 20px; position:relative; min-height:160px;">
           <div class="pdf-signature-box">
             <div style="font-size:11px; font-weight:700; color:#475569; margin-bottom:30px;">Signature du Chauffeur</div>
           </div>
           <div class="pdf-signature-box">
             <div style="font-size:11px; font-weight:700; color:#475569; margin-bottom:30px;">Signature du Responsable</div>
           </div>
+          ${buildStampSVG(state.username, now)}
         </div>
       `;
 
@@ -4769,8 +4859,9 @@
               <td data-label="Garage">${m.garage || '-'}</td>
               <td data-label="Kilométrage" class="font-mono">${m.km ? m.km.toLocaleString('fr-FR') + ' km' : '-'}</td>
               <td data-label="Montant payé" class="font-mono text-danger"><strong>${formatFCFA(m.amount_fcfa)}</strong></td>
-              <td data-label="Actions">
-                <button class="btn btn-danger btn-sm" onclick="deleteMaintFromDetail(${m.id})" title="Supprimer cette intervention">${VECTORS.trash}</button>
+              <td data-label="Actions" style="white-space:nowrap;">
+                <button class="btn btn-secondary btn-sm btn-write-only" onclick="editMaintFromDetail(${m.id})" title="Modifier" style="margin-right:0.25rem;">${VECTORS.pencil}</button>
+                <button class="btn btn-danger btn-sm btn-write-only" onclick="deleteMaintFromDetail(${m.id})" title="Supprimer cette intervention">${VECTORS.trash}</button>
               </td>
             `;
             maintTbody.appendChild(tr);
@@ -5209,9 +5300,10 @@
           </table>
         </div>` : ''}
 
-        <div class="pdf-signatures" style="margin-top:20px;">
+        <div class="pdf-signatures" style="margin-top:20px; position:relative; min-height:160px;">
           <div class="pdf-signature-box"><div style="font-size:11px; font-weight:700; color:#475569; margin-bottom:30px;">Signature Responsable Flotte</div></div>
           <div class="pdf-signature-box"><div style="font-size:11px; font-weight:700; color:#475569; margin-bottom:30px;">Signature Direction</div></div>
+          ${buildStampSVG(state.username, new Date())}
         </div>
       `;
 
@@ -5384,9 +5476,10 @@
           </table>
         </div>` : ''}
 
-        <div class="pdf-signatures" style="margin-top:20px;">
+        <div class="pdf-signatures" style="margin-top:20px; position:relative; min-height:160px;">
           <div class="pdf-signature-box"><div style="font-size:11px; font-weight:700; color:#475569; margin-bottom:30px;">Signature Responsable Flotte</div></div>
           <div class="pdf-signature-box"><div style="font-size:11px; font-weight:700; color:#475569; margin-bottom:30px;">Signature Direction Générale</div></div>
+          ${buildStampSVG(state.username, new Date())}
         </div>
       `;
 
@@ -5779,8 +5872,9 @@
             <td data-label="Garage">${m.garage}</td>
             <td data-label="Kilométrage" class="font-mono">${m.km ? m.km.toLocaleString('fr-FR') + ' km' : '-'}</td>
             <td data-label="Coût (FCFA)" class="font-mono text-danger"><strong>${formatFCFA(m.amount_fcfa)}</strong></td>
-            <td data-label="Actions">
-              <button class="btn btn-danger btn-sm" onclick="deleteMaint(${m.id})" title="Supprimer">${VECTORS.trash}</button>
+            <td data-label="Actions" style="display:flex;gap:4px;flex-wrap:wrap;">
+              <button class="btn btn-secondary btn-sm btn-write-only" onclick="editMaint(${m.id})" title="Modifier">${VECTORS.pencil}</button>
+              <button class="btn btn-danger btn-sm btn-write-only" onclick="deleteMaint(${m.id})" title="Supprimer">${VECTORS.trash}</button>
             </td>
           `;
           tbody.appendChild(tr);
@@ -5796,6 +5890,81 @@
       await fetch(`/api/maintenance/${id}`, { method: 'DELETE' });
       showToast('Intervention supprimée.');
       loadMaintenance();
+    };
+
+    // Ouvre le modal d'entretien pré-rempli pour modification
+    async function openMaintEditModal(record) {
+      // Réinitialiser le formulaire
+      document.getElementById('form-maint').reset();
+      setLineItems([]);
+      document.getElementById('custom-type-group').style.display = 'none';
+      document.getElementById('maint-document-preview').style.display = 'none';
+
+      // Remplir les champs
+      document.getElementById('maint-id').value = record.id;
+      document.getElementById('maint-date').value = record.record_date;
+      document.getElementById('maint-truck').value = record.truck_id;
+      document.getElementById('maint-driver').value = record.driver_id || '';
+      document.getElementById('maint-desc').value = record.description;
+      document.getElementById('maint-garage').value = record.garage;
+      document.getElementById('maint-km').value = record.km || '';
+
+      // Type d'intervention
+      const typeSelect = document.getElementById('maint-type-select');
+      const knownTypes = Array.from(typeSelect.options).map(o => o.value);
+      if (knownTypes.includes(record.service_type)) {
+        typeSelect.value = record.service_type;
+      } else {
+        typeSelect.value = 'autre';
+        document.getElementById('maint-type-custom').value = record.service_type;
+        document.getElementById('custom-type-group').style.display = '';
+      }
+
+      // Lignes de détail
+      if (record.line_items) {
+        try {
+          const items = JSON.parse(record.line_items);
+          if (Array.isArray(items) && items.length > 0) {
+            setLineItems(items);
+          } else {
+            // Pas de lignes détaillées : mettre le montant global manuellement
+            document.getElementById('maint-amount').removeAttribute('readonly');
+            document.getElementById('maint-amount').style.background = '';
+            document.getElementById('maint-amount').style.cursor = '';
+            document.getElementById('maint-amount').value = record.amount_fcfa;
+          }
+        } catch(e) {
+          document.getElementById('maint-amount').removeAttribute('readonly');
+          document.getElementById('maint-amount').style.background = '';
+          document.getElementById('maint-amount').style.cursor = '';
+          document.getElementById('maint-amount').value = record.amount_fcfa;
+        }
+      } else {
+        // Pas de lignes : déverrouiller le montant pour modification directe
+        document.getElementById('maint-amount').removeAttribute('readonly');
+        document.getElementById('maint-amount').style.background = '';
+        document.getElementById('maint-amount').style.cursor = '';
+        document.getElementById('maint-amount').value = record.amount_fcfa;
+      }
+
+      // Titre du modal
+      document.getElementById('maint-modal-title').textContent = 'Modifier l\'intervention';
+      document.querySelector('#form-maint [type="submit"]').textContent = 'Mettre à jour';
+
+      document.getElementById('modal-maint-form').classList.add('open');
+    }
+
+    window.editMaint = async function(id) {
+      try {
+        const res = await fetch(`/api/maintenance/${id}`);
+        if (!res.ok) { showToast('Intervention introuvable.', 'danger'); return; }
+        const record = await res.json();
+        await openMaintEditModal(record);
+      } catch(e) { showToast('Erreur lors du chargement.', 'danger'); }
+    };
+
+    window.editMaintFromDetail = async function(id) {
+      window.editMaint(id);
     };
 
     // ----------------------------------------------------
@@ -5988,16 +6157,18 @@
 
     document.getElementById('add-line-item-btn')?.addEventListener('click', () => addLineItem());
 
-    // 3. Nouvelle intervention entretien (avec upload de document optionnel)
+    // 3. Nouvelle intervention entretien / modification (avec upload de document optionnel)
     document.getElementById('form-maint').addEventListener('submit', async e => {
       e.preventDefault();
+      const maintId = document.getElementById('maint-id').value;
+      const isEdit = !!maintId;
       const selectType = document.getElementById('maint-type-select').value;
       const customType = document.getElementById('maint-type-custom').value;
       const finalType = (selectType === 'autre' && customType.trim()) ? customType.trim() : selectType;
 
       const submitBtn = e.target.querySelector('[type="submit"]');
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Enregistrement…';
+      submitBtn.textContent = isEdit ? 'Mise à jour…' : 'Enregistrement…';
 
       let documentUrl = null;
       const fileInput = document.getElementById('maint-document');
@@ -6037,20 +6208,32 @@
       };
 
       try {
-        const res = await fetch('/api/maintenance', {
-          method: 'POST',
+        const url = isEdit ? `/api/maintenance/${maintId}` : '/api/maintenance';
+        const method = isEdit ? 'PUT' : 'POST';
+        const res = await fetch(url, {
+          method,
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body)
         });
         if (res.ok) {
-          showToast('Intervention d\'entretien notée avec succès !');
+          showToast(isEdit ? 'Intervention mise à jour avec succès !' : 'Intervention d\'entretien notée avec succès !');
           document.getElementById('modal-maint-form').classList.remove('open');
           document.getElementById('form-maint').reset();
+          document.getElementById('maint-id').value = '';
           setLineItems([]);
           document.getElementById('custom-type-group').style.display = 'none';
           document.getElementById('maint-document-preview').style.display = 'none';
+          // Restaurer le montant en lecture seule
+          const amtField = document.getElementById('maint-amount');
+          amtField.setAttribute('readonly', '');
+          amtField.style.background = 'var(--bg-subtle)';
+          amtField.style.cursor = 'not-allowed';
+          // Restaurer le titre du modal
+          document.getElementById('maint-modal-title').textContent = 'Noter une intervention d\'entretien';
+          document.querySelector('#form-maint [type="submit"]').textContent = 'Enregistrer l\'entretien';
           loadCurrentTabData();
           loadDrivers();
+          if (isEdit && state.selectedDriverId) openDriverDetail(state.selectedDriverId);
         } else {
           const err = await res.json();
           showToast(err.error || 'Erreur lors de l\'enregistrement', 'danger');
@@ -6059,7 +6242,7 @@
         showToast('Erreur serveur', 'danger');
       } finally {
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Enregistrer l\'entretien';
+        submitBtn.textContent = isEdit ? 'Mettre à jour' : 'Enregistrer l\'entretien';
       }
     });
 
