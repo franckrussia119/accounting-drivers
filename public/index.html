@@ -2900,10 +2900,37 @@
             <textarea id="maint-desc" class="form-control" rows="2" placeholder="Détail précis des pièces remplacées et de la main d'œuvre..." required></textarea>
           </div>
 
+          <div class="form-group">
+            <label class="form-label" style="display:flex; align-items:center; justify-content:space-between;">
+              <span>Détail des réparations / pièces</span>
+              <button type="button" id="add-line-item-btn" class="btn btn-secondary btn-sm" style="padding: 0.2rem 0.7rem; font-size: 0.78rem;">+ Ajouter une ligne</button>
+            </label>
+            <table id="line-items-table" style="width:100%; border-collapse:collapse; margin-top:0.4rem;">
+              <thead>
+                <tr style="background:var(--bg-subtle); font-size:0.78rem; color:var(--text-muted);">
+                  <th style="padding:6px 8px; text-align:left; border:1px solid var(--border-color); width:60%;">Description</th>
+                  <th style="padding:6px 8px; text-align:right; border:1px solid var(--border-color); width:30%;">Montant (FCFA)</th>
+                  <th style="padding:6px 8px; border:1px solid var(--border-color); width:10%;"></th>
+                </tr>
+              </thead>
+              <tbody id="line-items-tbody">
+                <!-- rows added dynamically -->
+              </tbody>
+              <tfoot>
+                <tr style="font-weight:700; background:var(--bg-subtle);">
+                  <td style="padding:6px 8px; border:1px solid var(--border-color); font-size:0.85rem;">TOTAL</td>
+                  <td id="line-items-total" style="padding:6px 8px; text-align:right; border:1px solid var(--border-color); font-size:0.9rem; color:var(--danger); font-family:monospace;">0 FCFA</td>
+                  <td style="border:1px solid var(--border-color);"></td>
+                </tr>
+              </tfoot>
+            </table>
+            <small style="color:var(--text-muted); font-size:0.72rem;">Le total se reporte automatiquement dans le montant ci-dessous.</small>
+          </div>
+
           <div class="form-grid-2">
             <div class="form-group">
               <label class="form-label" for="maint-amount">Montant payé (FCFA) *</label>
-              <input type="number" id="maint-amount" class="form-control" placeholder="ex: 185000" min="0" required inputmode="numeric">
+              <input type="number" id="maint-amount" class="form-control" placeholder="ex: 185000" min="0" required inputmode="numeric" readonly style="background:var(--bg-subtle); cursor:not-allowed;">
             </div>
             <div class="form-group">
               <label class="form-label" for="maint-km">Kilométrage au compteur</label>
@@ -4704,10 +4731,16 @@
         } else {
           data.maintenance.forEach(m => {
             const tr = document.createElement('tr');
+            const mLineItems = m.line_items ? (() => { try { return JSON.parse(m.line_items); } catch(e) { return []; } })() : [];
+            const mLineItemsHtml = mLineItems.length > 0
+              ? `<div style="margin-top:4px; font-size:0.75rem; color:var(--text-muted);">` +
+                mLineItems.map(li => `<div style="display:flex;justify-content:space-between;gap:8px;"><span>${li.desc}</span><span class="font-mono">${(li.amount||0).toLocaleString('fr-FR')} F</span></div>`).join('') +
+                `</div>`
+              : '';
             tr.innerHTML = `
               <td data-label="Date">${m.record_date}</td>
               <td data-label="Type"><span class="badge badge-${m.service_type.toLowerCase()}">${m.service_type}</span></td>
-              <td data-label="Description">${m.description}</td>
+              <td data-label="Description">${m.description}${mLineItemsHtml}</td>
               <td data-label="Garage">${m.garage || '-'}</td>
               <td data-label="Kilométrage" class="font-mono">${m.km ? m.km.toLocaleString('fr-FR') + ' km' : '-'}</td>
               <td data-label="Montant payé" class="font-mono text-danger"><strong>${formatFCFA(m.amount_fcfa)}</strong></td>
@@ -4770,6 +4803,7 @@
       document.getElementById('maint-date').value = new Date().toISOString().split('T')[0];
       if (driverId) document.getElementById('maint-driver').value = driverId;
       if (truckCode) document.getElementById('maint-truck').value = truckCode;
+      setLineItems([]);
     };
 
     window.openExpenseModalForDriver = function(driverId, truckCode) {
@@ -5101,7 +5135,12 @@
               </tr>
             </thead>
             <tbody>
-              ${data.maintenance.map(r => `
+              ${data.maintenance.map(r => {
+                const rLineItems = r.line_items ? (() => { try { return JSON.parse(r.line_items); } catch(e) { return []; } })() : [];
+                const rLineItemsHtml = rLineItems.length > 0
+                  ? `<tr style="background:#fff5f5;"><td colspan="6" style="padding:2px 6px 4px 18px; font-size:8px; color:#888;">${rLineItems.map(li => `${li.desc} : ${(li.amount||0).toLocaleString('fr-FR')} F`).join(' · ')}</td></tr>`
+                  : '';
+                return `
               <tr style="border-bottom:1px solid #fef2f2;">
                 <td style="padding:4px 6px;">${r.record_date}</td>
                 <td style="padding:4px 6px; font-weight:700; text-transform:uppercase;">${r.service_type}</td>
@@ -5109,7 +5148,8 @@
                 <td style="padding:4px 6px;">${r.garage}</td>
                 <td style="padding:4px 6px; text-align:right;">${r.km ? r.km.toLocaleString('fr-FR') + ' km' : '—'}</td>
                 <td style="padding:4px 6px; text-align:right; font-weight:700; color:#dc2626;">${formatFCFA(r.amount_fcfa)}</td>
-              </tr>`).join('')}
+              </tr>${rLineItemsHtml}`;
+              }).join('')}
             </tbody>
           </table>
         </div>` : ''}
@@ -5871,6 +5911,58 @@
       }
     });
 
+    // Line items management for maintenance form
+    function addLineItem(desc = '', amount = '') {
+      const tbody = document.getElementById('line-items-tbody');
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td style="padding:4px; border:1px solid var(--border-color);">
+          <input type="text" class="form-control line-item-desc" placeholder="ex: Remplacement courroie de distribution" value="${desc}" style="font-size:0.82rem; padding:4px 8px;">
+        </td>
+        <td style="padding:4px; border:1px solid var(--border-color);">
+          <input type="number" class="form-control line-item-amount" placeholder="0" value="${amount}" min="0" inputmode="numeric" style="font-size:0.82rem; padding:4px 8px; text-align:right;">
+        </td>
+        <td style="padding:4px; border:1px solid var(--border-color); text-align:center;">
+          <button type="button" class="btn-icon" onclick="this.closest('tr').remove(); recalcLineItems();" style="color:var(--danger); font-size:1.1rem; line-height:1;">&times;</button>
+        </td>
+      `;
+      tbody.appendChild(row);
+      row.querySelector('.line-item-amount').addEventListener('input', recalcLineItems);
+      row.querySelector('.line-item-desc').addEventListener('input', recalcLineItems);
+    }
+
+    function recalcLineItems() {
+      const amounts = [...document.querySelectorAll('.line-item-amount')].map(i => parseFloat(i.value) || 0);
+      const total = amounts.reduce((a, b) => a + b, 0);
+      document.getElementById('line-items-total').textContent = total.toLocaleString('fr-FR') + ' FCFA';
+      const amtField = document.getElementById('maint-amount');
+      if (amtField) amtField.value = total > 0 ? total : '';
+    }
+
+    function getLineItems() {
+      const rows = document.querySelectorAll('#line-items-tbody tr');
+      const items = [];
+      rows.forEach(row => {
+        const desc = row.querySelector('.line-item-desc')?.value?.trim();
+        const amount = parseFloat(row.querySelector('.line-item-amount')?.value) || 0;
+        if (desc || amount) items.push({ desc, amount });
+      });
+      return items;
+    }
+
+    function setLineItems(items) {
+      document.getElementById('line-items-tbody').innerHTML = '';
+      document.getElementById('line-items-total').textContent = '0 FCFA';
+      if (!items || items.length === 0) {
+        addLineItem();
+        return;
+      }
+      items.forEach(item => addLineItem(item.desc || '', item.amount || ''));
+      recalcLineItems();
+    }
+
+    document.getElementById('add-line-item-btn')?.addEventListener('click', () => addLineItem());
+
     // 3. Nouvelle intervention entretien (avec upload de document optionnel)
     document.getElementById('form-maint').addEventListener('submit', async e => {
       e.preventDefault();
@@ -5915,7 +6007,8 @@
         amount_fcfa: document.getElementById('maint-amount').value,
         garage: document.getElementById('maint-garage').value,
         km: document.getElementById('maint-km').value,
-        document_url: documentUrl
+        document_url: documentUrl,
+        line_items: JSON.stringify(getLineItems())
       };
 
       try {
@@ -5928,6 +6021,7 @@
           showToast('Intervention d\'entretien notée avec succès !');
           document.getElementById('modal-maint-form').classList.remove('open');
           document.getElementById('form-maint').reset();
+          setLineItems([]);
           document.getElementById('custom-type-group').style.display = 'none';
           document.getElementById('maint-document-preview').style.display = 'none';
           loadCurrentTabData();
@@ -6025,7 +6119,7 @@
     if (btnAddFuel) btnAddFuel.addEventListener('click', () => openModal('modal-fuel-form'));
 
     const btnAddMaint = document.getElementById('add-maintenance-btn');
-    if (btnAddMaint) btnAddMaint.addEventListener('click', () => openModal('modal-maint-form'));
+    if (btnAddMaint) btnAddMaint.addEventListener('click', () => { openModal('modal-maint-form'); setLineItems([]); });
 
     const btnAddTruck = document.getElementById('add-truck-btn');
     if (btnAddTruck) btnAddTruck.addEventListener('click', () => openAddTruckModal());

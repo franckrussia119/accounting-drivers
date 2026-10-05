@@ -162,6 +162,7 @@ export function initDatabase() {
   migrateAddColumnIfMissing('trips', 'peage', 'INTEGER DEFAULT 0');
   migrateAddColumnIfMissing('trips', 'montant_remis', 'INTEGER DEFAULT 0');
   migrateAddColumnIfMissing('maintenance_records', 'document_url', 'TEXT');
+  migrateAddColumnIfMissing('maintenance_records', 'line_items', 'TEXT');
 
   // ── Tables multi-utilisateurs ──────────────────────────────────────────────
   db.exec(`

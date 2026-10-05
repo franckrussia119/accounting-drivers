@@ -57,7 +57,7 @@ maintenanceRouter.get('/', (req, res) => {
 // Enregistrement d'une intervention
 maintenanceRouter.post('/', requireRole('superadmin', 'editor'), (req, res) => {
   try {
-    const { truck_id, driver_id, record_date, service_type, description, amount_fcfa, garage, km } = req.body || {};
+    const { truck_id, driver_id, record_date, service_type, description, amount_fcfa, garage, km, line_items } = req.body || {};
 
     if (!truck_id || !record_date || !service_type || !description || amount_fcfa === undefined || !garage) {
       return res.status(400).json({ error: 'Camion, date, type d\'intervention, description, montant (FCFA) et garage sont obligatoires.' });
@@ -71,8 +71,8 @@ maintenanceRouter.post('/', requireRole('superadmin', 'editor'), (req, res) => {
     }
 
     const stmt = db.prepare(`
-      INSERT INTO maintenance_records (truck_id, driver_id, record_date, service_type, description, amount_fcfa, garage, km)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO maintenance_records (truck_id, driver_id, record_date, service_type, description, amount_fcfa, garage, km, line_items)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     const result = stmt.run(
@@ -83,7 +83,8 @@ maintenanceRouter.post('/', requireRole('superadmin', 'editor'), (req, res) => {
       description.trim(),
       amount,
       garage.trim(),
-      numKm
+      numKm,
+      line_items || null
     );
 
     // Mettre à jour le kilométrage du camion si renseigné
@@ -128,14 +129,14 @@ maintenanceRouter.put('/:id', requireRole('superadmin', 'editor'), (req, res) =>
       return res.status(404).json({ error: 'Intervention introuvable.' });
     }
 
-    const { truck_id, driver_id, record_date, service_type, description, amount_fcfa, garage, km } = req.body || {};
+    const { truck_id, driver_id, record_date, service_type, description, amount_fcfa, garage, km, line_items } = req.body || {};
 
     const updatedTruck = truck_id ? truck_id.trim().toUpperCase() : existing.truck_id;
     const updatedKm = km !== undefined ? (km ? parseInt(km, 10) : null) : existing.km;
 
     db.prepare(`
-      UPDATE maintenance_records 
-      SET truck_id = ?, driver_id = ?, record_date = ?, service_type = ?, description = ?, amount_fcfa = ?, garage = ?, km = ?
+      UPDATE maintenance_records
+      SET truck_id = ?, driver_id = ?, record_date = ?, service_type = ?, description = ?, amount_fcfa = ?, garage = ?, km = ?, line_items = ?
       WHERE id = ?
     `).run(
       updatedTruck,
@@ -146,6 +147,7 @@ maintenanceRouter.put('/:id', requireRole('superadmin', 'editor'), (req, res) =>
       amount_fcfa !== undefined ? parseInt(amount_fcfa, 10) : existing.amount_fcfa,
       garage ? garage.trim() : existing.garage,
       updatedKm,
+      line_items !== undefined ? (line_items || null) : existing.line_items,
       id
     );
 
