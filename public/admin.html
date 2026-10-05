@@ -1,0 +1,830 @@
+<title>YM-TRANSIT Admin</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+  /* Layout: sticky dark header + two-tab content area, table-driven */
+  :root {
+    --bg: #f1f5f9;
+    --surface: #ffffff;
+    --surface-raised: #f8fafc;
+    --border: #e2e8f0;
+    --text: #0f172a;
+    --muted: #64748b;
+    --subtle: #94a3b8;
+    --header-bg: #0f172a;
+    --header-text: #f8fafc;
+    --accent: #0284c7;
+    --accent-hover: #0369a1;
+    --accent-light: #e0f2fe;
+    --danger: #e11d48;
+    --danger-light: #ffe4e6;
+    --danger-text: #9f1239;
+    --success: #059669;
+    --success-light: #d1fae5;
+    --badge-purple-bg: #ede9fe;
+    --badge-purple-text: #5b21b6;
+    --badge-blue-bg: #dbeafe;
+    --badge-blue-text: #1d4ed8;
+    --badge-gray-bg: #e2e8f0;
+    --badge-gray-text: #334155;
+    --shadow: 0 1px 3px 0 rgb(0 0 0 / .07), 0 1px 2px -1px rgb(0 0 0 / .05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / .07), 0 2px 4px -2px rgb(0 0 0 / .05);
+    --radius: 10px;
+    --radius-sm: 6px;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0b0f19;
+      --surface: #111827;
+      --surface-raised: #1e293b;
+      --border: #1e293b;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --subtle: #64748b;
+      --header-bg: #060c18;
+      --header-text: #f1f5f9;
+      --accent: #38bdf8;
+      --accent-hover: #0284c7;
+      --accent-light: #082f49;
+      --danger: #f43f5e;
+      --danger-light: #4c0519;
+      --danger-text: #fda4af;
+      --success: #10b981;
+      --success-light: #064e3b;
+      --badge-purple-bg: #2e1065;
+      --badge-purple-text: #c4b5fd;
+      --badge-blue-bg: #1e3a5f;
+      --badge-blue-text: #7dd3fc;
+      --badge-gray-bg: #1e293b;
+      --badge-gray-text: #94a3b8;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0b0f19;
+    --surface: #111827;
+    --surface-raised: #1e293b;
+    --border: #1e293b;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --subtle: #64748b;
+    --header-bg: #060c18;
+    --header-text: #f1f5f9;
+    --accent: #38bdf8;
+    --accent-hover: #0284c7;
+    --accent-light: #082f49;
+    --danger: #f43f5e;
+    --danger-light: #4c0519;
+    --danger-text: #fda4af;
+    --success: #10b981;
+    --success-light: #064e3b;
+    --badge-purple-bg: #2e1065;
+    --badge-purple-text: #c4b5fd;
+    --badge-blue-bg: #1e3a5f;
+    --badge-blue-text: #7dd3fc;
+    --badge-gray-bg: #1e293b;
+    --badge-gray-text: #94a3b8;
+    color-scheme: dark;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100%;
+    padding: 0;
+  }
+
+  /* ── Header ── */
+  .app-header {
+    background: var(--header-bg);
+    color: var(--header-text);
+    position: sticky;
+    top: env(safe-area-inset-top, 0px);
+    z-index: 100;
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    height: 56px;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+  }
+  .app-header .brand {
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: -.02em;
+    color: #f8fafc;
+    white-space: nowrap;
+  }
+  .app-header .brand span {
+    color: #38bdf8;
+  }
+  .header-sep { flex: 1; }
+  .header-back {
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    transition: color .15s;
+    white-space: nowrap;
+  }
+  .header-back:hover { color: #f1f5f9; }
+  .btn-logout {
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.1);
+    color: #cbd5e1;
+    border-radius: var(--radius-sm);
+    padding: .35rem .85rem;
+    font-size: .8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+  }
+  .btn-logout:hover { background: rgba(255,255,255,.14); color: #f1f5f9; }
+
+  /* ── Main layout ── */
+  .page-body {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem;
+  }
+
+  /* ── Tabs ── */
+  .tabs-bar {
+    display: flex;
+    gap: .25rem;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 1.75rem;
+  }
+  .tab-btn {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    padding: .65rem 1.1rem;
+    font-size: .88rem;
+    font-weight: 700;
+    color: var(--muted);
+    cursor: pointer;
+    transition: color .15s, border-color .15s;
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    font-family: inherit;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.1rem 1.4rem;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .card-title {
+    font-size: .95rem;
+    font-weight: 800;
+    letter-spacing: -.01em;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .45rem 1rem;
+    border-radius: var(--radius-sm);
+    font-size: .82rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background .15s, opacity .15s;
+    font-family: inherit;
+    line-height: 1;
+  }
+  .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  .btn-ghost { background: transparent; color: var(--muted); border-color: var(--border); }
+  .btn-ghost:hover { background: var(--surface-raised); color: var(--text); }
+  .btn-danger { background: var(--danger-light); color: var(--danger-text); border-color: transparent; }
+  .btn-danger:hover { opacity: .8; }
+  .btn-sm { padding: .3rem .7rem; font-size: .76rem; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  /* ── Table ── */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: .83rem; }
+  thead th {
+    text-align: left;
+    padding: .65rem 1rem;
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    background: var(--surface-raised);
+  }
+  tbody tr { border-bottom: 1px solid var(--border); }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--surface-raised); }
+  td {
+    padding: .7rem 1rem;
+    color: var(--text);
+    vertical-align: middle;
+  }
+  td.actions { white-space: nowrap; }
+
+  /* ── Badges ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: .2rem .6rem;
+    border-radius: 999px;
+    font-size: .72rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .badge-purple { background: var(--badge-purple-bg); color: var(--badge-purple-text); }
+  .badge-blue { background: var(--badge-blue-bg); color: var(--badge-blue-text); }
+  .badge-gray { background: var(--badge-gray-bg); color: var(--badge-gray-text); }
+  .badge-green { background: var(--success-light); color: var(--success); }
+  .badge-red { background: var(--danger-light); color: var(--danger-text); }
+
+  /* ── Form / Modal ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .modal-overlay[hidden] { display: none !important; }
+  .modal {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    width: 100%;
+    max-width: 440px;
+    padding: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .modal-title {
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: -.01em;
+  }
+  .form-group { display: flex; flex-direction: column; gap: .4rem; }
+  .form-label {
+    font-size: .78rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+  .form-control {
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: .88rem;
+    font-family: inherit;
+    padding: .55rem .8rem;
+    outline: none;
+    transition: border-color .15s;
+    width: 100%;
+  }
+  .form-control:focus { border-color: var(--accent); }
+  .form-row { display: flex; gap: .75rem; flex-wrap: wrap; }
+  .form-row .form-group { flex: 1; min-width: 160px; }
+  .form-actions { display: flex; gap: .6rem; justify-content: flex-end; padding-top: .25rem; }
+  .form-check {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: .88rem;
+    cursor: pointer;
+  }
+
+  /* ── Audit filters ── */
+  .filters-bar {
+    display: flex;
+    gap: .75rem;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    padding: 1rem 1.4rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-raised);
+  }
+  .filters-bar .form-group { flex: 1; min-width: 130px; }
+
+  /* ── Alert ── */
+  .alert {
+    padding: .75rem 1rem;
+    border-radius: var(--radius-sm);
+    font-size: .83rem;
+    font-weight: 600;
+  }
+  .alert-danger { background: var(--danger-light); color: var(--danger-text); }
+  .alert-success { background: var(--success-light); color: var(--success); }
+
+  /* ── Empty state ── */
+  .empty {
+    padding: 3rem 1rem;
+    text-align: center;
+    color: var(--muted);
+    font-size: .88rem;
+  }
+
+  /* ── Mono ── */
+  .mono { font-variant-numeric: tabular-nums; font-size: .8rem; }
+  .text-muted { color: var(--muted); }
+  .text-subtle { color: var(--subtle); }
+
+  @media (max-width: 600px) {
+    .page-body { padding: 1.25rem .9rem; }
+    .app-header { padding: 0 1rem; gap: 1rem; }
+  }
+</style>
+
+<!-- ── Header ── -->
+<header class="app-header">
+  <div class="brand">YM-TRANSIT <span>Admin</span></div>
+  <div class="header-sep"></div>
+  <a href="/" class="header-back">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Retour à l'application
+  </a>
+  <button class="btn-logout" id="logout-btn">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    Déconnexion
+  </button>
+</header>
+
+<!-- ── Main ── -->
+<main class="page-body">
+
+  <!-- Tabs -->
+  <div class="tabs-bar">
+    <button class="tab-btn active" data-tab="users" id="tab-btn-users">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Utilisateurs
+    </button>
+    <button class="tab-btn" data-tab="audit" id="tab-btn-audit">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      Journal d'audit
+    </button>
+  </div>
+
+  <!-- ── Tab: Utilisateurs ── -->
+  <div id="tab-users">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Gestion des utilisateurs
+        </div>
+        <button class="btn btn-primary btn-sm" id="add-user-btn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Ajouter un utilisateur
+        </button>
+      </div>
+      <div id="users-alert" hidden></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nom d'utilisateur</th>
+              <th>Rôle</th>
+              <th>Statut</th>
+              <th>Créé le</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="users-tbody">
+            <tr><td colspan="6" class="empty">Chargement...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Tab: Journal d'audit ── -->
+  <div id="tab-audit" hidden>
+    <div class="card">
+      <div class="filters-bar">
+        <div class="form-group">
+          <label class="form-label">Utilisateur</label>
+          <input class="form-control" id="audit-filter-user" placeholder="Tous" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Action</label>
+          <select class="form-control" id="audit-filter-action">
+            <option value="">Toutes</option>
+            <option>LOGIN</option>
+            <option>LOGOUT</option>
+            <option>CREATE</option>
+            <option>UPDATE</option>
+            <option>DELETE</option>
+            <option>PDF_EXPORT</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Entité</label>
+          <select class="form-control" id="audit-filter-entity">
+            <option value="">Toutes</option>
+            <option value="trip">voyage</option>
+            <option value="fuel">carburant</option>
+            <option value="maintenance">entretien</option>
+            <option value="expense">dépense</option>
+            <option value="driver">chauffeur</option>
+            <option value="truck">camion</option>
+            <option value="user">utilisateur</option>
+          </select>
+        </div>
+        <button class="btn btn-primary btn-sm" id="audit-load-btn" style="align-self:flex-end; white-space:nowrap;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Charger
+        </button>
+      </div>
+      <div id="audit-alert" hidden></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date / Heure</th>
+              <th>Utilisateur</th>
+              <th>Rôle</th>
+              <th>Action</th>
+              <th>Entité</th>
+              <th>Détail</th>
+              <th>IP</th>
+            </tr>
+          </thead>
+          <tbody id="audit-tbody">
+            <tr><td colspan="7" class="empty">Cliquez sur « Charger » pour afficher le journal.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ── Modal: Utilisateur (création + édition) ── -->
+<div class="modal-overlay" id="user-modal-overlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-title" id="modal-title">Ajouter un utilisateur</div>
+    <form id="user-form" novalidate>
+      <div style="display:flex; flex-direction:column; gap:.9rem;">
+        <div class="form-group">
+          <label class="form-label" for="f-username">Nom d'utilisateur</label>
+          <input class="form-control" id="f-username" name="username" type="text" autocomplete="off" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="f-password">Mot de passe <span id="pw-hint" class="text-subtle" style="font-weight:400; text-transform:none; letter-spacing:0;">(laisser vide = conserver)</span></label>
+          <input class="form-control" id="f-password" name="password" type="password" autocomplete="new-password">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="f-role">Rôle</label>
+          <select class="form-control" id="f-role" name="role" required>
+            <option value="viewer">viewer — lecture seule</option>
+            <option value="editor">editor — saisie et modification</option>
+            <option value="superadmin">superadmin — accès total</option>
+          </select>
+        </div>
+        <label class="form-check">
+          <input type="checkbox" id="f-active" name="is_active" checked>
+          Compte actif
+        </label>
+      </div>
+      <div id="modal-alert" style="display:none; margin-top:.75rem;"></div>
+      <div class="form-actions" style="margin-top:.5rem;">
+        <button type="button" class="btn btn-ghost" id="modal-cancel-btn">Annuler</button>
+        <button type="submit" class="btn btn-primary" id="modal-submit-btn">Créer</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ── Modal: Confirmation suppression ── -->
+<div class="modal-overlay" id="delete-modal-overlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true" style="max-width:380px;">
+    <div class="modal-title" style="color:var(--danger);">Confirmer la suppression</div>
+    <p style="font-size:.88rem; color:var(--muted);">Êtes-vous sûr de vouloir supprimer l'utilisateur <strong id="delete-username"></strong> ? Cette action est irréversible.</p>
+    <div id="delete-alert" style="display:none; margin-top:.5rem;"></div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" id="delete-cancel-btn">Annuler</button>
+      <button class="btn btn-danger" id="delete-confirm-btn">Supprimer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (async () => {
+
+    // ── Auth guard ──
+    try {
+      const r = await fetch('/api/auth/me');
+      const d = await r.json();
+      if (!d.authenticated || d.user.role !== 'superadmin') {
+        window.location.replace('/');
+        return;
+      }
+    } catch {
+      window.location.replace('/');
+      return;
+    }
+
+    // ── Helpers ──
+    function fmt(dt) {
+      if (!dt) return '—';
+      try {
+        return new Date(dt).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
+      } catch { return dt; }
+    }
+
+    function roleBadge(role) {
+      const map = {
+        superadmin: ['badge-purple', 'superadmin'],
+        editor: ['badge-blue', 'editor'],
+        viewer: ['badge-gray', 'viewer']
+      };
+      const [cls, label] = map[role] || ['badge-gray', role];
+      return `<span class="badge ${cls}">${label}</span>`;
+    }
+
+    function actionBadge(action) {
+      const map = {
+        LOGIN: 'badge-green', LOGOUT: 'badge-gray',
+        CREATE: 'badge-blue', UPDATE: 'badge-purple',
+        DELETE: 'badge-red', PDF_EXPORT: 'badge-gray'
+      };
+      return `<span class="badge ${map[action] || 'badge-gray'}">${action}</span>`;
+    }
+
+    function showAlert(elId, msg, type = 'danger') {
+      const el = document.getElementById(elId);
+      if (!el) return;
+      el.className = `alert alert-${type}`;
+      el.textContent = msg;
+      el.hidden = false;
+    }
+    function hideAlert(elId) {
+      const el = document.getElementById(elId);
+      if (el) el.hidden = true;
+    }
+    function showInlineAlert(el, msg, type = 'danger') {
+      el.className = `alert alert-${type}`;
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+    function hideInlineAlert(el) { el.style.display = 'none'; }
+
+    // ── Tab switching ──
+    const tabs = { users: document.getElementById('tab-users'), audit: document.getElementById('tab-audit') };
+    const tabBtns = { users: document.getElementById('tab-btn-users'), audit: document.getElementById('tab-btn-audit') };
+
+    function switchTab(name) {
+      Object.entries(tabs).forEach(([k, el]) => { el.hidden = k !== name; });
+      Object.entries(tabBtns).forEach(([k, el]) => { el.classList.toggle('active', k === name); });
+      if (name === 'users') loadUsers();
+    }
+
+    document.getElementById('tab-btn-users').addEventListener('click', () => switchTab('users'));
+    document.getElementById('tab-btn-audit').addEventListener('click', () => switchTab('audit'));
+
+    // ── Users tab ──
+    let editingUserId = null;
+
+    async function loadUsers() {
+      const tbody = document.getElementById('users-tbody');
+      try {
+        const r = await fetch('/api/admin/users');
+        const users = await r.json();
+        if (!users.length) {
+          tbody.innerHTML = '<tr><td colspan="6" class="empty">Aucun utilisateur.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = users.map(u => `
+          <tr>
+            <td class="mono text-muted">${u.id}</td>
+            <td style="font-weight:600;">${escHtml(u.username)}</td>
+            <td>${roleBadge(u.role)}</td>
+            <td>${u.is_active ? '<span class="badge badge-green">Actif</span>' : '<span class="badge badge-red">Inactif</span>'}</td>
+            <td class="mono text-muted">${fmt(u.created_at)}</td>
+            <td class="actions">
+              <button class="btn btn-ghost btn-sm" onclick="editUser(${u.id})">Modifier</button>
+              <button class="btn btn-danger btn-sm" onclick="promptDelete(${u.id}, '${escHtml(u.username)}')" style="margin-left:.3rem;">Supprimer</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty">Erreur lors du chargement.</td></tr>';
+      }
+    }
+
+    function escHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // Open modal for add
+    document.getElementById('add-user-btn').addEventListener('click', () => {
+      editingUserId = null;
+      document.getElementById('modal-title').textContent = 'Ajouter un utilisateur';
+      document.getElementById('modal-submit-btn').textContent = 'Créer';
+      document.getElementById('pw-hint').hidden = true;
+      document.getElementById('f-username').value = '';
+      document.getElementById('f-password').value = '';
+      document.getElementById('f-role').value = 'viewer';
+      document.getElementById('f-active').checked = true;
+      hideInlineAlert(document.getElementById('modal-alert'));
+      document.getElementById('user-modal-overlay').hidden = false;
+      document.getElementById('f-username').focus();
+    });
+
+    // Open modal for edit
+    window.editUser = async function(id) {
+      try {
+        const r = await fetch('/api/admin/users');
+        const users = await r.json();
+        const u = users.find(x => x.id === id);
+        if (!u) return;
+        editingUserId = id;
+        document.getElementById('modal-title').textContent = 'Modifier l\'utilisateur';
+        document.getElementById('modal-submit-btn').textContent = 'Enregistrer';
+        document.getElementById('pw-hint').hidden = false;
+        document.getElementById('f-username').value = u.username;
+        document.getElementById('f-password').value = '';
+        document.getElementById('f-role').value = u.role;
+        document.getElementById('f-active').checked = Boolean(u.is_active);
+        hideInlineAlert(document.getElementById('modal-alert'));
+        document.getElementById('user-modal-overlay').hidden = false;
+        document.getElementById('f-username').focus();
+      } catch {}
+    };
+
+    // Close modal
+    document.getElementById('modal-cancel-btn').addEventListener('click', () => {
+      document.getElementById('user-modal-overlay').hidden = true;
+    });
+    document.getElementById('user-modal-overlay').addEventListener('click', e => {
+      if (e.target === e.currentTarget) e.currentTarget.hidden = true;
+    });
+
+    // Submit modal form
+    document.getElementById('user-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const alertEl = document.getElementById('modal-alert');
+      const submitBtn = document.getElementById('modal-submit-btn');
+      const username = document.getElementById('f-username').value.trim();
+      const password = document.getElementById('f-password').value;
+      const role = document.getElementById('f-role').value;
+      const is_active = document.getElementById('f-active').checked;
+
+      if (!username) { showInlineAlert(alertEl, 'Le nom d\'utilisateur est obligatoire.'); return; }
+      if (!editingUserId && !password) { showInlineAlert(alertEl, 'Le mot de passe est obligatoire pour un nouvel utilisateur.'); return; }
+
+      submitBtn.disabled = true;
+      const origLabel = submitBtn.textContent;
+      submitBtn.textContent = 'Enregistrement...';
+
+      try {
+        const body = { username, role, is_active };
+        if (password) body.password = password;
+
+        const url = editingUserId ? `/api/admin/users/${editingUserId}` : '/api/admin/users';
+        const method = editingUserId ? 'PUT' : 'POST';
+
+        const r = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        const data = await r.json();
+        if (!r.ok) { showInlineAlert(alertEl, data.error || 'Erreur.'); return; }
+
+        document.getElementById('user-modal-overlay').hidden = true;
+        loadUsers();
+        showAlert('users-alert', editingUserId ? 'Utilisateur mis à jour.' : 'Utilisateur créé avec succès.', 'success');
+        setTimeout(() => hideAlert('users-alert'), 3500);
+      } catch {
+        showInlineAlert(alertEl, 'Erreur réseau.');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = origLabel;
+      }
+    });
+
+    // Delete flow
+    let deleteUserId = null;
+    window.promptDelete = function(id, name) {
+      deleteUserId = id;
+      document.getElementById('delete-username').textContent = name;
+      hideInlineAlert(document.getElementById('delete-alert'));
+      document.getElementById('delete-modal-overlay').hidden = false;
+    };
+    document.getElementById('delete-cancel-btn').addEventListener('click', () => {
+      document.getElementById('delete-modal-overlay').hidden = true;
+    });
+    document.getElementById('delete-modal-overlay').addEventListener('click', e => {
+      if (e.target === e.currentTarget) e.currentTarget.hidden = true;
+    });
+    document.getElementById('delete-confirm-btn').addEventListener('click', async () => {
+      const alertEl = document.getElementById('delete-alert');
+      const btn = document.getElementById('delete-confirm-btn');
+      btn.disabled = true;
+      try {
+        const r = await fetch(`/api/admin/users/${deleteUserId}`, { method: 'DELETE' });
+        const data = await r.json();
+        if (!r.ok) { showInlineAlert(alertEl, data.error || 'Erreur.'); btn.disabled = false; return; }
+        document.getElementById('delete-modal-overlay').hidden = true;
+        loadUsers();
+        showAlert('users-alert', 'Utilisateur supprimé.', 'success');
+        setTimeout(() => hideAlert('users-alert'), 3500);
+      } catch {
+        showInlineAlert(alertEl, 'Erreur réseau.');
+        btn.disabled = false;
+      }
+    });
+
+    // ── Audit tab ──
+    document.getElementById('audit-load-btn').addEventListener('click', loadAudit);
+
+    async function loadAudit() {
+      const tbody = document.getElementById('audit-tbody');
+      tbody.innerHTML = '<tr><td colspan="7" class="empty">Chargement...</td></tr>';
+      hideAlert('audit-alert');
+
+      const username = document.getElementById('audit-filter-user').value.trim();
+      const action = document.getElementById('audit-filter-action').value;
+      const entity = document.getElementById('audit-filter-entity').value;
+
+      const params = new URLSearchParams({ limit: '100', offset: '0' });
+      if (username) params.set('username', username);
+      if (action) params.set('action', action);
+      if (entity) params.set('entity', entity);
+
+      try {
+        const r = await fetch('/api/admin/audit?' + params);
+        const rows = await r.json();
+        if (!rows.length) {
+          tbody.innerHTML = '<tr><td colspan="7" class="empty">Aucune entrée trouvée.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = rows.map(row => `
+          <tr>
+            <td class="mono text-muted" style="white-space:nowrap;">${fmt(row.created_at)}</td>
+            <td style="font-weight:600;">${escHtml(row.username || '—')}</td>
+            <td>${roleBadge(row.role || '')}</td>
+            <td>${actionBadge(row.action || '')}</td>
+            <td class="text-muted">${escHtml(row.entity || '—')}</td>
+            <td style="max-width:260px; white-space:normal; font-size:.79rem; color:var(--muted);">${escHtml(row.detail || '—')}</td>
+            <td class="mono text-subtle" style="font-size:.76rem;">${escHtml(row.ip || '—')}</td>
+          </tr>
+        `).join('');
+      } catch {
+        tbody.innerHTML = '<tr><td colspan="7" class="empty">Erreur lors du chargement.</td></tr>';
+      }
+    }
+
+    // ── Logout ──
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      try { await fetch('/api/auth/logout', { method: 'POST' }); } catch {}
+      window.location.replace('/');
+    });
+
+    // ── Boot ──
+    loadUsers();
+
+  })();
+</script>
