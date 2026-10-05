@@ -4061,10 +4061,22 @@
           }
         } else {
           // Dépenses séparées de la DB (fuel_expenses, maintenance, other_expenses)
+          let detailHtml = `<span style="font-weight:700;">${item.title}</span>${item.subtitle ? '<br><span style="font-size:7.5px;color:#64748b;">' + item.subtitle + '</span>' : ''}`;
+          // Pour les entretiens, ajouter le détail des lignes si disponible
+          if (item.type === 'maintenance' && item.line_items) {
+            try {
+              const lineItems = typeof item.line_items === 'string' ? JSON.parse(item.line_items) : item.line_items;
+              if (Array.isArray(lineItems) && lineItems.length > 0) {
+                detailHtml += '<div style="margin-top:3px;border-top:1px dashed #fecdd3;padding-top:2px;">' +
+                  lineItems.map(li => `<div style="display:flex;justify-content:space-between;gap:6px;font-size:7px;color:#64748b;"><span>${li.desc || ''}</span><span style="white-space:nowrap;">${(li.amount||0).toLocaleString('fr-FR')} F</span></div>`).join('') +
+                  '</div>';
+              }
+            } catch(e) { /* ignore */ }
+          }
           allCashEntries.push({
             date: item.date, sort: item.date + '_5',
             typeLabel: item.typeLabel,
-            detail: `<span style="font-weight:700;">${item.title}</span>${item.subtitle ? '<br><span style="font-size:7.5px;color:#64748b;">' + item.subtitle + '</span>' : ''}`,
+            detail: detailHtml,
             isDebit: false, amount: item.amount || 0, labelColor: '#e11d48'
           });
         }
@@ -4120,7 +4132,7 @@
           <div style="background: #1e293b; color: white; padding: 10px 16px; font-size: 13px; font-weight: 800; letter-spacing: 0.05em;">
             ANALYSE FINANCIÈRE DE FIN DE PÉRIODE
           </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1.4fr; gap: 0;">
             <div style="padding: 14px 16px; border-right: 1px solid #e2e8f0; background: #f0fdf4;">
               <div style="font-size: 10px; font-weight: 700; color: #166534; margin-bottom: 4px;">Recettes totales (facturé client)</div>
               <div style="font-size: 18px; font-weight: 800; color: #059669;">${formatFCFA(s.totalRecette || 0)}</div>
@@ -4131,9 +4143,14 @@
               <div style="font-size: 18px; font-weight: 800; color: #ea580c;">${formatFCFA(s.totalMontantRemis || 0)}</div>
               <div style="font-size: 10px; color: #64748b; margin-top: 2px;">Carburant + Pesée + Frais de route</div>
             </div>
+            <div style="padding: 14px 16px; border-right: 1px solid #e2e8f0; background: #fff1f2;">
+              <div style="font-size: 10px; font-weight: 700; color: #9f1239; margin-bottom: 4px;">Entretien & Réparations</div>
+              <div style="font-size: 18px; font-weight: 800; color: #dc2626;">${formatFCFA(s.totalMaintenance || 0)}</div>
+              <div style="font-size: 10px; color: #64748b; margin-top: 2px;">${(data.maintenance || []).length} intervention(s)</div>
+            </div>
             <div style="padding: 14px 16px; background: ${s.creditEntreprise >= 0 ? '#f0fdf4' : '#fff1f2'};">
-              <div style="font-size: 10px; font-weight: 700; color: ${s.creditEntreprise >= 0 ? '#166534' : '#9f1239'}; margin-bottom: 4px;">Crédit Entreprise (net chauffeur)</div>
-              <div style="font-size: 18px; font-weight: 800; color: ${s.creditEntreprise >= 0 ? '#059669' : '#e11d48'};">${formatFCFA(s.creditEntreprise || 0)}</div>
+              <div style="font-size: 11px; font-weight: 800; color: ${s.creditEntreprise >= 0 ? '#166534' : '#9f1239'}; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em;">Crédit Entreprise (net chauffeur)</div>
+              <div style="font-size: 24px; font-weight: 900; color: ${s.creditEntreprise >= 0 ? '#059669' : '#e11d48'};">${formatFCFA(s.creditEntreprise || 0)}</div>
               <div style="font-size: 10px; color: #64748b; margin-top: 2px;">${(s.creditEntreprise||0) >= 0 ? 'Crédit en faveur de l\'entreprise' : 'Déficit période'}</div>
             </div>
           </div>
@@ -4142,15 +4159,15 @@
               <tr>
                 <td style="padding: 3px 0; color: #475569;">Carburant :</td>
                 <td style="text-align: right; font-weight: 700; color: #d97706;">${formatFCFA(s.totalDepCarburant || 0)}</td>
-                <td style="width: 20px;"></td>
+                <td style="width: 16px;"></td>
                 <td style="padding: 3px 0; color: #475569;">Pesée :</td>
                 <td style="text-align: right; font-weight: 700; color: #0284c7;">${formatFCFA(s.totalPesee || 0)}</td>
-                <td style="width: 20px;"></td>
+                <td style="width: 16px;"></td>
                 <td style="padding: 3px 0; color: #475569;">Frais de route :</td>
                 <td style="text-align: right; font-weight: 700; color: #7c3aed;">${formatFCFA(s.totalPeage || 0)}</td>
-                <td style="width: 20px;"></td>
-                <td style="padding: 3px 0; color: #475569;">Entretien :</td>
-                <td style="text-align: right; font-weight: 700; color: #e11d48;">${formatFCFA(s.totalMaintenance || 0)}</td>
+                <td style="width: 16px;"></td>
+                <td style="padding: 3px 0; color: #475569;">Autres dépenses :</td>
+                <td style="text-align: right; font-weight: 700; color: #64748b;">${formatFCFA(s.totalOtherExpenses || 0)}</td>
               </tr>
             </table>
           </div>

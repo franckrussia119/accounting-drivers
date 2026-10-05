@@ -288,14 +288,14 @@ driversRouter.get('/:id/account', (req, res) => {
     const maintParams = [];
     if (driver.assigned_truck) {
       maintQuery = `
-        SELECT id, record_date, record_date as date, service_type, description, amount_fcfa, garage, truck_id, km
+        SELECT id, record_date, record_date as date, service_type, description, amount_fcfa, garage, truck_id, km, line_items
         FROM maintenance_records
         WHERE (driver_id = ? OR truck_id = ?)
       `;
       maintParams.push(id, driver.assigned_truck);
     } else {
       maintQuery = `
-        SELECT id, record_date, record_date as date, service_type, description, amount_fcfa, garage, truck_id, km
+        SELECT id, record_date, record_date as date, service_type, description, amount_fcfa, garage, truck_id, km, line_items
         FROM maintenance_records
         WHERE driver_id = ?
       `;
@@ -410,7 +410,8 @@ driversRouter.get('/:id/account', (req, res) => {
         subtitle: `${m.garage} • Camion: ${m.truck_id}${m.km ? ' • ' + m.km.toLocaleString('fr-FR') + ' km' : ''}`,
         amount: Number(m.amount_fcfa),
         isCredit: false, // Dépense
-        details: `Type: ${m.service_type}`
+        details: `Type: ${m.service_type}`,
+        line_items: m.line_items || null
       })),
       ...otherExpenses.map(e => ({
         type: 'expense',
