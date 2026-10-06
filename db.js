@@ -222,6 +222,37 @@ export function initDatabase() {
     );
   `);
 
+  // ── Tables sous-traitants (transporteurs externes) ────────────────────────
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS subcontractors (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,                  -- ex: 'Transport Bello SARL'
+      contact TEXT,                        -- Nom du contact principal
+      phone TEXT,
+      email TEXT,
+      notes TEXT,
+      is_active INTEGER DEFAULT 1,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS subcontractor_trips (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      subcontractor_id INTEGER NOT NULL,
+      trip_date TEXT NOT NULL,             -- YYYY-MM-DD
+      destination TEXT NOT NULL,           -- ex: 'Douala - Yaoundé'
+      goods TEXT,                          -- Marchandise
+      bl_number TEXT,
+      container_number TEXT,
+      client_revenue INTEGER NOT NULL DEFAULT 0,    -- Ce que le client paie à YM-TRANSIT
+      subcontractor_cost INTEGER NOT NULL DEFAULT 0, -- Ce que YM-TRANSIT paie au sous-traitant
+      margin INTEGER GENERATED ALWAYS AS (client_revenue - subcontractor_cost) VIRTUAL,
+      notes TEXT,
+      created_by TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY(subcontractor_id) REFERENCES subcontractors(id) ON DELETE CASCADE
+    );
+  `);
+
   // Créer le super admin depuis les variables d'env si la table users est vide
   seedSuperAdmin();
 }

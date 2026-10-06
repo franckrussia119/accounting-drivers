@@ -23,6 +23,7 @@ import { documentsRouter } from './routes/documents.js';
 import { advancesRouter } from './routes/advances.js';
 import { analyticsRouter } from './routes/analytics.js';
 import { journalRouter } from './routes/journal.js';
+import { subcontractorsRouter } from './routes/subcontractors.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -68,6 +69,7 @@ app.use('/api/documents', requireAuth, documentsRouter);
 app.use('/api/advances', requireAuth, advancesRouter);
 app.use('/api/analytics', requireAuth, analyticsRouter);
 app.use('/api/journal',   requireAuth, journalRouter);
+app.use('/api/subcontractors', requireAuth, subcontractorsRouter);
 
 // === Upload de documents (PJ entretiens) ===
 const uploadsDir = path.join(process.cwd(), 'public', 'uploads');

@@ -301,6 +301,86 @@
       overflow: hidden;
     }
 
+    /* ── Sidebar accordion group ── */
+    .sidebar-group-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.6rem 1rem;
+      margin: 0.1rem 0.5rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      width: calc(100% - 1rem);
+      text-align: left;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      font-family: inherit;
+    }
+    .sidebar-group-header:hover {
+      background: var(--primary-light);
+      color: var(--text-main);
+    }
+    .sidebar-group-header.open {
+      color: var(--primary);
+    }
+    .sidebar-group-header .tab-icon {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .sidebar-group-header .group-label {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .sidebar-group-header .group-chevron {
+      width: 12px;
+      height: 12px;
+      flex-shrink: 0;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: transform 0.2s ease;
+    }
+    .sidebar-group-header.open .group-chevron {
+      transform: rotate(90deg);
+    }
+    .sidebar-submenu {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.25s ease;
+    }
+    .sidebar-submenu.open {
+      max-height: 400px;
+    }
+    .sidebar-submenu .sidebar-tab {
+      padding-left: 2.25rem;
+      font-size: 0.79rem;
+      font-weight: 500;
+    }
+    .sidebar-submenu .sidebar-tab .tab-icon {
+      width: 14px;
+      height: 14px;
+    }
+    body.sidebar-collapsed .sidebar-group-header .group-label,
+    body.sidebar-collapsed .sidebar-group-header .group-chevron,
+    body.sidebar-collapsed .sidebar-submenu {
+      display: none;
+    }
+
     .sidebar-tab {
       display: flex;
       align-items: center;
@@ -2322,6 +2402,56 @@
         <span class="tab-label">Rentabilité</span>
       </button>
 
+      <div class="sidebar-section-label">RAPPORTS DÉTAILLÉS</div>
+
+      <!-- Accordion group : Plus de détails rapport -->
+      <button class="sidebar-group-header open" id="sidebar-group-rapports" title="Rapports détaillés — Exporter par catégorie">
+        <svg class="tab-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        <span class="group-label">Plus de détails</span>
+        <svg class="group-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <div class="sidebar-submenu open" id="sidebar-submenu-rapports">
+
+        <button class="sidebar-tab" data-tab="trips" id="sidebar-tab-trips" title="Tous les Voyages">
+          <svg class="tab-icon" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+          <span class="tab-label">Voyages</span>
+        </button>
+
+        <button class="sidebar-tab" data-tab="fuel" id="sidebar-tab-fuel" title="Tout le Carburant">
+          <svg class="tab-icon" viewBox="0 0 24 24"><path d="M3 22V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v17"/><path d="M13 10h4a2 2 0 0 1 2 2v8a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V9.5a1.5 1.5 0 0 0-2.56-1.06L19 10"/><rect x="5" y="6" width="6" height="5" rx="1"/><path d="M3 22h10"/></svg>
+          <span class="tab-label">Carburant</span>
+        </button>
+
+        <button class="sidebar-tab" data-tab="maintenance" id="sidebar-tab-maintenance" title="Tout l'Entretien">
+          <svg class="tab-icon" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+          <span class="tab-label">Entretien</span>
+        </button>
+
+        <button class="sidebar-tab" data-tab="expenses-global" id="sidebar-tab-expenses-global" title="Autres Dépenses">
+          <svg class="tab-icon" viewBox="0 0 24 24"><path d="M3 10h18M7 15h1m4 0h5M5 6h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/></svg>
+          <span class="tab-label">Autres Dépenses</span>
+        </button>
+
+      </div>
+
+      <div class="sidebar-section-label">SOUS-TRAITANTS</div>
+      <button class="sidebar-tab" data-tab="subcontractors" id="sidebar-tab-subcontractors">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span class="tab-label">Sous-Traitants</span>
+      </button>
+      <button class="sidebar-tab" data-tab="subcontractor-trips" id="sidebar-tab-subcontractor-trips">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        <span class="tab-label">Voyages sous-traités</span>
+      </button>
+      <button class="sidebar-tab" data-tab="subcontractor-dashboard" id="sidebar-tab-subcontractor-dashboard">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span class="tab-label">Tableau de bord</span>
+      </button>
+      <button class="sidebar-tab" data-tab="subcontractor-analysis" id="sidebar-tab-subcontractor-analysis">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span class="tab-label">Analyse comparative</span>
+      </button>
+
       <div class="sidebar-section-label">RESSOURCES</div>
 
       <button class="sidebar-tab" data-tab="trucks" id="sidebar-tab-trucks" title="Camions">
@@ -3139,7 +3269,10 @@
           </div>
           <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
             <button class="btn btn-secondary btn-sm" title="Exporter les voyages en Excel" onclick="exportTableToExcel('trips-tbody', 'voyages_flotte', 'Voyages')">
-              <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/></svg> Exporter Excel
+              <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/></svg> Excel
+            </button>
+            <button class="btn btn-secondary btn-sm" title="Exporter les voyages en PDF" onclick="exportTableToPDF('trips-tbody', 'Journal des Voyages — YM-TRANSIT')">
+              <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13h6M9 17h4"/></svg> PDF
             </button>
             <button id="add-trip-btn" class="btn btn-primary btn-sm btn-write-only">
               <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Enregistrer un voyage
@@ -3180,7 +3313,10 @@
           </div>
           <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
             <button class="btn btn-secondary btn-sm" title="Exporter les pleins en Excel" onclick="exportTableToExcel('fuel-tbody', 'carburant_flotte', 'Carburant')">
-              <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/></svg> Exporter Excel
+              <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/></svg> Excel
+            </button>
+            <button class="btn btn-secondary btn-sm" title="Exporter le carburant en PDF" onclick="exportTableToPDF('fuel-tbody', 'Dépenses Carburant — YM-TRANSIT')">
+              <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13h6M9 17h4"/></svg> PDF
             </button>
             <button id="add-fuel-btn" class="btn btn-primary btn-sm btn-write-only">
               <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Enregistrer un plein
@@ -3218,7 +3354,10 @@
           </div>
           <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
             <button class="btn btn-secondary btn-sm" title="Exporter les interventions en Excel" onclick="exportTableToExcel('maint-tbody', 'entretien_flotte', 'Entretien')">
-              <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/></svg> Exporter Excel
+              <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/></svg> Excel
+            </button>
+            <button class="btn btn-secondary btn-sm" title="Exporter l'entretien en PDF" onclick="exportTableToPDF('maint-tbody', 'Entretien & Réparations — YM-TRANSIT')">
+              <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13h6M9 17h4"/></svg> PDF
             </button>
             <button id="add-maintenance-btn" class="btn btn-primary btn-sm btn-write-only">
               <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Noter une intervention
@@ -3242,6 +3381,46 @@
             </thead>
             <tbody id="maint-tbody">
               <!-- Entretiens injectés -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== ONGLET : AUTRES DÉPENSES GLOBALES ==================== -->
+    <section id="view-expenses-global" class="view-panel" style="display: none;">
+      <div class="data-card">
+        <div class="data-card-header">
+          <div class="data-card-title">
+            <svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 10h18M7 15h1m4 0h5M5 6h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/></svg> Autres Dépenses — Toute la Flotte (FCFA)
+          </div>
+          <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+            <button class="btn btn-secondary btn-sm" title="Exporter les autres dépenses en Excel" onclick="exportTableToExcel('expenses-global-tbody', 'autres_depenses_flotte', 'AutresDepenses')">
+              <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/></svg> Excel
+            </button>
+            <button class="btn btn-secondary btn-sm" title="Exporter les autres dépenses en PDF" onclick="exportTableToPDF('expenses-global-tbody', 'Autres Dépenses — YM-TRANSIT')">
+              <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13h6M9 17h4"/></svg> PDF
+            </button>
+            <button id="add-expense-global-btn" class="btn btn-primary btn-sm btn-write-only" onclick="document.getElementById('add-expense-btn') && document.getElementById('add-expense-btn').click()">
+              <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Enregistrer une dépense
+            </button>
+          </div>
+        </div>
+        <div class="table-container">
+          <table class="data-table mobile-collapse" id="expenses-global-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Chauffeur</th>
+                <th>Camion</th>
+                <th>Catégorie</th>
+                <th>Description</th>
+                <th>Montant (FCFA)</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody id="expenses-global-tbody">
+              <!-- Dépenses injectées -->
             </tbody>
           </table>
         </div>
@@ -3533,6 +3712,92 @@
         </div>
       </div>
     </section>
+
+<!-- ═══════════════════════════════════════════════════════ SOUS-TRAITANTS ═══ -->
+<section id="view-subcontractors" class="view-panel" style="display:none;">
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Sous-Traitants</h2>
+      <p class="page-subtitle">Transporteurs externes partenaires de YM-TRANSIT</p>
+    </div>
+    <button class="btn btn-primary" onclick="openSubcontractorModal()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Nouveau sous-traitant
+    </button>
+  </div>
+  <div id="subcontractors-list" class="grid grid-cols-3" style="gap:1rem; margin-top:1rem;"></div>
+</section>
+
+<!-- ══════════════════════════════════════════════ VOYAGES SOUS-TRAITÉS ═══ -->
+<section id="view-subcontractor-trips" class="view-panel" style="display:none;">
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Voyages Sous-Traités</h2>
+      <p class="page-subtitle">Tous les trajets confiés à des transporteurs externes</p>
+    </div>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
+      <select id="st-filter-subcontractor" class="form-select form-select-sm" onchange="loadSubcontractorTrips()" style="width:200px;">
+        <option value="">Tous les sous-traitants</option>
+      </select>
+      <input type="date" id="st-filter-start" class="form-control form-control-sm" onchange="loadSubcontractorTrips()" style="width:140px;">
+      <input type="date" id="st-filter-end" class="form-control form-control-sm" onchange="loadSubcontractorTrips()" style="width:140px;">
+      <button class="btn btn-primary btn-sm" onclick="openSubcontractorTripModal()">+ Nouveau voyage</button>
+      <button class="btn btn-secondary btn-sm" onclick="exportTableToExcel('st-trips-tbody','Voyages_Sous-Traités','Voyages')">Excel</button>
+      <button class="btn btn-secondary btn-sm" onclick="exportTableToPDF('st-trips-tbody','Voyages Sous-Traités — YM-TRANSIT')">PDF</button>
+    </div>
+  </div>
+  <div class="table-container" style="margin-top:1rem;">
+    <table class="data-table">
+      <thead><tr>
+        <th>Date</th><th>Sous-traitant</th><th>Destination</th><th>Marchandise</th>
+        <th>N° BL</th><th>Conteneur</th><th>Recette client</th><th>Coût ST</th><th>Marge</th><th>Actions</th>
+      </tr></thead>
+      <tbody id="st-trips-tbody"><tr><td colspan="10" class="text-center text-muted" style="padding:2rem;">Chargement…</td></tr></tbody>
+    </table>
+  </div>
+  <div id="st-trips-total" style="margin-top:1rem; text-align:right; font-size:0.9rem; color:var(--text-muted);"></div>
+</section>
+
+<!-- ════════════════════════════════════════ TABLEAU DE BORD SOUS-TRAITANCE ═══ -->
+<section id="view-subcontractor-dashboard" class="view-panel" style="display:none;">
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Tableau de Bord Sous-Traitance</h2>
+      <p class="page-subtitle">Synthèse financière des transporteurs externes</p>
+    </div>
+    <div style="display:flex;gap:0.5rem;align-items:center;">
+      <input type="date" id="st-dash-start" class="form-control form-control-sm" onchange="loadSubcontractorDashboard()" style="width:140px;">
+      <input type="date" id="st-dash-end" class="form-control form-control-sm" onchange="loadSubcontractorDashboard()" style="width:140px;">
+    </div>
+  </div>
+  <!-- KPI Cards -->
+  <div class="kpi-grid" id="st-dashboard-kpis" style="margin-top:1rem;"></div>
+  <!-- Per-subcontractor table -->
+  <div class="card" style="margin-top:1.5rem;">
+    <div class="card-header"><h3 class="card-title">Par sous-traitant</h3></div>
+    <div class="table-container">
+      <table class="data-table">
+        <thead><tr><th>Sous-traitant</th><th>Voyages</th><th>Recette</th><th>Coût</th><th>Marge</th><th>Marge %</th></tr></thead>
+        <tbody id="st-dash-by-sub"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════ ANALYSE COMPARATIVE ═══ -->
+<section id="view-subcontractor-analysis" class="view-panel" style="display:none;">
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Analyse Comparative</h2>
+      <p class="page-subtitle">YM-TRANSIT (propre flotte) vs Sous-Traitants</p>
+    </div>
+    <div style="display:flex;gap:0.5rem;align-items:center;">
+      <input type="date" id="st-analysis-start" class="form-control form-control-sm" onchange="loadSubcontractorAnalysis()" style="width:140px;">
+      <input type="date" id="st-analysis-end" class="form-control form-control-sm" onchange="loadSubcontractorAnalysis()" style="width:140px;">
+    </div>
+  </div>
+  <div id="st-analysis-content" style="margin-top:1rem;"></div>
+</section>
 
   </main>
 
@@ -4659,8 +4924,13 @@
         trips: { name: 'Tous les Voyages', icon: VECTORS.trips, btn: 'Nouveau voyage' },
         fuel: { name: 'Tout le Carburant', icon: VECTORS.fuel, btn: 'Plein carburant' },
         maintenance: { name: 'Tout l\'Entretien', icon: VECTORS.maintenance, btn: 'Noter entretien' },
+        'expenses-global': { name: 'Autres Dépenses — Flotte', icon: VECTORS.folder, btn: null },
         analyse: { name: '5. Analyse Rentabilité', icon: VECTORS.dashboard, btn: null },
-        journal: { name: 'Journal des modifications', icon: VECTORS.folder, btn: null }
+        journal: { name: 'Journal des modifications', icon: VECTORS.folder, btn: null },
+        'subcontractors': { name: 'Sous-Traitants', icon: '🤝', btn: null },
+        'subcontractor-trips': { name: 'Voyages sous-traités', icon: '🚛', btn: null },
+        'subcontractor-dashboard': { name: 'Tableau de bord sous-traitance', icon: '📊', btn: null },
+        'subcontractor-analysis': { name: 'Analyse comparative', icon: '📈', btn: null }
       };
 
       const info = tabNames[tabId] || tabNames.drivers;
@@ -4914,9 +5184,14 @@
       else if (state.currentTab === 'trips') loadTrips();
       else if (state.currentTab === 'fuel') loadFuel();
       else if (state.currentTab === 'maintenance') loadMaintenance();
+      else if (state.currentTab === 'expenses-global') loadExpensesGlobal();
       else if (state.currentTab === 'documents') loadDocuments();
       else if (state.currentTab === 'analyse') { if (typeof window.loadAnalyse === 'function') window.loadAnalyse(); }
       else if (state.currentTab === 'journal') { if (typeof window.loadJournal === 'function') { window.journalPage = 0; window.loadJournal(); } }
+      else if (state.currentTab === 'subcontractors') loadSubcontractors();
+      else if (state.currentTab === 'subcontractor-trips') loadSubcontractorTrips();
+      else if (state.currentTab === 'subcontractor-dashboard') loadSubcontractorDashboard();
+      else if (state.currentTab === 'subcontractor-analysis') loadSubcontractorAnalysis();
     }
 
     // ----------------------------------------------------
@@ -7288,6 +7563,51 @@
       loadMaintenance();
     };
 
+    // ----------------------------------------------------
+    // CHARGEMENT ONGLET AUTRES DÉPENSES (FLOTTE ENTIÈRE)
+    // ----------------------------------------------------
+    async function loadExpensesGlobal() {
+      let url = '/api/expenses?';
+      if (state.startDate) url += `&startDate=${state.startDate}`;
+      if (state.endDate) url += `&endDate=${state.endDate}`;
+
+      try {
+        const res = await fetch(url);
+        const records = await res.json();
+        const tbody = document.getElementById('expenses-global-tbody');
+        tbody.innerHTML = '';
+
+        if (!records || records.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Aucune autre dépense enregistrée sur la période.</td></tr>';
+          return;
+        }
+
+        // Build a lookup for trucks from state
+        const truckMap = {};
+        (state.trucks || []).forEach(t => { truckMap[t.id] = t.code || t.id; });
+
+        records.forEach(e => {
+          const tr = document.createElement('tr');
+          const truckLabel = e.truck_id ? (truckMap[e.truck_id] || e.truck_id) : '<span class="text-muted">—</span>';
+          tr.innerHTML = `
+            <td data-label="Date">${e.expense_date}</td>
+            <td data-label="Chauffeur">${e.driver_name || '<span class="text-muted">—</span>'}</td>
+            <td data-label="Camion"><span class="badge badge-primary font-mono">${truckLabel}</span></td>
+            <td data-label="Catégorie"><span class="badge badge-neutral">${e.category || '—'}</span></td>
+            <td data-label="Description">${e.description || '—'}</td>
+            <td data-label="Montant (FCFA)" class="font-mono text-violet"><strong>${formatFCFA(e.amount_fcfa)}</strong></td>
+            <td data-label="Notes" style="color:var(--text-muted); font-size:0.82rem;">${e.notes || '—'}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+      } catch (err) {
+        console.error('Erreur load expenses global:', err);
+      }
+    }
+
+    window.loadExpensesGlobal = loadExpensesGlobal;
+
     // Ouvre le modal d'entretien pré-rempli pour modification
     async function openMaintEditModal(record) {
       // Réinitialiser le formulaire
@@ -8457,6 +8777,90 @@
     }
 
     /**
+     * Exporte les lignes visibles d'un <tbody> en PDF imprimable via window.print()
+     */
+    function exportTableToPDF(tbodyId, title) {
+      const tbody = document.getElementById(tbodyId);
+      if (!tbody) { showToast('Tableau introuvable.', 'danger'); return; }
+
+      const table  = tbody.closest('table');
+      const thEls  = table ? [...table.querySelectorAll('thead th')] : [];
+      const headers = thEls.map(th => th.textContent.trim()).filter(h => h !== 'Actions');
+
+      const rows = [...tbody.querySelectorAll('tr')].filter(tr => tr.cells.length > 1);
+      if (!rows.length) { showToast('Aucune donnée à exporter.', 'info'); return; }
+
+      const headerRow = headers.map(h => `<th>${h}</th>`).join('');
+      const bodyRows = rows.map(tr => {
+        const cells = [...tr.cells]
+          .filter((_, i) => headers[i] && headers[i] !== 'Actions')
+          .map(td => `<td>${td.textContent.trim()}</td>`)
+          .join('');
+        return `<tr>${cells}</tr>`;
+      }).join('');
+
+      const dateStr = new Date().toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' });
+      const periodLabel = (state.startDate || state.endDate)
+        ? `Période : ${state.startDate || 'Origine'} → ${state.endDate || "aujourd'hui"}`
+        : 'Historique complet';
+
+      const html = `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>${title}</title>
+  <style>
+    @page { size: A4 landscape; margin: 14mm 12mm; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 9pt; color: #0f172a; background: #fff; }
+    .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid #f59e0b; }
+    .header-left .company { font-size: 8pt; font-weight: 700; letter-spacing: 0.08em; color: #0284c7; text-transform: uppercase; }
+    .header-left h1 { font-size: 14pt; font-weight: 900; color: #0f172a; margin: 2px 0; }
+    .header-left .period { font-size: 7.5pt; color: #64748b; }
+    .header-right { text-align: right; font-size: 7.5pt; color: #64748b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+    thead th { background: #0f172a; color: #f59e0b; font-size: 7.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 5px 6px; text-align: left; }
+    tbody tr:nth-child(even) { background: #f8fafc; }
+    tbody tr:nth-child(odd) { background: #ffffff; }
+    tbody td { padding: 4px 6px; font-size: 8pt; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+    .footer { margin-top: 10px; padding-top: 6px; border-top: 1px solid #e2e8f0; font-size: 7pt; color: #94a3b8; display: flex; justify-content: space-between; }
+    @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-left">
+      <div class="company">YM-TRANSIT · Douala, Cameroun</div>
+      <h1>${title.replace(' — YM-TRANSIT', '')}</h1>
+      <div class="period">${periodLabel}</div>
+    </div>
+    <div class="header-right">
+      Généré le ${dateStr}<br>
+      ${rows.length} enregistrement${rows.length > 1 ? 's' : ''}
+    </div>
+  </div>
+  <table>
+    <thead><tr>${headerRow}</tr></thead>
+    <tbody>${bodyRows}</tbody>
+  </table>
+  <div class="footer">
+    <span>YM-TRANSIT — Document généré automatiquement</span>
+    <span>${title}</span>
+  </div>
+  <script>window.onload = function() { window.print(); window.onafterprint = function() { window.close(); }; }<\/script>
+</body>
+</html>`;
+
+      const win = window.open('', '_blank', 'width=1000,height=700');
+      if (!win) { showToast('Veuillez autoriser les popups pour ce site.', 'danger'); return; }
+      win.document.write(html);
+      win.document.close();
+      showToast(`Export PDF "${title.replace(' — YM-TRANSIT','')}" en cours…`, 'info');
+    }
+
+    window.exportTableToPDF = exportTableToPDF;
+
+    /**
      * Export multi-feuilles depuis le tableau de bord
      */
     async function exportDashboardExcel() {
@@ -8593,6 +8997,30 @@
     // SIDEBAR NAVIGATION — sync sidebar tabs with nav-tab state
     // ══════════════════════════════════════════════════════════════════
     function initSidebar() {
+      // ── Accordion group headers ──────────────────────────────────────
+      document.querySelectorAll('.sidebar-group-header').forEach(header => {
+        header.addEventListener('click', () => {
+          const submenuId = header.id.replace('sidebar-group-', 'sidebar-submenu-');
+          const submenu = document.getElementById(submenuId);
+          const isOpen = header.classList.contains('open');
+          header.classList.toggle('open', !isOpen);
+          if (submenu) submenu.classList.toggle('open', !isOpen);
+        });
+      });
+
+      // When a submenu tab is activated, keep its group open
+      function ensureGroupOpen(tabId) {
+        const tab = document.getElementById(`sidebar-tab-${tabId}`);
+        if (!tab) return;
+        const submenu = tab.closest('.sidebar-submenu');
+        if (submenu) {
+          submenu.classList.add('open');
+          const groupId = submenu.id.replace('sidebar-submenu-', 'sidebar-group-');
+          const header = document.getElementById(groupId);
+          if (header) header.classList.add('open');
+        }
+      }
+
       // Wire sidebar tabs to switchTab
       document.querySelectorAll('.sidebar-tab[data-tab]').forEach(tab => {
         tab.addEventListener('click', () => {
@@ -8617,7 +9045,9 @@
       const _origSwitchTab = switchTab;
       window.switchTab = function(tabId) {
         _origSwitchTab(tabId);
-        syncSidebarActive(state.currentTab || tabId);
+        const active = state.currentTab || tabId;
+        syncSidebarActive(active);
+        ensureGroupOpen(active);
       };
       // Also patch existing usages — re-attach listener override
       document.querySelectorAll('.nav-tab').forEach(tab => {
@@ -8823,5 +9253,519 @@
     initTheme();
     checkAuthAndStart();
   </script>
+
+<!-- Modal: Créer/Modifier sous-traitant -->
+<div id="modal-subcontractor" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeSubcontractorModal()">
+  <div class="modal-box" style="max-width:520px;">
+    <div class="modal-header">
+      <h3 id="modal-subcontractor-title" class="modal-title">Nouveau sous-traitant</h3>
+      <button class="modal-close" onclick="closeSubcontractorModal()">✕</button>
+    </div>
+    <form id="form-subcontractor" onsubmit="saveSubcontractor(event)">
+      <input type="hidden" id="sc-id">
+      <div class="form-grid" style="grid-template-columns:1fr 1fr; gap:1rem;">
+        <div class="form-group" style="grid-column:1/-1;">
+          <label class="form-label">Nom de la société *</label>
+          <input type="text" id="sc-name" class="form-control" placeholder="ex: Transport Bello SARL" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Contact principal</label>
+          <input type="text" id="sc-contact" class="form-control" placeholder="Nom du responsable">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Téléphone</label>
+          <input type="text" id="sc-phone" class="form-control" placeholder="+237 6XX XXX XXX">
+        </div>
+        <div class="form-group" style="grid-column:1/-1;">
+          <label class="form-label">Email</label>
+          <input type="email" id="sc-email" class="form-control" placeholder="contact@exemple.com">
+        </div>
+        <div class="form-group" style="grid-column:1/-1;">
+          <label class="form-label">Notes</label>
+          <textarea id="sc-notes" class="form-control" rows="3" placeholder="Informations complémentaires…"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" onclick="closeSubcontractorModal()">Annuler</button>
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Créer/Modifier voyage sous-traité -->
+<div id="modal-subcontractor-trip" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeSubcontractorTripModal()">
+  <div class="modal-box" style="max-width:600px;">
+    <div class="modal-header">
+      <h3 id="modal-st-trip-title" class="modal-title">Nouveau voyage sous-traité</h3>
+      <button class="modal-close" onclick="closeSubcontractorTripModal()">✕</button>
+    </div>
+    <form id="form-subcontractor-trip" onsubmit="saveSubcontractorTrip(event)">
+      <input type="hidden" id="stt-id">
+      <div class="form-grid" style="grid-template-columns:1fr 1fr; gap:1rem;">
+        <div class="form-group" style="grid-column:1/-1;">
+          <label class="form-label">Sous-traitant *</label>
+          <select id="stt-subcontractor" class="form-select" required>
+            <option value="">Sélectionner…</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date *</label>
+          <input type="date" id="stt-date" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Destination *</label>
+          <input type="text" id="stt-destination" class="form-control" placeholder="ex: Douala – Yaoundé" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Marchandise</label>
+          <input type="text" id="stt-goods" class="form-control" placeholder="ex: Conteneurs 40ft">
+        </div>
+        <div class="form-group">
+          <label class="form-label">N° BL</label>
+          <input type="text" id="stt-bl" class="form-control" placeholder="Numéro de connaissement">
+        </div>
+        <div class="form-group">
+          <label class="form-label">N° Conteneur</label>
+          <input type="text" id="stt-container" class="form-control" placeholder="ex: MSCU1234567">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Recette client (FCFA) *</label>
+          <input type="number" id="stt-revenue" class="form-control" placeholder="0" min="0" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Coût sous-traitant (FCFA) *</label>
+          <input type="number" id="stt-cost" class="form-control" placeholder="0" min="0" required>
+        </div>
+        <div class="form-group" style="grid-column:1/-1;">
+          <label class="form-label">Marge calculée</label>
+          <div id="stt-margin-preview" style="padding:0.6rem 1rem; background:var(--bg-surface); border-radius:var(--radius-sm); font-weight:600; color:var(--primary);">— FCFA</div>
+        </div>
+        <div class="form-group" style="grid-column:1/-1;">
+          <label class="form-label">Notes</label>
+          <textarea id="stt-notes" class="form-control" rows="2" placeholder="Remarques…"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" onclick="closeSubcontractorTripModal()">Annuler</button>
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════ SOUS-TRAITANTS MODULE ══════
+
+let _subcontractorsList = [];
+
+async function loadSubcontractors() {
+  try {
+    const data = await apiFetch('/api/subcontractors');
+    _subcontractorsList = data;
+    const container = document.getElementById('subcontractors-list');
+    if (!container) return;
+    if (!data.length) {
+      container.innerHTML = '<p class="text-muted" style="grid-column:1/-1; text-align:center; padding:3rem;">Aucun sous-traitant enregistré.</p>';
+      return;
+    }
+    container.innerHTML = data.map(s => {
+      const margin = (s.total_margin || 0);
+      const marginColor = margin >= 0 ? 'var(--success,#22c55e)' : 'var(--danger,#ef4444)';
+      return `<div class="card" style="cursor:pointer;" onclick="openSubcontractorDetail(${s.id})">
+        <div class="card-header" style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div>
+            <div style="font-weight:700; font-size:1rem; color:var(--text-main);">${escHtml(s.name)}</div>
+            ${s.contact ? `<div style="font-size:0.82rem; color:var(--text-muted); margin-top:2px;">${escHtml(s.contact)}</div>` : ''}
+          </div>
+          <span class="badge ${s.is_active ? 'badge-success' : 'badge-muted'}">${s.is_active ? 'Actif' : 'Inactif'}</span>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-top:1rem;">
+          <div style="text-align:center; padding:0.75rem; background:var(--bg-body); border-radius:var(--radius-sm);">
+            <div style="font-size:1.3rem; font-weight:700; color:var(--primary);">${s.trips_count || 0}</div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">Voyages</div>
+          </div>
+          <div style="text-align:center; padding:0.75rem; background:var(--bg-body); border-radius:var(--radius-sm);">
+            <div style="font-size:1.1rem; font-weight:700; color:${marginColor};">${fmtAmount(margin)}</div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">Marge nette</div>
+          </div>
+        </div>
+        ${s.phone ? `<div style="margin-top:0.75rem; font-size:0.82rem; color:var(--text-muted);">📞 ${escHtml(s.phone)}</div>` : ''}
+        <div class="card-footer" style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1rem; padding-top:0.75rem; border-top:1px solid var(--border);">
+          <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); openSubcontractorModal(${s.id})">Modifier</button>
+          <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteSubcontractor(${s.id}, '${escHtml(s.name).replace(/'/g,"\\'")}')">Supprimer</button>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    console.error('loadSubcontractors:', e);
+  }
+}
+
+async function openSubcontractorDetail(id) {
+  switchTab('subcontractor-trips');
+  await loadSubcontractorTripsPopulate();
+  const sel = document.getElementById('st-filter-subcontractor');
+  if (sel) { sel.value = id; }
+  loadSubcontractorTrips();
+}
+
+async function loadSubcontractorTripsPopulate() {
+  if (!_subcontractorsList.length) {
+    try { _subcontractorsList = await apiFetch('/api/subcontractors'); } catch(e) {}
+  }
+  ['st-filter-subcontractor','stt-subcontractor'].forEach(selId => {
+    const sel = document.getElementById(selId);
+    if (!sel) return;
+    const cur = sel.value;
+    const defaultOpt = selId === 'st-filter-subcontractor' ? '<option value="">Tous les sous-traitants</option>' : '<option value="">Sélectionner…</option>';
+    sel.innerHTML = defaultOpt + _subcontractorsList.map(s => `<option value="${s.id}" ${cur==s.id?'selected':''}>${escHtml(s.name)}</option>`).join('');
+  });
+}
+
+async function loadSubcontractorTrips() {
+  const tbody = document.getElementById('st-trips-tbody');
+  const totalEl = document.getElementById('st-trips-total');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="10" class="text-center text-muted" style="padding:2rem;">Chargement…</td></tr>';
+  try {
+    await loadSubcontractorTripsPopulate();
+    const params = new URLSearchParams();
+    const sub = document.getElementById('st-filter-subcontractor')?.value;
+    const start = document.getElementById('st-filter-start')?.value;
+    const end = document.getElementById('st-filter-end')?.value;
+    if (sub) params.set('subcontractor_id', sub);
+    if (start) params.set('startDate', start);
+    if (end) params.set('endDate', end);
+    const data = await apiFetch('/api/subcontractors/trips?' + params.toString());
+    if (!data.length) {
+      tbody.innerHTML = '<tr><td colspan="10" class="text-center text-muted" style="padding:2rem;">Aucun voyage trouvé.</td></tr>';
+      if (totalEl) totalEl.textContent = '';
+      return;
+    }
+    let totRevenue = 0, totCost = 0, totMargin = 0;
+    tbody.innerHTML = data.map(t => {
+      const margin = (t.client_revenue||0) - (t.subcontractor_cost||0);
+      const marginColor = margin >= 0 ? 'var(--success,#22c55e)' : 'var(--danger,#ef4444)';
+      totRevenue += (t.client_revenue||0); totCost += (t.subcontractor_cost||0); totMargin += margin;
+      return `<tr>
+        <td>${fmtDate(t.trip_date)}</td>
+        <td>${escHtml(t.subcontractor_name||'')}</td>
+        <td>${escHtml(t.destination||'')}</td>
+        <td>${escHtml(t.goods||'—')}</td>
+        <td>${escHtml(t.bl_number||'—')}</td>
+        <td>${escHtml(t.container_number||'—')}</td>
+        <td style="text-align:right;">${fmtAmount(t.client_revenue||0)}</td>
+        <td style="text-align:right; color:var(--danger,#ef4444);">${fmtAmount(t.subcontractor_cost||0)}</td>
+        <td style="text-align:right; color:${marginColor}; font-weight:600;">${fmtAmount(margin)}</td>
+        <td>
+          <button class="btn btn-ghost btn-sm" onclick="openSubcontractorTripModal(${t.id})">Modifier</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteSubcontractorTrip(${t.id})">Suppr.</button>
+        </td>
+      </tr>`;
+    }).join('');
+    if (totalEl) {
+      const marginColor = totMargin >= 0 ? 'var(--success,#22c55e)' : 'var(--danger,#ef4444)';
+      totalEl.innerHTML = `<strong>${data.length} voyage(s)</strong> — Recette: <strong>${fmtAmount(totRevenue)}</strong> · Coût: <strong style="color:var(--danger,#ef4444)">${fmtAmount(totCost)}</strong> · Marge: <strong style="color:${marginColor}">${fmtAmount(totMargin)}</strong>`;
+    }
+  } catch(e) {
+    tbody.innerHTML = '<tr><td colspan="10" class="text-center text-muted">Erreur de chargement.</td></tr>';
+    console.error(e);
+  }
+}
+
+async function loadSubcontractorDashboard() {
+  const kpiEl = document.getElementById('st-dashboard-kpis');
+  const bySubEl = document.getElementById('st-dash-by-sub');
+  if (!kpiEl) return;
+  kpiEl.innerHTML = '<div style="color:var(--text-muted)">Chargement…</div>';
+  try {
+    const params = new URLSearchParams();
+    const start = document.getElementById('st-dash-start')?.value;
+    const end = document.getElementById('st-dash-end')?.value;
+    if (start) params.set('startDate', start);
+    if (end) params.set('endDate', end);
+    const data = await apiFetch('/api/subcontractors/dashboard?' + params.toString());
+    const s = data.summary || {};
+    const marginPct = s.total_revenue > 0 ? Math.round(s.total_margin * 100 / s.total_revenue * 10) / 10 : 0;
+    const marginColor = (s.total_margin || 0) >= 0 ? 'var(--success,#22c55e)' : 'var(--danger,#ef4444)';
+    kpiEl.innerHTML = `
+      <div class="kpi-card"><div class="kpi-value">${s.trips_count||0}</div><div class="kpi-label">Voyages sous-traités</div></div>
+      <div class="kpi-card"><div class="kpi-value">${s.subcontractors_used||0}</div><div class="kpi-label">Sous-traitants actifs</div></div>
+      <div class="kpi-card"><div class="kpi-value" style="color:var(--primary)">${fmtAmount(s.total_revenue||0)}</div><div class="kpi-label">Recette totale</div></div>
+      <div class="kpi-card"><div class="kpi-value" style="color:var(--danger,#ef4444)">${fmtAmount(s.total_cost||0)}</div><div class="kpi-label">Coût total ST</div></div>
+      <div class="kpi-card"><div class="kpi-value" style="color:${marginColor}">${fmtAmount(s.total_margin||0)}</div><div class="kpi-label">Marge nette</div></div>
+      <div class="kpi-card"><div class="kpi-value" style="color:${marginColor}">${marginPct}%</div><div class="kpi-label">Taux de marge</div></div>
+    `;
+    if (bySubEl) {
+      const rows = data.bySubcontractor || [];
+      bySubEl.innerHTML = rows.length ? rows.map(r => {
+        const mc = (r.total_margin||0) >= 0 ? 'var(--success,#22c55e)' : 'var(--danger,#ef4444)';
+        return `<tr>
+          <td>${escHtml(r.name)}</td>
+          <td style="text-align:center">${r.trips_count||0}</td>
+          <td style="text-align:right">${fmtAmount(r.total_revenue||0)}</td>
+          <td style="text-align:right; color:var(--danger,#ef4444)">${fmtAmount(r.total_cost||0)}</td>
+          <td style="text-align:right; color:${mc}; font-weight:600">${fmtAmount(r.total_margin||0)}</td>
+          <td style="text-align:center; color:${mc}">${r.margin_pct||0}%</td>
+        </tr>`;
+      }).join('') : '<tr><td colspan="6" class="text-center text-muted" style="padding:2rem;">Aucune donnée.</td></tr>';
+    }
+  } catch(e) {
+    kpiEl.innerHTML = '<div style="color:var(--danger,#ef4444)">Erreur de chargement.</div>';
+    console.error(e);
+  }
+}
+
+async function loadSubcontractorAnalysis() {
+  const el = document.getElementById('st-analysis-content');
+  if (!el) return;
+  el.innerHTML = '<div style="color:var(--text-muted)">Chargement…</div>';
+  try {
+    const params = new URLSearchParams();
+    const start = document.getElementById('st-analysis-start')?.value;
+    const end = document.getElementById('st-analysis-end')?.value;
+    if (start) params.set('startDate', start);
+    if (end) params.set('endDate', end);
+    const data = await apiFetch('/api/subcontractors/dashboard?' + params.toString());
+    const ym = data.comparison?.ymTransit || {};
+    const st = data.comparison?.subcontractors || {};
+    const ymMargColor = (ym.total_margin||0) >= 0 ? 'var(--success,#22c55e)' : 'var(--danger,#ef4444)';
+    const stMargColor = (st.total_margin||0) >= 0 ? 'var(--success,#22c55e)' : 'var(--danger,#ef4444)';
+    const winner = (ym.margin_pct||0) > (st.margin_pct||0) ? 'YM-TRANSIT' : 'Sous-traitants';
+    el.innerHTML = `
+      <div class="card" style="margin-bottom:1.5rem; border-top:3px solid var(--primary);">
+        <div class="card-header">
+          <h3 class="card-title">🏆 Résultat : <strong style="color:var(--primary)">${winner}</strong> génère la meilleure marge</h3>
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+        <div class="card">
+          <div class="card-header" style="border-bottom:2px solid var(--primary);">
+            <h3 class="card-title" style="color:var(--primary)">🚛 YM-TRANSIT — Flotte propre</h3>
+          </div>
+          <div style="padding:1rem; display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+            <div style="text-align:center; padding:1rem; background:var(--bg-body); border-radius:var(--radius-sm);">
+              <div style="font-size:1.5rem; font-weight:700; color:var(--text-main)">${ym.trips_count||0}</div>
+              <div style="font-size:0.78rem; color:var(--text-muted)">Voyages</div>
+            </div>
+            <div style="text-align:center; padding:1rem; background:var(--bg-body); border-radius:var(--radius-sm);">
+              <div style="font-size:1.3rem; font-weight:700; color:var(--primary)">${fmtAmount(ym.total_revenue||0)}</div>
+              <div style="font-size:0.78rem; color:var(--text-muted)">Recette</div>
+            </div>
+            <div style="text-align:center; padding:1rem; background:var(--bg-body); border-radius:var(--radius-sm);">
+              <div style="font-size:1.3rem; font-weight:700; color:var(--danger,#ef4444)">${fmtAmount(ym.total_cost||0)}</div>
+              <div style="font-size:0.78rem; color:var(--text-muted)">Coûts totaux</div>
+            </div>
+            <div style="text-align:center; padding:1rem; background:var(--bg-body); border-radius:var(--radius-sm);">
+              <div style="font-size:1.3rem; font-weight:700; color:${ymMargColor}">${fmtAmount(ym.total_margin||0)}</div>
+              <div style="font-size:0.78rem; color:var(--text-muted)">Marge nette</div>
+            </div>
+          </div>
+          <div style="text-align:center; padding:1rem; font-size:2rem; font-weight:800; color:${ymMargColor}">${ym.margin_pct||0}% <span style="font-size:1rem; font-weight:400">taux de marge</span></div>
+        </div>
+        <div class="card">
+          <div class="card-header" style="border-bottom:2px solid #6366f1;">
+            <h3 class="card-title" style="color:#6366f1">🤝 Sous-Traitants — Flotte externe</h3>
+          </div>
+          <div style="padding:1rem; display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+            <div style="text-align:center; padding:1rem; background:var(--bg-body); border-radius:var(--radius-sm);">
+              <div style="font-size:1.5rem; font-weight:700; color:var(--text-main)">${st.trips_count||0}</div>
+              <div style="font-size:0.78rem; color:var(--text-muted)">Voyages</div>
+            </div>
+            <div style="text-align:center; padding:1rem; background:var(--bg-body); border-radius:var(--radius-sm);">
+              <div style="font-size:1.3rem; font-weight:700; color:#6366f1">${fmtAmount(st.total_revenue||0)}</div>
+              <div style="font-size:0.78rem; color:var(--text-muted)">Recette</div>
+            </div>
+            <div style="text-align:center; padding:1rem; background:var(--bg-body); border-radius:var(--radius-sm);">
+              <div style="font-size:1.3rem; font-weight:700; color:var(--danger,#ef4444)">${fmtAmount(st.total_cost||0)}</div>
+              <div style="font-size:0.78rem; color:var(--text-muted)">Coût ST total</div>
+            </div>
+            <div style="text-align:center; padding:1rem; background:var(--bg-body); border-radius:var(--radius-sm);">
+              <div style="font-size:1.3rem; font-weight:700; color:${stMargColor}">${fmtAmount(st.total_margin||0)}</div>
+              <div style="font-size:0.78rem; color:var(--text-muted)">Marge nette</div>
+            </div>
+          </div>
+          <div style="text-align:center; padding:1rem; font-size:2rem; font-weight:800; color:${stMargColor}">${st.margin_pct||0}% <span style="font-size:1rem; font-weight:400">taux de marge</span></div>
+        </div>
+      </div>
+    `;
+  } catch(e) {
+    el.innerHTML = '<div style="color:var(--danger,#ef4444)">Erreur de chargement.</div>';
+    console.error(e);
+  }
+}
+
+// ── CRUD Subcontractor ──────────────────────────────────────────────────────
+function openSubcontractorModal(id) {
+  document.getElementById('sc-id').value = '';
+  document.getElementById('sc-name').value = '';
+  document.getElementById('sc-contact').value = '';
+  document.getElementById('sc-phone').value = '';
+  document.getElementById('sc-email').value = '';
+  document.getElementById('sc-notes').value = '';
+  document.getElementById('modal-subcontractor-title').textContent = 'Nouveau sous-traitant';
+  if (id) {
+    const sc = _subcontractorsList.find(s => s.id == id);
+    if (sc) {
+      document.getElementById('sc-id').value = sc.id;
+      document.getElementById('sc-name').value = sc.name || '';
+      document.getElementById('sc-contact').value = sc.contact || '';
+      document.getElementById('sc-phone').value = sc.phone || '';
+      document.getElementById('sc-email').value = sc.email || '';
+      document.getElementById('sc-notes').value = sc.notes || '';
+      document.getElementById('modal-subcontractor-title').textContent = 'Modifier sous-traitant';
+    }
+  }
+  document.getElementById('modal-subcontractor').style.display = 'flex';
+}
+function closeSubcontractorModal() { document.getElementById('modal-subcontractor').style.display = 'none'; }
+
+async function saveSubcontractor(e) {
+  e.preventDefault();
+  const id = document.getElementById('sc-id').value;
+  const body = {
+    name: document.getElementById('sc-name').value.trim(),
+    contact: document.getElementById('sc-contact').value.trim(),
+    phone: document.getElementById('sc-phone').value.trim(),
+    email: document.getElementById('sc-email').value.trim(),
+    notes: document.getElementById('sc-notes').value.trim(),
+  };
+  try {
+    if (id) {
+      await apiFetch(`/api/subcontractors/${id}`, { method:'PUT', body });
+      showToast('Sous-traitant modifié.', 'success');
+    } else {
+      await apiFetch('/api/subcontractors', { method:'POST', body });
+      showToast('Sous-traitant créé.', 'success');
+    }
+    closeSubcontractorModal();
+    loadSubcontractors();
+  } catch(err) {
+    showToast(err.message || 'Erreur.', 'error');
+  }
+}
+
+async function deleteSubcontractor(id, name) {
+  if (!confirm(`Supprimer le sous-traitant "${name}" et tous ses voyages ?`)) return;
+  try {
+    await apiFetch(`/api/subcontractors/${id}`, { method:'DELETE' });
+    showToast('Sous-traitant supprimé.', 'success');
+    loadSubcontractors();
+  } catch(err) {
+    showToast(err.message || 'Erreur.', 'error');
+  }
+}
+
+// ── CRUD Subcontractor Trips ────────────────────────────────────────────────
+async function openSubcontractorTripModal(id) {
+  await loadSubcontractorTripsPopulate();
+  document.getElementById('stt-id').value = '';
+  document.getElementById('stt-subcontractor').value = '';
+  document.getElementById('stt-date').value = '';
+  document.getElementById('stt-destination').value = '';
+  document.getElementById('stt-goods').value = '';
+  document.getElementById('stt-bl').value = '';
+  document.getElementById('stt-container').value = '';
+  document.getElementById('stt-revenue').value = '';
+  document.getElementById('stt-cost').value = '';
+  document.getElementById('stt-notes').value = '';
+  document.getElementById('stt-margin-preview').textContent = '— FCFA';
+  document.getElementById('modal-st-trip-title').textContent = 'Nouveau voyage sous-traité';
+
+  if (id) {
+    try {
+      const trips = await apiFetch(`/api/subcontractors/trips?`);
+      const t = trips.find(x => x.id == id);
+      if (t) {
+        document.getElementById('stt-id').value = t.id;
+        document.getElementById('stt-subcontractor').value = t.subcontractor_id;
+        document.getElementById('stt-date').value = t.trip_date;
+        document.getElementById('stt-destination').value = t.destination || '';
+        document.getElementById('stt-goods').value = t.goods || '';
+        document.getElementById('stt-bl').value = t.bl_number || '';
+        document.getElementById('stt-container').value = t.container_number || '';
+        document.getElementById('stt-revenue').value = t.client_revenue || 0;
+        document.getElementById('stt-cost').value = t.subcontractor_cost || 0;
+        document.getElementById('stt-notes').value = t.notes || '';
+        updateMarginPreview();
+        document.getElementById('modal-st-trip-title').textContent = 'Modifier voyage sous-traité';
+      }
+    } catch(e) {}
+  }
+  document.getElementById('modal-subcontractor-trip').style.display = 'flex';
+}
+function closeSubcontractorTripModal() { document.getElementById('modal-subcontractor-trip').style.display = 'none'; }
+
+function updateMarginPreview() {
+  const rev = parseFloat(document.getElementById('stt-revenue').value) || 0;
+  const cost = parseFloat(document.getElementById('stt-cost').value) || 0;
+  const margin = rev - cost;
+  const el = document.getElementById('stt-margin-preview');
+  if (!el) return;
+  el.textContent = fmtAmount(margin) + ' FCFA';
+  el.style.color = margin >= 0 ? 'var(--success,#22c55e)' : 'var(--danger,#ef4444)';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('stt-revenue')?.addEventListener('input', updateMarginPreview);
+  document.getElementById('stt-cost')?.addEventListener('input', updateMarginPreview);
+});
+
+async function saveSubcontractorTrip(e) {
+  e.preventDefault();
+  const id = document.getElementById('stt-id').value;
+  const body = {
+    subcontractor_id: parseInt(document.getElementById('stt-subcontractor').value),
+    trip_date: document.getElementById('stt-date').value,
+    destination: document.getElementById('stt-destination').value.trim(),
+    goods: document.getElementById('stt-goods').value.trim(),
+    bl_number: document.getElementById('stt-bl').value.trim(),
+    container_number: document.getElementById('stt-container').value.trim(),
+    client_revenue: parseInt(document.getElementById('stt-revenue').value) || 0,
+    subcontractor_cost: parseInt(document.getElementById('stt-cost').value) || 0,
+    notes: document.getElementById('stt-notes').value.trim(),
+  };
+  try {
+    if (id) {
+      await apiFetch(`/api/subcontractors/trips/${id}`, { method:'PUT', body });
+      showToast('Voyage modifié.', 'success');
+    } else {
+      await apiFetch('/api/subcontractors/trips', { method:'POST', body });
+      showToast('Voyage enregistré.', 'success');
+    }
+    closeSubcontractorTripModal();
+    loadSubcontractorTrips();
+  } catch(err) {
+    showToast(err.message || 'Erreur.', 'error');
+  }
+}
+
+async function deleteSubcontractorTrip(id) {
+  if (!confirm('Supprimer ce voyage sous-traité ?')) return;
+  try {
+    await apiFetch(`/api/subcontractors/trips/${id}`, { method:'DELETE' });
+    showToast('Voyage supprimé.', 'success');
+    loadSubcontractorTrips();
+  } catch(e) {
+    showToast(e.message || 'Erreur.', 'error');
+  }
+}
+
+window.loadSubcontractors = loadSubcontractors;
+window.loadSubcontractorTrips = loadSubcontractorTrips;
+window.loadSubcontractorDashboard = loadSubcontractorDashboard;
+window.loadSubcontractorAnalysis = loadSubcontractorAnalysis;
+window.openSubcontractorModal = openSubcontractorModal;
+window.closeSubcontractorModal = closeSubcontractorModal;
+window.saveSubcontractor = saveSubcontractor;
+window.deleteSubcontractor = deleteSubcontractor;
+window.openSubcontractorDetail = openSubcontractorDetail;
+window.openSubcontractorTripModal = openSubcontractorTripModal;
+window.closeSubcontractorTripModal = closeSubcontractorTripModal;
+window.saveSubcontractorTrip = saveSubcontractorTrip;
+window.deleteSubcontractorTrip = deleteSubcontractorTrip;
+window.updateMarginPreview = updateMarginPreview;
+</script>
 </body>
 </html>
