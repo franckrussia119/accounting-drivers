@@ -942,63 +942,77 @@
     /* Cartes KPI Synthétiques */
     .kpi-grid {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 1rem;
-      margin-bottom: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.875rem;
+      margin-bottom: 1.25rem;
+      align-items: stretch;
     }
-    @media (max-width: 1100px) { .kpi-grid { grid-template-columns: repeat(3, 1fr); } }
-    @media (max-width: 700px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 460px) { .kpi-grid { grid-template-columns: 1fr; } }
+    /* Grille dashboard = 4 cols max, chauffeur = 3 cols max */
+    .kpi-grid.kpi-grid-4 { grid-template-columns: repeat(4, 1fr); }
+    .kpi-grid.kpi-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    @media (max-width: 1100px) {
+      .kpi-grid, .kpi-grid.kpi-grid-4 { grid-template-columns: repeat(2, 1fr); }
+      .kpi-grid.kpi-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 700px) {
+      .kpi-grid, .kpi-grid.kpi-grid-4, .kpi-grid.kpi-grid-3 { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 420px) {
+      .kpi-grid, .kpi-grid.kpi-grid-4, .kpi-grid.kpi-grid-3 { grid-template-columns: 1fr; }
+    }
 
     .kpi-card {
       background: var(--bg-surface);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-lg);
-      padding: 1.25rem 1.35rem;
+      padding: 1.1rem 1.2rem 1rem;
       box-shadow: var(--shadow-md);
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      justify-content: flex-start;
       position: relative;
       overflow: hidden;
-      min-height: 120px;
+      height: 130px; /* hauteur fixe pour alignement parfait */
       transition: transform 0.2s ease, box-shadow 0.2s ease;
       animation: fadeSlideUp 0.4s ease both;
+      flex-shrink: 0;
     }
 
-    .kpi-card::before {
+    .kpi-card::after {
       content: '';
       position: absolute;
-      inset: 0;
-      opacity: 0;
-      transition: opacity 0.2s;
-      border-radius: var(--radius-lg);
+      bottom: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
     }
 
     .kpi-card:hover {
-      transform: translateY(-3px);
-      animation: pulse-glow 2s ease infinite;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.35);
     }
 
-    .kpi-card.kpi-revenue { border-top: 2px solid #10b981; background: linear-gradient(160deg, #0f1629 0%, #0d1f18 100%); }
-    .kpi-card.kpi-fuel { border-top: 2px solid #f59e0b; background: linear-gradient(160deg, #0f1629 0%, #1a1408 100%); }
-    .kpi-card.kpi-maintenance { border-top: 2px solid #ef4444; background: linear-gradient(160deg, #0f1629 0%, #1f0d0d 100%); }
-    .kpi-card.kpi-net { border-top: 2px solid #3b82f6; background: linear-gradient(160deg, #0f1629 0%, #0d1422 100%); }
-    .kpi-card.kpi-expense { border-top: 2px solid #8b5cf6; background: linear-gradient(160deg, #0f1629 0%, #14102a 100%); }
+    .kpi-card.kpi-revenue { border-top: 2px solid #10b981; background: linear-gradient(160deg, #0f1629 0%, #0c1c16 100%); }
+    .kpi-card.kpi-fuel    { border-top: 2px solid #f59e0b; background: linear-gradient(160deg, #0f1629 0%, #181208 100%); }
+    .kpi-card.kpi-maintenance { border-top: 2px solid #ef4444; background: linear-gradient(160deg, #0f1629 0%, #1c0c0c 100%); }
+    .kpi-card.kpi-net     { border-top: 2px solid #3b82f6; background: linear-gradient(160deg, #0f1629 0%, #0c1220 100%); }
+    .kpi-card.kpi-expense { border-top: 2px solid #8b5cf6; background: linear-gradient(160deg, #0f1629 0%, #120e26 100%); }
 
     .kpi-header {
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
-      margin-bottom: 0.65rem;
+      margin-bottom: 0.5rem;
+      gap: 0.4rem;
     }
 
     .kpi-title {
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       font-weight: 700;
       color: var(--text-muted);
-      letter-spacing: 0.06em;
+      letter-spacing: 0.07em;
       text-transform: uppercase;
+      line-height: 1.3;
+      flex: 1;
     }
 
     /* Vector Icons */
@@ -1028,16 +1042,16 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 2.25rem;
-      height: 2.25rem;
-      border-radius: var(--radius-sm);
-      background: rgba(255,255,255,0.05);
+      width: 1.9rem;
+      height: 1.9rem;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.06);
       flex-shrink: 0;
-      opacity: 0.7;
+      opacity: 0.85;
     }
     .kpi-icon svg {
-      width: 1.35rem;
-      height: 1.35rem;
+      width: 1.1rem;
+      height: 1.1rem;
       stroke: currentColor;
       fill: none;
       stroke-width: 1.75;
@@ -1069,26 +1083,49 @@
     }
 
     .kpi-value {
-      font-size: 1.65rem;
+      font-size: 1.45rem;
       font-weight: 800;
-      letter-spacing: -0.8px;
-      margin-bottom: 0.2rem;
+      letter-spacing: -0.5px;
+      margin-bottom: 0.25rem;
       font-family: var(--font-mono);
       font-variant-numeric: tabular-nums;
+      line-height: 1.15;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .kpi-meta {
-      font-size: 0.73rem;
+      font-size: 0.68rem;
       color: var(--text-muted);
       display: flex;
       align-items: center;
-      gap: 0.35rem;
+      gap: 0.3rem;
+      line-height: 1.3;
+      margin-top: auto;
     }
 
     /* Sparkline container */
     .kpi-sparkline {
-      margin-top: 0.6rem;
-      opacity: 0.7;
+      margin-top: 0.5rem;
+      opacity: 0.65;
+      flex-shrink: 0;
+    }
+
+    /* Compact KPI cards for modals / analytics sub-sections */
+    .kpi-card.kpi-compact {
+      height: 90px;
+      padding: 0.75rem 0.9rem;
+    }
+    .kpi-card.kpi-compact .kpi-value {
+      font-size: 1.15rem;
+    }
+    .kpi-card.kpi-compact .kpi-title {
+      font-size: 0.6rem;
+    }
+    .kpi-grid-compact {
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
+      gap: 0.6rem !important;
     }
 
     /* Badges */
@@ -2208,11 +2245,22 @@
     #drivers-cards-grid .driver-card:nth-child(8) { animation-delay: 0.40s; }
 
     /* KPI stagger */
-    .kpi-grid .kpi-card:nth-child(1) { animation-delay: 0.05s; }
-    .kpi-grid .kpi-card:nth-child(2) { animation-delay: 0.10s; }
-    .kpi-grid .kpi-card:nth-child(3) { animation-delay: 0.15s; }
-    .kpi-grid .kpi-card:nth-child(4) { animation-delay: 0.20s; }
-    .kpi-grid .kpi-card:nth-child(5) { animation-delay: 0.25s; }
+    .kpi-grid .kpi-card:nth-child(1) { animation-delay: 0.04s; }
+    .kpi-grid .kpi-card:nth-child(2) { animation-delay: 0.08s; }
+    .kpi-grid .kpi-card:nth-child(3) { animation-delay: 0.12s; }
+    .kpi-grid .kpi-card:nth-child(4) { animation-delay: 0.16s; }
+    .kpi-grid .kpi-card:nth-child(5) { animation-delay: 0.20s; }
+    .kpi-grid .kpi-card:nth-child(6) { animation-delay: 0.24s; }
+
+    /* Responsive overrides for named grids */
+    @media (max-width: 900px) {
+      #driver-kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
+      #dash-kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    }
+    @media (max-width: 500px) {
+      #driver-kpi-grid { grid-template-columns: 1fr !important; }
+      #dash-kpi-grid { grid-template-columns: 1fr !important; }
+    }
 
     /* pulse on KPI values when page loads */
     .kpi-value.pulse-once {
@@ -2599,8 +2647,8 @@
         </div>
       </div>
 
-      <!-- 5 Cartes KPI Financières du Chauffeur (cliquables) -->
-      <div class="kpi-grid">
+      <!-- 6 Cartes KPI Financières du Chauffeur (cliquables) -->
+      <div class="kpi-grid" style="grid-template-columns: repeat(3, 1fr);" id="driver-kpi-grid">
         <div class="kpi-card kpi-revenue" onclick="switchDriverSubtab('trips')" style="cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;" title="Cliquer pour voir les voyages">
           <div class="kpi-header">
             <span class="kpi-title">Recettes Voyages</span>
@@ -2946,7 +2994,7 @@
       </div>
 
       <!-- 4 Cartes KPI Entreprise -->
-      <div class="kpi-grid">
+      <div class="kpi-grid" style="grid-template-columns: repeat(4, 1fr);" id="dash-kpi-grid">
         <div class="kpi-card kpi-revenue">
           <div class="kpi-header">
             <span class="kpi-title">Recettes Voyages Flotte</span>
@@ -3500,22 +3548,22 @@
       </div>
       <div class="modal-body">
         <!-- 4 Petits KPIs Chauffeur -->
-        <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.65rem; margin-bottom: 1.25rem;">
-          <div class="kpi-card" style="padding: 0.85rem;">
-            <div class="kpi-title" style="font-size: 0.7rem;">Voyages</div>
-            <div class="kpi-value font-mono text-primary" style="font-size: 1.25rem;" id="acc-trips-count">0</div>
+        <div class="kpi-grid kpi-grid-compact" style="margin-bottom: 1.25rem;">
+          <div class="kpi-card kpi-compact kpi-net">
+            <div class="kpi-title">Voyages</div>
+            <div class="kpi-value font-mono text-primary" id="acc-trips-count">0</div>
           </div>
-          <div class="kpi-card" style="padding: 0.85rem;">
-            <div class="kpi-title" style="font-size: 0.7rem;">Recettes</div>
-            <div class="kpi-value font-mono text-success" style="font-size: 1.25rem;" id="acc-revenue">0 FCFA</div>
+          <div class="kpi-card kpi-compact kpi-revenue">
+            <div class="kpi-title">Recettes</div>
+            <div class="kpi-value font-mono text-success" id="acc-revenue">0 FCFA</div>
           </div>
-          <div class="kpi-card" style="padding: 0.85rem;">
-            <div class="kpi-title" style="font-size: 0.7rem;">Carburant</div>
-            <div class="kpi-value font-mono text-warning" style="font-size: 1.25rem;" id="acc-fuel">0 FCFA</div>
+          <div class="kpi-card kpi-compact kpi-fuel">
+            <div class="kpi-title">Carburant</div>
+            <div class="kpi-value font-mono text-warning" id="acc-fuel">0 FCFA</div>
           </div>
-          <div class="kpi-card" style="padding: 0.85rem;">
-            <div class="kpi-title" style="font-size: 0.7rem;">Entretien</div>
-            <div class="kpi-value font-mono text-danger" style="font-size: 1.25rem;" id="acc-maint">0 FCFA</div>
+          <div class="kpi-card kpi-compact kpi-maintenance">
+            <div class="kpi-title">Entretien</div>
+            <div class="kpi-value font-mono text-danger" id="acc-maint">0 FCFA</div>
           </div>
         </div>
 
@@ -3627,29 +3675,29 @@
         </div>
 
         <!-- KPIs enrichis -->
-        <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.65rem; margin-bottom: 1.25rem;">
-          <div class="kpi-card" style="padding: 0.85rem;">
-            <div class="kpi-title" style="font-size: 0.7rem;">Recettes Voyages</div>
-            <div class="kpi-value font-mono text-success" style="font-size: 1.15rem;" id="truck-total-revenue">0 FCFA</div>
+        <div class="kpi-grid kpi-grid-compact" style="margin-bottom: 1.25rem;">
+          <div class="kpi-card kpi-compact kpi-revenue">
+            <div class="kpi-title">Recettes Voyages</div>
+            <div class="kpi-value font-mono text-success" id="truck-total-revenue">0 FCFA</div>
             <div class="kpi-meta"><span id="truck-trip-count">0</span> voyages</div>
           </div>
-          <div class="kpi-card" style="padding: 0.85rem;">
-            <div class="kpi-title" style="font-size: 0.7rem;">Carburant (voyages)</div>
-            <div class="kpi-value font-mono" style="font-size: 1.15rem; color:#d97706;" id="truck-total-dep-carb">0 FCFA</div>
+          <div class="kpi-card kpi-compact kpi-fuel">
+            <div class="kpi-title">Carburant voyages</div>
+            <div class="kpi-value font-mono text-warning" id="truck-total-dep-carb">0 FCFA</div>
           </div>
-          <div class="kpi-card" style="padding: 0.85rem;">
-            <div class="kpi-title" style="font-size: 0.7rem;">Pleins Station</div>
-            <div class="kpi-value font-mono text-warning" style="font-size: 1.15rem;" id="truck-total-fuel">0 FCFA</div>
+          <div class="kpi-card kpi-compact kpi-fuel">
+            <div class="kpi-title">Pleins Station</div>
+            <div class="kpi-value font-mono text-warning" id="truck-total-fuel">0 FCFA</div>
             <div class="kpi-meta"><span id="truck-fuel-liters">0</span> L</div>
           </div>
-          <div class="kpi-card" style="padding: 0.85rem;">
-            <div class="kpi-title" style="font-size: 0.7rem;">Entretien</div>
-            <div class="kpi-value font-mono text-danger" style="font-size: 1.15rem;" id="truck-total-maint">0 FCFA</div>
-            <div class="kpi-meta"><span id="truck-maint-count">0</span> réparations</div>
+          <div class="kpi-card kpi-compact kpi-maintenance">
+            <div class="kpi-title">Entretien</div>
+            <div class="kpi-value font-mono text-danger" id="truck-total-maint">0 FCFA</div>
+            <div class="kpi-meta"><span id="truck-maint-count">0</span> interventions</div>
           </div>
-          <div class="kpi-card" style="padding: 0.85rem;">
-            <div class="kpi-title" style="font-size: 0.7rem;">Bénéfice Net</div>
-            <div class="kpi-value font-mono" style="font-size: 1.15rem;" id="truck-net-profit">0 FCFA</div>
+          <div class="kpi-card kpi-compact kpi-net">
+            <div class="kpi-title">Bénéfice Net</div>
+            <div class="kpi-value font-mono" id="truck-net-profit">0 FCFA</div>
           </div>
         </div>
 
