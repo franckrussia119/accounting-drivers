@@ -3291,6 +3291,9 @@
                 <th>N° BL</th>
                 <th>N° Conteneur</th>
                 <th>Recette</th>
+                <th>Carburant</th>
+                <th>Pesée</th>
+                <th>Péage</th>
                 <th>Total Remis</th>
                 <th>Marge</th>
                 <th>Actions</th>
@@ -3330,10 +3333,11 @@
                 <th>Date</th>
                 <th>Chauffeur</th>
                 <th>Camion</th>
-                <th>Volume (L)</th>
-                <th>Montant payé</th>
                 <th>Station / Lieu</th>
-                <th>Kilométrage</th>
+                <th>Volume (L)</th>
+                <th>Montant (FCFA)</th>
+                <th>KM relevé</th>
+                <th>Notes</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -3725,7 +3729,7 @@
       Nouveau sous-traitant
     </button>
   </div>
-  <div id="subcontractors-list" class="grid grid-cols-3" style="gap:1rem; margin-top:1rem;"></div>
+  <div id="subcontractors-list" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:1rem; margin-top:1rem;"></div>
 </section>
 
 <!-- ══════════════════════════════════════════════ VOYAGES SOUS-TRAITÉS ═══ -->
@@ -7428,11 +7432,19 @@
         tbody.innerHTML = '';
 
         if (trips.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Aucun voyage enregistré sur la période.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="14" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Aucun voyage enregistré sur la période.</td></tr>';
           return;
         }
 
+        let totalRecette = 0, totalCarburant = 0, totalPesee = 0, totalPeage = 0, totalRemis = 0, totalMarge = 0;
+
         trips.forEach(t => {
+          totalRecette += Number(t.recette || 0);
+          totalCarburant += Number(t.dep_carburant || 0);
+          totalPesee += Number(t.pesee || 0);
+          totalPeage += Number(t.peage || 0);
+          totalRemis += Number(t.montant_remis || t.amount_fcfa || 0);
+          totalMarge += Number(t.marge_nette || 0);
           const tr = document.createElement('tr');
           tr.innerHTML = `
             <td data-label="Date">${t.trip_date}</td>
@@ -7443,6 +7455,9 @@
             <td data-label="N° BL" class="font-mono">${t.bl_number || '-'}</td>
             <td data-label="N° Conteneur" class="font-mono">${t.container_number || '-'}</td>
             <td data-label="Recette" class="font-mono text-success"><strong>${formatFCFA(t.recette || 0)}</strong></td>
+            <td data-label="Carburant" class="font-mono text-warning">${(t.dep_carburant||0) > 0 ? formatFCFA(t.dep_carburant) : '-'}</td>
+            <td data-label="Pesée" class="font-mono">${(t.pesee||0) > 0 ? formatFCFA(t.pesee) : '-'}</td>
+            <td data-label="Péage" class="font-mono">${(t.peage||0) > 0 ? formatFCFA(t.peage) : '-'}</td>
             <td data-label="Total Remis" class="font-mono" style="color: var(--warning); font-weight: 700;">${formatFCFA(t.montant_remis || t.amount_fcfa || 0)}</td>
             <td data-label="Marge" class="font-mono ${(t.marge_nette||0) >= 0 ? 'text-success' : 'text-danger'}" style="font-weight: 700;">${formatFCFA(t.marge_nette || 0)}</td>
             <td data-label="Actions" style="white-space:nowrap;">
@@ -7452,6 +7467,21 @@
           `;
           tbody.appendChild(tr);
         });
+
+        // Ligne de totaux
+        const totalRow = document.createElement('tr');
+        totalRow.style.cssText = 'background:var(--bg-subtle); font-weight:700; border-top:2px solid var(--border-color);';
+        totalRow.innerHTML = `
+          <td colspan="7" style="text-align:right; padding:0.5rem 1rem; color:var(--text-muted); font-size:0.85rem;">TOTAUX (${trips.length} voyage${trips.length > 1 ? 's' : ''})</td>
+          <td class="font-mono text-success" style="padding:0.5rem 1rem;">${formatFCFA(totalRecette)}</td>
+          <td class="font-mono text-warning" style="padding:0.5rem 1rem;">${formatFCFA(totalCarburant)}</td>
+          <td class="font-mono" style="padding:0.5rem 1rem;">${formatFCFA(totalPesee)}</td>
+          <td class="font-mono" style="padding:0.5rem 1rem;">${formatFCFA(totalPeage)}</td>
+          <td class="font-mono" style="padding:0.5rem 1rem; color:var(--warning);">${formatFCFA(totalRemis)}</td>
+          <td class="font-mono ${totalMarge >= 0 ? 'text-success' : 'text-danger'}" style="padding:0.5rem 1rem;">${formatFCFA(totalMarge)}</td>
+          <td></td>
+        `;
+        tbody.appendChild(totalRow);
 
       } catch (err) {
         console.error('Erreur load trips:', err);
@@ -7480,26 +7510,43 @@
         tbody.innerHTML = '';
 
         if (records.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Aucun plein enregistré sur la période.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Aucun plein enregistré sur la période.</td></tr>';
           return;
         }
 
+        let totalLiters = 0, totalAmount = 0;
+
         records.forEach(f => {
+          totalLiters += Number(f.liters || 0);
+          totalAmount += Number(f.amount_fcfa || 0);
           const tr = document.createElement('tr');
           tr.innerHTML = `
             <td data-label="Date">${f.expense_date}</td>
             <td data-label="Chauffeur"><strong>${f.driver_name}</strong></td>
             <td data-label="Camion"><span class="badge badge-primary font-mono">${f.truck_id}</span></td>
-            <td data-label="Volume (L)" class="font-mono">${f.liters} L</td>
-            <td data-label="Montant payé" class="font-mono text-warning"><strong>${formatFCFA(f.amount_fcfa)}</strong></td>
-            <td data-label="Station">${f.station}</td>
-            <td data-label="Kilométrage" class="font-mono">${f.km_at_fill ? f.km_at_fill.toLocaleString('fr-FR') + ' km' : '-'}</td>
+            <td data-label="Station / Lieu">${f.station}</td>
+            <td data-label="Volume (L)" class="font-mono">${Number(f.liters).toLocaleString('fr-FR')} L</td>
+            <td data-label="Montant (FCFA)" class="font-mono text-warning"><strong>${formatFCFA(f.amount_fcfa)}</strong></td>
+            <td data-label="KM relevé" class="font-mono">${f.km_at_fill ? Number(f.km_at_fill).toLocaleString('fr-FR') + ' km' : '-'}</td>
+            <td data-label="Notes" style="color:var(--text-muted); font-size:0.82rem;">${f.notes || '-'}</td>
             <td data-label="Actions">
               <button class="btn btn-danger btn-sm" onclick="deleteFuel(${f.id})" title="Supprimer">${VECTORS.trash}</button>
             </td>
           `;
           tbody.appendChild(tr);
         });
+
+        // Ligne de totaux
+        const totalRow = document.createElement('tr');
+        totalRow.style.cssText = 'background:var(--bg-subtle); font-weight:700; border-top:2px solid var(--border-color);';
+        totalRow.innerHTML = `
+          <td colspan="3" style="text-align:right; padding:0.5rem 1rem; color:var(--text-muted); font-size:0.85rem;">TOTAUX (${records.length} plein${records.length > 1 ? 's' : ''})</td>
+          <td style="padding:0.5rem 1rem;"></td>
+          <td class="font-mono" style="padding:0.5rem 1rem;">${totalLiters.toLocaleString('fr-FR')} L</td>
+          <td class="font-mono text-warning" style="padding:0.5rem 1rem;">${formatFCFA(totalAmount)}</td>
+          <td colspan="3" style="padding:0.5rem 1rem;"></td>
+        `;
+        tbody.appendChild(totalRow);
 
       } catch (err) {
         console.error('Erreur load fuel:', err);
@@ -7532,7 +7579,10 @@
           return;
         }
 
+        let totalMaintAmount = 0;
+
         records.forEach(m => {
+          totalMaintAmount += Number(m.amount_fcfa || 0);
           const tr = document.createElement('tr');
           tr.innerHTML = `
             <td data-label="Date">${m.record_date}</td>
@@ -7550,6 +7600,16 @@
           `;
           tbody.appendChild(tr);
         });
+
+        // Ligne de totaux
+        const totalMaintRow = document.createElement('tr');
+        totalMaintRow.style.cssText = 'background:var(--bg-subtle); font-weight:700; border-top:2px solid var(--border-color);';
+        totalMaintRow.innerHTML = `
+          <td colspan="7" style="text-align:right; padding:0.5rem 1rem; color:var(--text-muted); font-size:0.85rem;">TOTAL (${records.length} intervention${records.length > 1 ? 's' : ''})</td>
+          <td class="font-mono text-danger" style="padding:0.5rem 1rem;">${formatFCFA(totalMaintAmount)}</td>
+          <td style="padding:0.5rem 1rem;"></td>
+        `;
+        tbody.appendChild(totalMaintRow);
 
       } catch (err) {
         console.error('Erreur load maintenance:', err);
@@ -7586,7 +7646,10 @@
         const truckMap = {};
         (state.trucks || []).forEach(t => { truckMap[t.id] = t.code || t.id; });
 
+        let totalExpensesAmount = 0;
+
         records.forEach(e => {
+          totalExpensesAmount += Number(e.amount_fcfa || 0);
           const tr = document.createElement('tr');
           const truckLabel = e.truck_id ? (truckMap[e.truck_id] || e.truck_id) : '<span class="text-muted">—</span>';
           tr.innerHTML = `
@@ -7600,6 +7663,16 @@
           `;
           tbody.appendChild(tr);
         });
+
+        // Ligne de totaux
+        const totalExpRow = document.createElement('tr');
+        totalExpRow.style.cssText = 'background:var(--bg-subtle); font-weight:700; border-top:2px solid var(--border-color);';
+        totalExpRow.innerHTML = `
+          <td colspan="5" style="text-align:right; padding:0.5rem 1rem; color:var(--text-muted); font-size:0.85rem;">TOTAL (${records.length} dépense${records.length > 1 ? 's' : ''})</td>
+          <td class="font-mono text-violet" style="padding:0.5rem 1rem;">${formatFCFA(totalExpensesAmount)}</td>
+          <td style="padding:0.5rem 1rem;"></td>
+        `;
+        tbody.appendChild(totalExpRow);
 
       } catch (err) {
         console.error('Erreur load expenses global:', err);
@@ -9357,6 +9430,25 @@
 <script>
 // ══════════════════════════════════════════════ SOUS-TRAITANTS MODULE ══════
 
+// ── Aliases to match the rest of the app's helper conventions ──────────────
+const fmtAmount = (n) => typeof formatFCFA === 'function' ? formatFCFA(n) : Number(n).toLocaleString('fr-FR') + ' FCFA';
+const fmtDate = (d) => {
+  if (!d) return '—';
+  const [y, m, dd] = d.split('-');
+  return dd && m && y ? `${dd}/${m}/${y}` : d;
+};
+function escHtmlST(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// apiFetch: thin wrapper around fetch that sends JSON and throws on error
+async function apiFetch(url, opts = {}) {
+  const options = { credentials: 'include', headers: { 'Content-Type': 'application/json' }, ...opts };
+  if (opts.body && typeof opts.body === 'object') options.body = JSON.stringify(opts.body);
+  const res = await fetch(url, options);
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json.error || `Erreur ${res.status}`);
+  return json;
+}
+
 let _subcontractorsList = [];
 
 async function loadSubcontractors() {
@@ -9375,10 +9467,10 @@ async function loadSubcontractors() {
       return `<div class="card" style="cursor:pointer;" onclick="openSubcontractorDetail(${s.id})">
         <div class="card-header" style="display:flex;justify-content:space-between;align-items:flex-start;">
           <div>
-            <div style="font-weight:700; font-size:1rem; color:var(--text-main);">${escHtml(s.name)}</div>
-            ${s.contact ? `<div style="font-size:0.82rem; color:var(--text-muted); margin-top:2px;">${escHtml(s.contact)}</div>` : ''}
+            <div style="font-weight:700; font-size:1rem; color:var(--text-main);">${escHtmlST(s.name)}</div>
+            ${s.contact ? `<div style="font-size:0.82rem; color:var(--text-muted); margin-top:2px;">${escHtmlST(s.contact)}</div>` : ''}
           </div>
-          <span class="badge ${s.is_active ? 'badge-success' : 'badge-muted'}">${s.is_active ? 'Actif' : 'Inactif'}</span>
+          <span class="badge ${s.is_active ? 'badge-success' : 'badge-neutral'}">${s.is_active ? 'Actif' : 'Inactif'}</span>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-top:1rem;">
           <div style="text-align:center; padding:0.75rem; background:var(--bg-body); border-radius:var(--radius-sm);">
@@ -9390,10 +9482,10 @@ async function loadSubcontractors() {
             <div style="font-size:0.75rem; color:var(--text-muted);">Marge nette</div>
           </div>
         </div>
-        ${s.phone ? `<div style="margin-top:0.75rem; font-size:0.82rem; color:var(--text-muted);">📞 ${escHtml(s.phone)}</div>` : ''}
-        <div class="card-footer" style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1rem; padding-top:0.75rem; border-top:1px solid var(--border);">
+        ${s.phone ? `<div style="margin-top:0.75rem; font-size:0.82rem; color:var(--text-muted);">📞 ${escHtmlST(s.phone)}</div>` : ''}
+        <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1rem; padding-top:0.75rem; border-top:1px solid var(--border-color);">
           <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); openSubcontractorModal(${s.id})">Modifier</button>
-          <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteSubcontractor(${s.id}, '${escHtml(s.name).replace(/'/g,"\\'")}')">Supprimer</button>
+          <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteSubcontractor(${s.id}, '${escHtmlST(s.name).replace(/'/g,"\\'")}')">Supprimer</button>
         </div>
       </div>`;
     }).join('');
@@ -9419,7 +9511,7 @@ async function loadSubcontractorTripsPopulate() {
     if (!sel) return;
     const cur = sel.value;
     const defaultOpt = selId === 'st-filter-subcontractor' ? '<option value="">Tous les sous-traitants</option>' : '<option value="">Sélectionner…</option>';
-    sel.innerHTML = defaultOpt + _subcontractorsList.map(s => `<option value="${s.id}" ${cur==s.id?'selected':''}>${escHtml(s.name)}</option>`).join('');
+    sel.innerHTML = defaultOpt + _subcontractorsList.map(s => `<option value="${s.id}" ${cur==s.id?'selected':''}>${escHtmlST(s.name)}</option>`).join('');
   });
 }
 
@@ -9450,11 +9542,11 @@ async function loadSubcontractorTrips() {
       totRevenue += (t.client_revenue||0); totCost += (t.subcontractor_cost||0); totMargin += margin;
       return `<tr>
         <td>${fmtDate(t.trip_date)}</td>
-        <td>${escHtml(t.subcontractor_name||'')}</td>
-        <td>${escHtml(t.destination||'')}</td>
-        <td>${escHtml(t.goods||'—')}</td>
-        <td>${escHtml(t.bl_number||'—')}</td>
-        <td>${escHtml(t.container_number||'—')}</td>
+        <td>${escHtmlST(t.subcontractor_name||'')}</td>
+        <td>${escHtmlST(t.destination||'')}</td>
+        <td>${escHtmlST(t.goods||'—')}</td>
+        <td>${escHtmlST(t.bl_number||'—')}</td>
+        <td>${escHtmlST(t.container_number||'—')}</td>
         <td style="text-align:right;">${fmtAmount(t.client_revenue||0)}</td>
         <td style="text-align:right; color:var(--danger,#ef4444);">${fmtAmount(t.subcontractor_cost||0)}</td>
         <td style="text-align:right; color:${marginColor}; font-weight:600;">${fmtAmount(margin)}</td>
@@ -9490,19 +9582,19 @@ async function loadSubcontractorDashboard() {
     const marginPct = s.total_revenue > 0 ? Math.round(s.total_margin * 100 / s.total_revenue * 10) / 10 : 0;
     const marginColor = (s.total_margin || 0) >= 0 ? 'var(--success,#22c55e)' : 'var(--danger,#ef4444)';
     kpiEl.innerHTML = `
-      <div class="kpi-card"><div class="kpi-value">${s.trips_count||0}</div><div class="kpi-label">Voyages sous-traités</div></div>
-      <div class="kpi-card"><div class="kpi-value">${s.subcontractors_used||0}</div><div class="kpi-label">Sous-traitants actifs</div></div>
-      <div class="kpi-card"><div class="kpi-value" style="color:var(--primary)">${fmtAmount(s.total_revenue||0)}</div><div class="kpi-label">Recette totale</div></div>
-      <div class="kpi-card"><div class="kpi-value" style="color:var(--danger,#ef4444)">${fmtAmount(s.total_cost||0)}</div><div class="kpi-label">Coût total ST</div></div>
-      <div class="kpi-card"><div class="kpi-value" style="color:${marginColor}">${fmtAmount(s.total_margin||0)}</div><div class="kpi-label">Marge nette</div></div>
-      <div class="kpi-card"><div class="kpi-value" style="color:${marginColor}">${marginPct}%</div><div class="kpi-label">Taux de marge</div></div>
+      <div class="kpi-card"><div class="kpi-value">${s.trips_count||0}</div><div class="kpi-title">Voyages sous-traités</div></div>
+      <div class="kpi-card"><div class="kpi-value">${s.subcontractors_used||0}</div><div class="kpi-title">Sous-traitants actifs</div></div>
+      <div class="kpi-card"><div class="kpi-value" style="color:var(--primary)">${fmtAmount(s.total_revenue||0)}</div><div class="kpi-title">Recette totale</div></div>
+      <div class="kpi-card"><div class="kpi-value" style="color:var(--danger,#ef4444)">${fmtAmount(s.total_cost||0)}</div><div class="kpi-title">Coût total ST</div></div>
+      <div class="kpi-card"><div class="kpi-value" style="color:${marginColor}">${fmtAmount(s.total_margin||0)}</div><div class="kpi-title">Marge nette</div></div>
+      <div class="kpi-card"><div class="kpi-value" style="color:${marginColor}">${marginPct}%</div><div class="kpi-title">Taux de marge</div></div>
     `;
     if (bySubEl) {
       const rows = data.bySubcontractor || [];
       bySubEl.innerHTML = rows.length ? rows.map(r => {
         const mc = (r.total_margin||0) >= 0 ? 'var(--success,#22c55e)' : 'var(--danger,#ef4444)';
         return `<tr>
-          <td>${escHtml(r.name)}</td>
+          <td>${escHtmlST(r.name)}</td>
           <td style="text-align:center">${r.trips_count||0}</td>
           <td style="text-align:right">${fmtAmount(r.total_revenue||0)}</td>
           <td style="text-align:right; color:var(--danger,#ef4444)">${fmtAmount(r.total_cost||0)}</td>
