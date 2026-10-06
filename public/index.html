@@ -2069,7 +2069,7 @@
       display: none !important;
     }
     @media print {
-      #pdf-render-zone { width: auto; padding: 0; background: #ffffff !important; }
+      #pdf-render-zone { width: 100%; max-width: 100%; padding: 0; background: #ffffff !important; }
       @page { margin: 14mm; }
 
       /* ===== IMPRESSION ÉCONOMIQUE — FOND BLANC, BORDURES NOIRES ===== */
@@ -7221,14 +7221,14 @@
         </div>
       `;
 
-      // Injecter @page landscape
+      // Injecter @page portrait pour le rapport consolidé
       let landscapeStyle = document.getElementById('print-landscape-style');
       if (!landscapeStyle) {
         landscapeStyle = document.createElement('style');
         landscapeStyle.id = 'print-landscape-style';
         document.head.appendChild(landscapeStyle);
       }
-      landscapeStyle.textContent = '@media print { @page { size: A4 landscape; margin: 10mm; } }';
+      landscapeStyle.textContent = '@media print { @page { size: A4 portrait; margin: 12mm; } #pdf-render-zone { width: 100% !important; } }';
 
       applyPrintBW(document.getElementById('pdf-render-zone'));
 
