@@ -498,10 +498,13 @@
     .app-wrapper {
       flex: 1;
       margin-left: var(--sidebar-width);
+      width: calc(100% - var(--sidebar-width));
+      max-width: 100%;
       display: flex;
       flex-direction: column;
       min-width: 0;
-      transition: margin-left 0.25s ease;
+      transition: margin-left 0.25s ease, width 0.25s ease;
+      overflow-x: hidden;
     }
 
     /* Collapsed sidebar */
@@ -536,6 +539,7 @@
 
     body.sidebar-collapsed .app-wrapper {
       margin-left: var(--sidebar-collapsed);
+      width: calc(100% - var(--sidebar-collapsed));
     }
 
     body.sidebar-collapsed .sidebar-toggle {
@@ -853,11 +857,10 @@
 
     /* Conteneur principal */
     .main-container {
-      max-width: 1320px;
-      margin: 0 auto;
       padding: 1.5rem;
       width: 100%;
       flex: 1;
+      box-sizing: border-box;
     }
 
     @media (max-width: 768px) {
@@ -937,6 +940,11 @@
     .date-input:focus {
       outline: none;
       border-color: var(--primary);
+    }
+
+    .view-panel {
+      width: 100%;
+      min-width: 0;
     }
 
     /* Cartes KPI Synthétiques */
@@ -1556,9 +1564,10 @@
     /* Grille des 10 camions */
     .trucks-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
       gap: 1rem;
       margin-bottom: 1.5rem;
+      width: 100%;
     }
 
     .truck-card {
@@ -3108,10 +3117,10 @@
 
     <!-- ==================== ONGLET 3 : CAMIONS & ENTRETIEN ==================== -->
     <section id="view-trucks" class="view-panel" style="display: none;">
-      <div class="data-card-header" style="margin-bottom: 1rem; padding: 0;">
-        <div class="data-card-title">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; flex-wrap: wrap;">
+        <h2 style="font-size: 1.25rem; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
           <svg class="svg-icon" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> Flotte de Camions
-        </div>
+        </h2>
         <button id="add-truck-btn" class="btn btn-primary btn-sm btn-write-only">
           <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Ajouter un camion
         </button>
