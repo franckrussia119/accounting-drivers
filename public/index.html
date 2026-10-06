@@ -9421,11 +9421,11 @@
   </script>
 
 <!-- Modal: Créer/Modifier sous-traitant -->
-<div id="modal-subcontractor" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeSubcontractorModal()">
-  <div class="modal-box" style="max-width:520px;">
+<div id="modal-subcontractor" class="modal-backdrop" onclick="if(event.target===this)closeSubcontractorModal()">
+  <div class="modal-card" style="max-width:520px;">
     <div class="modal-header">
       <h3 id="modal-subcontractor-title" class="modal-title">Nouveau sous-traitant</h3>
-      <button class="modal-close" onclick="closeSubcontractorModal()">✕</button>
+      <button class="btn-icon" onclick="closeSubcontractorModal()" style="font-size:1.2rem;line-height:1;">&times;</button>
     </div>
     <form id="form-subcontractor" onsubmit="saveSubcontractor(event)">
       <input type="hidden" id="sc-id">
@@ -9460,11 +9460,11 @@
 </div>
 
 <!-- Modal: Créer/Modifier voyage sous-traité -->
-<div id="modal-subcontractor-trip" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeSubcontractorTripModal()">
-  <div class="modal-box" style="max-width:600px;">
+<div id="modal-subcontractor-trip" class="modal-backdrop" onclick="if(event.target===this)closeSubcontractorTripModal()">
+  <div class="modal-card" style="max-width:600px;">
     <div class="modal-header">
       <h3 id="modal-st-trip-title" class="modal-title">Nouveau voyage sous-traité</h3>
-      <button class="modal-close" onclick="closeSubcontractorTripModal()">✕</button>
+      <button class="btn-icon" onclick="closeSubcontractorTripModal()" style="font-size:1.2rem;line-height:1;">&times;</button>
     </div>
     <form id="form-subcontractor-trip" onsubmit="saveSubcontractorTrip(event)">
       <input type="hidden" id="stt-id">
@@ -9705,7 +9705,7 @@ async function loadSubcontractorDashboard() {
 async function loadSubcontractorAnalysis() {
   const el = document.getElementById('st-analysis-content');
   if (!el) return;
-  el.innerHTML = '<div style="padding:2rem; text-align:center; color:var(--text-muted);">Chargement de l'analyse…</div>';
+  el.innerHTML = '<div style="padding:2rem; text-align:center; color:var(--text-muted);">Chargement…</div>';
   try {
     const params = new URLSearchParams();
     const start = document.getElementById('st-analysis-start')?.value;
@@ -9877,9 +9877,9 @@ function openSubcontractorModal(id) {
       document.getElementById('modal-subcontractor-title').textContent = 'Modifier sous-traitant';
     }
   }
-  document.getElementById('modal-subcontractor').style.display = 'flex';
+  document.getElementById('modal-subcontractor').classList.add('open');
 }
-function closeSubcontractorModal() { document.getElementById('modal-subcontractor').style.display = 'none'; }
+function closeSubcontractorModal() { document.getElementById('modal-subcontractor').classList.remove('open'); }
 
 async function saveSubcontractor(e) {
   e.preventDefault();
@@ -9953,9 +9953,9 @@ async function openSubcontractorTripModal(id) {
       }
     } catch(e) {}
   }
-  document.getElementById('modal-subcontractor-trip').style.display = 'flex';
+  document.getElementById('modal-subcontractor-trip').classList.add('open');
 }
-function closeSubcontractorTripModal() { document.getElementById('modal-subcontractor-trip').style.display = 'none'; }
+function closeSubcontractorTripModal() { document.getElementById('modal-subcontractor-trip').classList.remove('open'); }
 
 function updateMarginPreview() {
   const rev = parseFloat(document.getElementById('stt-revenue').value) || 0;
