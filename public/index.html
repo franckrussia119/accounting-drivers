@@ -3279,6 +3279,13 @@
             </button>
           </div>
         </div>
+        <div style="display:flex; gap:0.75rem; align-items:center; padding:0.75rem 1rem; background:var(--bg-body); border-bottom:1px solid var(--border-color);">
+          <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">Période :</span>
+          <input type="date" class="form-control form-control-sm" id="trips-date-start" style="width:150px;" value="" onchange="state.startDate=this.value; loadTrips();">
+          <span style="font-size:0.85rem; color:var(--text-muted);">→</span>
+          <input type="date" class="form-control form-control-sm" id="trips-date-end" style="width:150px;" value="" onchange="state.endDate=this.value; loadTrips();">
+          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('trips-date-start').value=''; document.getElementById('trips-date-end').value=''; state.startDate=''; state.endDate=''; loadTrips();">Tout afficher</button>
+        </div>
         <div class="table-container">
           <table class="data-table mobile-collapse" id="trips-table">
             <thead>
@@ -3326,6 +3333,13 @@
             </button>
           </div>
         </div>
+        <div style="display:flex; gap:0.75rem; align-items:center; padding:0.75rem 1rem; background:var(--bg-body); border-bottom:1px solid var(--border-color);">
+          <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">Période :</span>
+          <input type="date" class="form-control form-control-sm" id="fuel-date-start" style="width:150px;" value="" onchange="state.startDate=this.value; loadFuel();">
+          <span style="font-size:0.85rem; color:var(--text-muted);">→</span>
+          <input type="date" class="form-control form-control-sm" id="fuel-date-end" style="width:150px;" value="" onchange="state.endDate=this.value; loadFuel();">
+          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('fuel-date-start').value=''; document.getElementById('fuel-date-end').value=''; state.startDate=''; state.endDate=''; loadFuel();">Tout afficher</button>
+        </div>
         <div class="table-container">
           <table class="data-table mobile-collapse" id="fuel-table">
             <thead>
@@ -3343,6 +3357,35 @@
             </thead>
             <tbody id="fuel-tbody">
               <!-- Pleins injectés -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- Carburant versé aux chauffeurs (voyages) -->
+      <div class="data-card" style="margin-top:1rem;">
+        <div class="data-card-header">
+          <div class="data-card-title">
+            <svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            Carburant versé aux chauffeurs — issu des Voyages
+          </div>
+          <div style="display:flex;gap:0.5rem;">
+            <button class="btn btn-secondary btn-sm" onclick="exportTableToExcel('fuel-driver-tbody','carburant_chauffeurs','CarburantChauffeurs')">
+              <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/></svg> Excel
+            </button>
+          </div>
+        </div>
+        <div class="table-container">
+          <table class="data-table mobile-collapse" id="fuel-driver-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Chauffeur</th>
+                <th>Camion</th>
+                <th>Trajet</th>
+                <th>Montant carburant (FCFA)</th>
+              </tr>
+            </thead>
+            <tbody id="fuel-driver-tbody">
             </tbody>
           </table>
         </div>
@@ -3367,6 +3410,13 @@
               <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Noter une intervention
             </button>
           </div>
+        </div>
+        <div style="display:flex; gap:0.75rem; align-items:center; padding:0.75rem 1rem; background:var(--bg-body); border-bottom:1px solid var(--border-color);">
+          <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">Période :</span>
+          <input type="date" class="form-control form-control-sm" id="maint-date-start" style="width:150px;" value="" onchange="state.startDate=this.value; loadMaintenance();">
+          <span style="font-size:0.85rem; color:var(--text-muted);">→</span>
+          <input type="date" class="form-control form-control-sm" id="maint-date-end" style="width:150px;" value="" onchange="state.endDate=this.value; loadMaintenance();">
+          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('maint-date-start').value=''; document.getElementById('maint-date-end').value=''; state.startDate=''; state.endDate=''; loadMaintenance();">Tout afficher</button>
         </div>
         <div class="table-container">
           <table class="data-table mobile-collapse" id="maint-table">
@@ -3409,6 +3459,13 @@
               <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Enregistrer une dépense
             </button>
           </div>
+        </div>
+        <div style="display:flex; gap:0.75rem; align-items:center; padding:0.75rem 1rem; background:var(--bg-body); border-bottom:1px solid var(--border-color);">
+          <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">Période :</span>
+          <input type="date" class="form-control form-control-sm" id="expglobal-date-start" style="width:150px;" value="" onchange="state.startDate=this.value; loadExpensesGlobal();">
+          <span style="font-size:0.85rem; color:var(--text-muted);">→</span>
+          <input type="date" class="form-control form-control-sm" id="expglobal-date-end" style="width:150px;" value="" onchange="state.endDate=this.value; loadExpensesGlobal();">
+          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('expglobal-date-start').value=''; document.getElementById('expglobal-date-end').value=''; state.startDate=''; state.endDate=''; loadExpensesGlobal();">Tout afficher</button>
         </div>
         <div class="table-container">
           <table class="data-table mobile-collapse" id="expenses-global-table">
@@ -3795,9 +3852,14 @@
       <h2 class="page-title">Analyse Comparative</h2>
       <p class="page-subtitle">YM-TRANSIT (propre flotte) vs Sous-Traitants</p>
     </div>
-    <div style="display:flex;gap:0.5rem;align-items:center;">
-      <input type="date" id="st-analysis-start" class="form-control form-control-sm" onchange="loadSubcontractorAnalysis()" style="width:140px;">
-      <input type="date" id="st-analysis-end" class="form-control form-control-sm" onchange="loadSubcontractorAnalysis()" style="width:140px;">
+    <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+      <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">Période :</span>
+      <input type="date" id="st-analysis-start" class="form-control form-control-sm" onchange="loadSubcontractorAnalysis()" style="width:145px;">
+      <span style="color:var(--text-muted);">→</span>
+      <input type="date" id="st-analysis-end" class="form-control form-control-sm" onchange="loadSubcontractorAnalysis()" style="width:145px;">
+      <button class="btn btn-secondary btn-sm" onclick="printAnalyseComparative()">
+        <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13h6M9 17h4"/></svg> PDF
+      </button>
     </div>
   </div>
   <div id="st-analysis-content" style="margin-top:1rem;"></div>
@@ -7499,54 +7561,85 @@
     // CHARGEMENT ONGLET CARBURANT
     // ----------------------------------------------------
     async function loadFuel() {
-      let url = '/api/fuel?';
-      if (state.startDate) url += `&startDate=${state.startDate}`;
-      if (state.endDate) url += `&endDate=${state.endDate}`;
+      let urlFuel = '/api/fuel?';
+      if (state.startDate) urlFuel += `&startDate=${state.startDate}`;
+      if (state.endDate) urlFuel += `&endDate=${state.endDate}`;
+      let urlTrips = '/api/trips?';
+      if (state.startDate) urlTrips += `&startDate=${state.startDate}`;
+      if (state.endDate) urlTrips += `&endDate=${state.endDate}`;
 
       try {
-        const res = await fetch(url);
-        const records = await res.json();
+        const [resFuel, resTrips] = await Promise.all([fetch(urlFuel), fetch(urlTrips)]);
+        const records = await resFuel.json();
+        const trips = await resTrips.json();
+
+        // ── Table 1 : Pleins station ──
         const tbody = document.getElementById('fuel-tbody');
         tbody.innerHTML = '';
 
         if (records.length === 0) {
           tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Aucun plein enregistré sur la période.</td></tr>';
-          return;
+        } else {
+          let totalLiters = 0, totalAmount = 0;
+          records.forEach(f => {
+            totalLiters += Number(f.liters || 0);
+            totalAmount += Number(f.amount_fcfa || 0);
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td data-label="Date">${f.expense_date}</td>
+              <td data-label="Chauffeur"><strong>${f.driver_name}</strong></td>
+              <td data-label="Camion"><span class="badge badge-primary font-mono">${f.truck_id}</span></td>
+              <td data-label="Station / Lieu">${f.station}</td>
+              <td data-label="Volume (L)" class="font-mono">${Number(f.liters).toLocaleString('fr-FR')} L</td>
+              <td data-label="Montant (FCFA)" class="font-mono text-warning"><strong>${formatFCFA(f.amount_fcfa)}</strong></td>
+              <td data-label="KM relevé" class="font-mono">${f.km_at_fill ? Number(f.km_at_fill).toLocaleString('fr-FR') + ' km' : '-'}</td>
+              <td data-label="Notes" style="color:var(--text-muted); font-size:0.82rem;">${f.notes || '-'}</td>
+              <td data-label="Actions">
+                <button class="btn btn-danger btn-sm" onclick="deleteFuel(${f.id})" title="Supprimer">${VECTORS.trash}</button>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+          const totalRow = document.createElement('tr');
+          totalRow.style.cssText = 'background:var(--bg-subtle); font-weight:700; border-top:2px solid var(--border-color);';
+          totalRow.innerHTML = `
+            <td colspan="3" style="text-align:right; padding:0.5rem 1rem; color:var(--text-muted); font-size:0.85rem;">TOTAUX (${records.length} plein${records.length > 1 ? 's' : ''})</td>
+            <td style="padding:0.5rem 1rem;"></td>
+            <td class="font-mono" style="padding:0.5rem 1rem;">${totalLiters.toLocaleString('fr-FR')} L</td>
+            <td class="font-mono text-warning" style="padding:0.5rem 1rem;">${formatFCFA(totalAmount)}</td>
+            <td colspan="3" style="padding:0.5rem 1rem;"></td>
+          `;
+          tbody.appendChild(totalRow);
         }
 
-        let totalLiters = 0, totalAmount = 0;
-
-        records.forEach(f => {
-          totalLiters += Number(f.liters || 0);
-          totalAmount += Number(f.amount_fcfa || 0);
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td data-label="Date">${f.expense_date}</td>
-            <td data-label="Chauffeur"><strong>${f.driver_name}</strong></td>
-            <td data-label="Camion"><span class="badge badge-primary font-mono">${f.truck_id}</span></td>
-            <td data-label="Station / Lieu">${f.station}</td>
-            <td data-label="Volume (L)" class="font-mono">${Number(f.liters).toLocaleString('fr-FR')} L</td>
-            <td data-label="Montant (FCFA)" class="font-mono text-warning"><strong>${formatFCFA(f.amount_fcfa)}</strong></td>
-            <td data-label="KM relevé" class="font-mono">${f.km_at_fill ? Number(f.km_at_fill).toLocaleString('fr-FR') + ' km' : '-'}</td>
-            <td data-label="Notes" style="color:var(--text-muted); font-size:0.82rem;">${f.notes || '-'}</td>
-            <td data-label="Actions">
-              <button class="btn btn-danger btn-sm" onclick="deleteFuel(${f.id})" title="Supprimer">${VECTORS.trash}</button>
-            </td>
+        // ── Table 2 : Carburant versé aux chauffeurs (dep_carburant des voyages) ──
+        const tbody2 = document.getElementById('fuel-driver-tbody');
+        tbody2.innerHTML = '';
+        const tripsWithFuel = (trips || []).filter(t => Number(t.dep_carburant || 0) > 0);
+        if (tripsWithFuel.length === 0) {
+          tbody2.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:1.5rem;">Aucun carburant versé aux chauffeurs sur la période.</td></tr>';
+        } else {
+          let totalDriver = 0;
+          tripsWithFuel.forEach(t => {
+            totalDriver += Number(t.dep_carburant || 0);
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td data-label="Date">${t.trip_date}</td>
+              <td data-label="Chauffeur"><strong>${t.driver_name}</strong></td>
+              <td data-label="Camion"><span class="badge badge-primary font-mono">${t.truck_id}</span></td>
+              <td data-label="Trajet">${t.route}</td>
+              <td data-label="Montant carburant" class="font-mono text-warning"><strong>${formatFCFA(t.dep_carburant)}</strong></td>
+            `;
+            tbody2.appendChild(tr);
+          });
+          const totalRow2 = document.createElement('tr');
+          totalRow2.style.cssText = 'background:var(--bg-subtle); font-weight:700; border-top:2px solid var(--border-color);';
+          totalRow2.innerHTML = `
+            <td colspan="4" style="text-align:right; padding:0.5rem 1rem; color:var(--text-muted); font-size:0.85rem;">TOTAL CARBURANT CHAUFFEURS (${tripsWithFuel.length} voyage${tripsWithFuel.length > 1 ? 's' : ''})</td>
+            <td class="font-mono text-warning" style="padding:0.5rem 1rem;">${formatFCFA(totalDriver)}</td>
           `;
-          tbody.appendChild(tr);
-        });
-
-        // Ligne de totaux
-        const totalRow = document.createElement('tr');
-        totalRow.style.cssText = 'background:var(--bg-subtle); font-weight:700; border-top:2px solid var(--border-color);';
-        totalRow.innerHTML = `
-          <td colspan="3" style="text-align:right; padding:0.5rem 1rem; color:var(--text-muted); font-size:0.85rem;">TOTAUX (${records.length} plein${records.length > 1 ? 's' : ''})</td>
-          <td style="padding:0.5rem 1rem;"></td>
-          <td class="font-mono" style="padding:0.5rem 1rem;">${totalLiters.toLocaleString('fr-FR')} L</td>
-          <td class="font-mono text-warning" style="padding:0.5rem 1rem;">${formatFCFA(totalAmount)}</td>
-          <td colspan="3" style="padding:0.5rem 1rem;"></td>
-        `;
-        tbody.appendChild(totalRow);
+          tbody2.appendChild(totalRow2);
+        }
 
       } catch (err) {
         console.error('Erreur load fuel:', err);
@@ -9612,7 +9705,7 @@ async function loadSubcontractorDashboard() {
 async function loadSubcontractorAnalysis() {
   const el = document.getElementById('st-analysis-content');
   if (!el) return;
-  el.innerHTML = '<div style="color:var(--text-muted)">Chargement…</div>';
+  el.innerHTML = '<div style="padding:2rem; text-align:center; color:var(--text-muted);">Chargement de l'analyse…</div>';
   try {
     const params = new URLSearchParams();
     const start = document.getElementById('st-analysis-start')?.value;
@@ -9622,70 +9715,145 @@ async function loadSubcontractorAnalysis() {
     const data = await apiFetch('/api/subcontractors/dashboard?' + params.toString());
     const ym = data.comparison?.ymTransit || {};
     const st = data.comparison?.subcontractors || {};
-    const ymMargColor = (ym.total_margin||0) >= 0 ? 'var(--success,#22c55e)' : 'var(--danger,#ef4444)';
-    const stMargColor = (st.total_margin||0) >= 0 ? 'var(--success,#22c55e)' : 'var(--danger,#ef4444)';
-    const winner = (ym.margin_pct||0) > (st.margin_pct||0) ? 'YM-TRANSIT' : 'Sous-traitants';
+
+    const ymMargin = ym.total_margin || 0;
+    const stMargin = st.total_margin || 0;
+    const ymPct = ym.margin_pct || 0;
+    const stPct = st.margin_pct || 0;
+    const ymWins = ymPct > stPct;
+    const winner = ymWins ? 'YM-TRANSIT' : 'Sous-traitants';
+    const winnerColor = ymWins ? 'var(--primary)' : '#6366f1';
+
+    function kpiBlock(label, value, color) {
+      return `<div class="kpi-card" style="background:var(--bg-body); border:1px solid var(--border-color); padding:1rem 1.25rem; border-radius:var(--radius-md);">
+        <div class="kpi-title">${label}</div>
+        <div class="kpi-value" style="color:${color || 'var(--text-main)'}; font-size:1.25rem;">${value}</div>
+      </div>`;
+    }
+
+    function compareRow(label, ymVal, stVal, ymBetter) {
+      const icon = ymBetter ? '▲' : '▼';
+      const color = ymBetter ? '#22c55e' : '#ef4444';
+      return `<tr>
+        <td style="padding:0.6rem 1rem; color:var(--text-muted); font-size:0.85rem; border-bottom:1px solid var(--border-color);">${label}</td>
+        <td style="padding:0.6rem 1rem; text-align:right; font-weight:600; border-bottom:1px solid var(--border-color);">${ymVal}</td>
+        <td style="padding:0.6rem 1rem; text-align:right; font-weight:600; border-bottom:1px solid var(--border-color);">${stVal}</td>
+        <td style="padding:0.6rem 1rem; text-align:center; border-bottom:1px solid var(--border-color); color:${color}; font-size:0.8rem;">${icon} YM</td>
+      </tr>`;
+    }
+
     el.innerHTML = `
-      <div class="card" style="margin-bottom:1.5rem; border-top:3px solid var(--primary);">
-        <div class="card-header">
-          <h3 class="card-title">🏆 Résultat : <strong style="color:var(--primary)">${winner}</strong> génère la meilleure marge</h3>
+      <!-- Bannière résultat -->
+      <div style="background:linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-body) 100%); border:1px solid var(--border-color); border-left:4px solid ${winnerColor}; border-radius:var(--radius-md); padding:1.25rem 1.5rem; margin-bottom:1.5rem; display:flex; align-items:center; gap:1rem;">
+        <div style="font-size:2rem;">🏆</div>
+        <div>
+          <div style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); margin-bottom:0.25rem;">Meilleure performance sur la période</div>
+          <div style="font-size:1.4rem; font-weight:800; color:${winnerColor};">${winner}</div>
+          <div style="font-size:0.85rem; color:var(--text-muted);">Taux de marge ${ymWins ? ymPct : stPct}% — ${ymWins ? 'flotte propre' : 'flotte externe'}</div>
         </div>
       </div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
-        <div class="card">
-          <div class="card-header" style="border-bottom:2px solid var(--primary);">
-            <h3 class="card-title" style="color:var(--primary)">🚛 YM-TRANSIT — Flotte propre</h3>
+
+      <!-- Deux colonnes KPI -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:1.5rem;">
+        <!-- YM-TRANSIT -->
+        <div style="background:var(--bg-surface); border:1px solid var(--border-color); border-top:3px solid var(--primary); border-radius:var(--radius-md); overflow:hidden;">
+          <div style="padding:1rem 1.25rem; border-bottom:1px solid var(--border-color); display:flex; align-items:center; gap:0.75rem;">
+            <svg style="width:18px;height:18px;color:var(--primary);stroke:var(--primary);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+            <span style="font-size:1rem; font-weight:700; color:var(--primary);">YM-TRANSIT</span>
+            <span style="font-size:0.78rem; color:var(--text-muted); margin-left:auto;">Flotte propre</span>
           </div>
-          <div style="padding:1rem; display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-            <div style="text-align:center; padding:1rem; background:var(--bg-body); border-radius:var(--radius-sm);">
-              <div style="font-size:1.5rem; font-weight:700; color:var(--text-main)">${ym.trips_count||0}</div>
-              <div style="font-size:0.78rem; color:var(--text-muted)">Voyages</div>
-            </div>
-            <div style="text-align:center; padding:1rem; background:var(--bg-body); border-radius:var(--radius-sm);">
-              <div style="font-size:1.3rem; font-weight:700; color:var(--primary)">${fmtAmount(ym.total_revenue||0)}</div>
-              <div style="font-size:0.78rem; color:var(--text-muted)">Recette</div>
-            </div>
-            <div style="text-align:center; padding:1rem; background:var(--bg-body); border-radius:var(--radius-sm);">
-              <div style="font-size:1.3rem; font-weight:700; color:var(--danger,#ef4444)">${fmtAmount(ym.total_cost||0)}</div>
-              <div style="font-size:0.78rem; color:var(--text-muted)">Coûts totaux</div>
-            </div>
-            <div style="text-align:center; padding:1rem; background:var(--bg-body); border-radius:var(--radius-sm);">
-              <div style="font-size:1.3rem; font-weight:700; color:${ymMargColor}">${fmtAmount(ym.total_margin||0)}</div>
-              <div style="font-size:0.78rem; color:var(--text-muted)">Marge nette</div>
-            </div>
+          <div style="padding:1rem; display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+            ${kpiBlock('Voyages', ym.trips_count || 0, 'var(--text-main)')}
+            ${kpiBlock('Recette totale', fmtAmount(ym.total_revenue || 0), 'var(--primary)')}
+            ${kpiBlock('Coûts totaux', fmtAmount(ym.total_cost || 0), '#ef4444')}
+            ${kpiBlock('Marge nette', fmtAmount(ymMargin), ymMargin >= 0 ? '#22c55e' : '#ef4444')}
           </div>
-          <div style="text-align:center; padding:1rem; font-size:2rem; font-weight:800; color:${ymMargColor}">${ym.margin_pct||0}% <span style="font-size:1rem; font-weight:400">taux de marge</span></div>
+          <div style="text-align:center; padding:1.25rem; border-top:1px solid var(--border-color); background:var(--bg-body);">
+            <span style="font-size:2.5rem; font-weight:800; color:${ymMargin >= 0 ? '#22c55e' : '#ef4444'};">${ymPct}%</span>
+            <span style="font-size:0.9rem; color:var(--text-muted); margin-left:0.5rem;">taux de marge</span>
+          </div>
         </div>
-        <div class="card">
-          <div class="card-header" style="border-bottom:2px solid #6366f1;">
-            <h3 class="card-title" style="color:#6366f1">🤝 Sous-Traitants — Flotte externe</h3>
+
+        <!-- Sous-Traitants -->
+        <div style="background:var(--bg-surface); border:1px solid var(--border-color); border-top:3px solid #6366f1; border-radius:var(--radius-md); overflow:hidden;">
+          <div style="padding:1rem 1.25rem; border-bottom:1px solid var(--border-color); display:flex; align-items:center; gap:0.75rem;">
+            <svg style="width:18px;height:18px;stroke:#6366f1;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span style="font-size:1rem; font-weight:700; color:#6366f1;">Sous-Traitants</span>
+            <span style="font-size:0.78rem; color:var(--text-muted); margin-left:auto;">Flotte externe</span>
           </div>
-          <div style="padding:1rem; display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-            <div style="text-align:center; padding:1rem; background:var(--bg-body); border-radius:var(--radius-sm);">
-              <div style="font-size:1.5rem; font-weight:700; color:var(--text-main)">${st.trips_count||0}</div>
-              <div style="font-size:0.78rem; color:var(--text-muted)">Voyages</div>
-            </div>
-            <div style="text-align:center; padding:1rem; background:var(--bg-body); border-radius:var(--radius-sm);">
-              <div style="font-size:1.3rem; font-weight:700; color:#6366f1">${fmtAmount(st.total_revenue||0)}</div>
-              <div style="font-size:0.78rem; color:var(--text-muted)">Recette</div>
-            </div>
-            <div style="text-align:center; padding:1rem; background:var(--bg-body); border-radius:var(--radius-sm);">
-              <div style="font-size:1.3rem; font-weight:700; color:var(--danger,#ef4444)">${fmtAmount(st.total_cost||0)}</div>
-              <div style="font-size:0.78rem; color:var(--text-muted)">Coût ST total</div>
-            </div>
-            <div style="text-align:center; padding:1rem; background:var(--bg-body); border-radius:var(--radius-sm);">
-              <div style="font-size:1.3rem; font-weight:700; color:${stMargColor}">${fmtAmount(st.total_margin||0)}</div>
-              <div style="font-size:0.78rem; color:var(--text-muted)">Marge nette</div>
-            </div>
+          <div style="padding:1rem; display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+            ${kpiBlock('Voyages', st.trips_count || 0, 'var(--text-main)')}
+            ${kpiBlock('Recette client', fmtAmount(st.total_revenue || 0), '#6366f1')}
+            ${kpiBlock('Coût sous-traitants', fmtAmount(st.total_cost || 0), '#ef4444')}
+            ${kpiBlock('Marge nette', fmtAmount(stMargin), stMargin >= 0 ? '#22c55e' : '#ef4444')}
           </div>
-          <div style="text-align:center; padding:1rem; font-size:2rem; font-weight:800; color:${stMargColor}">${st.margin_pct||0}% <span style="font-size:1rem; font-weight:400">taux de marge</span></div>
+          <div style="text-align:center; padding:1.25rem; border-top:1px solid var(--border-color); background:var(--bg-body);">
+            <span style="font-size:2.5rem; font-weight:800; color:${stMargin >= 0 ? '#22c55e' : '#ef4444'};">${stPct}%</span>
+            <span style="font-size:0.9rem; color:var(--text-muted); margin-left:0.5rem;">taux de marge</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tableau comparatif détaillé -->
+      <div style="background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--radius-md); overflow:hidden;">
+        <div style="padding:0.875rem 1.25rem; border-bottom:1px solid var(--border-color); font-weight:700; font-size:0.9rem;">Comparaison indicateur par indicateur</div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%; border-collapse:collapse;">
+            <thead>
+              <tr style="background:var(--bg-body);">
+                <th style="padding:0.6rem 1rem; text-align:left; font-size:0.78rem; color:var(--text-muted); font-weight:600; border-bottom:1px solid var(--border-color);">Indicateur</th>
+                <th style="padding:0.6rem 1rem; text-align:right; font-size:0.78rem; color:var(--primary); font-weight:600; border-bottom:1px solid var(--border-color);">YM-TRANSIT</th>
+                <th style="padding:0.6rem 1rem; text-align:right; font-size:0.78rem; color:#6366f1; font-weight:600; border-bottom:1px solid var(--border-color);">Sous-Traitants</th>
+                <th style="padding:0.6rem 1rem; text-align:center; font-size:0.78rem; color:var(--text-muted); font-weight:600; border-bottom:1px solid var(--border-color);">Avantage</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${compareRow('Nombre de voyages', ym.trips_count||0, st.trips_count||0, (ym.trips_count||0) >= (st.trips_count||0))}
+              ${compareRow('Recette totale', fmtAmount(ym.total_revenue||0), fmtAmount(st.total_revenue||0), (ym.total_revenue||0) >= (st.total_revenue||0))}
+              ${compareRow('Coûts totaux', fmtAmount(ym.total_cost||0), fmtAmount(st.total_cost||0), (ym.total_cost||0) <= (st.total_cost||0))}
+              ${compareRow('Marge nette', fmtAmount(ymMargin), fmtAmount(stMargin), ymMargin >= stMargin)}
+              ${compareRow('Taux de marge', ymPct + '%', stPct + '%', ymPct >= stPct)}
+            </tbody>
+          </table>
         </div>
       </div>
     `;
   } catch(e) {
-    el.innerHTML = '<div style="color:var(--danger,#ef4444)">Erreur de chargement.</div>';
+    el.innerHTML = '<div style="color:var(--danger,#ef4444); padding:1.5rem;">Erreur de chargement des données comparatives.</div>';
     console.error(e);
   }
+}
+
+function printAnalyseComparative() {
+  const content = document.getElementById('st-analysis-content');
+  if (!content) return;
+  const start = document.getElementById('st-analysis-start')?.value || '';
+  const end = document.getElementById('st-analysis-end')?.value || '';
+  const period = (start || end) ? ` — Période : ${start || '…'} → ${end || '…'}` : '';
+  const win = window.open('', '_blank', 'width=900,height=700');
+  win.document.write(`<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Analyse Comparative YM-TRANSIT${period}</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:system-ui,-apple-system,sans-serif;background:#fff;color:#1a1a2e;padding:2rem;}
+    h1{font-size:1.4rem;font-weight:800;margin-bottom:0.25rem;}
+    .sub{font-size:0.85rem;color:#64748b;margin-bottom:1.5rem;}
+    table{width:100%;border-collapse:collapse;margin-top:1rem;}
+    th,td{padding:0.5rem 0.75rem;text-align:left;border:1px solid #e2e8f0;font-size:0.85rem;}
+    th{background:#f8fafc;font-weight:600;}
+    .kpi-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:1rem;margin:1rem 0;}
+    .kpi-box{border:1px solid #e2e8f0;border-radius:6px;padding:0.75rem;text-align:center;}
+    .kpi-label{font-size:0.72rem;color:#64748b;margin-bottom:0.25rem;}
+    .kpi-val{font-size:1.1rem;font-weight:700;}
+    .section-title{font-size:1rem;font-weight:700;margin:1.25rem 0 0.5rem; padding-bottom:0.25rem; border-bottom:2px solid #f59e0b;}
+    .section-title.st{border-color:#6366f1;}
+    @media print{body{padding:0.5rem;}}
+  </style></head><body>
+  <h1>Analyse Comparative — YM-TRANSIT vs Sous-Traitants</h1>
+  <div class="sub">Rapport généré le ${new Date().toLocaleDateString('fr-FR')}${period}</div>
+  ${content.innerHTML}
+  </body></html>`);
+  win.document.close();
+  setTimeout(() => { win.focus(); win.print(); }, 500);
 }
 
 // ── CRUD Subcontractor ──────────────────────────────────────────────────────
