@@ -6181,6 +6181,7 @@
         if (res.ok) {
           showToast('Chauffeur mis à jour avec succès.');
           await loadInitialData();
+          loadCurrentTabData();
         } else {
           showToast('Erreur lors de la mise à jour.', 'danger');
         }
