@@ -82,7 +82,7 @@ tripsRouter.get('/search/bl-container', (req, res) => {
 // Création d'un voyage
 tripsRouter.post('/', requireRole('superadmin', 'editor'), (req, res) => {
   try {
-    const { driver_id, truck_id, trip_date, route, recette, dep_carburant, pesee, peage, cargo, bl_number, container_number, notes } = req.body || {};
+    const { driver_id, truck_id, trip_date, route, recette, dep_carburant, pesee, peage, cargo, bl_number, container_number, client_name, notes } = req.body || {};
 
     if (!driver_id || !truck_id || !trip_date || !route) {
       return res.status(400).json({ error: 'Chauffeur, camion, date et trajet sont obligatoires.' });
@@ -98,8 +98,8 @@ tripsRouter.post('/', requireRole('superadmin', 'editor'), (req, res) => {
     const margeNette = recetteVal - montantRemis;
 
     const stmt = db.prepare(`
-      INSERT INTO trips (driver_id, truck_id, trip_date, route, amount_fcfa, recette, marge_nette, dep_carburant, pesee, peage, montant_remis, cargo, bl_number, container_number, notes)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO trips (driver_id, truck_id, trip_date, route, amount_fcfa, recette, marge_nette, dep_carburant, pesee, peage, montant_remis, cargo, bl_number, container_number, client_name, notes)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     const result = stmt.run(
@@ -117,6 +117,7 @@ tripsRouter.post('/', requireRole('superadmin', 'editor'), (req, res) => {
       cargo ? cargo.trim() : null,
       bl_number ? bl_number.trim().toUpperCase() : null,
       container_number ? container_number.trim().toUpperCase() : null,
+      client_name ? client_name.trim() : null,
       notes ? notes.trim() : null
     );
 
@@ -153,7 +154,7 @@ tripsRouter.put('/:id', requireRole('superadmin', 'editor'), (req, res) => {
       return res.status(404).json({ error: 'Voyage introuvable.' });
     }
 
-    const { driver_id, truck_id, trip_date, route, recette, dep_carburant, pesee, peage, cargo, bl_number, container_number, notes } = req.body || {};
+    const { driver_id, truck_id, trip_date, route, recette, dep_carburant, pesee, peage, cargo, bl_number, container_number, client_name, notes } = req.body || {};
 
     const recetteVal = recette !== undefined ? parseInt(recette, 10) : Number(existing.recette || 0);
     const depCarb = dep_carburant !== undefined ? parseInt(dep_carburant, 10) : Number(existing.dep_carburant || 0);
@@ -166,7 +167,7 @@ tripsRouter.put('/:id', requireRole('superadmin', 'editor'), (req, res) => {
       UPDATE trips
       SET driver_id = ?, truck_id = ?, trip_date = ?, route = ?, amount_fcfa = ?, recette = ?, marge_nette = ?,
           dep_carburant = ?, pesee = ?, peage = ?, montant_remis = ?,
-          cargo = ?, bl_number = ?, container_number = ?, notes = ?
+          cargo = ?, bl_number = ?, container_number = ?, client_name = ?, notes = ?
       WHERE id = ?
     `).run(
       driver_id ? parseInt(driver_id, 10) : existing.driver_id,
@@ -183,6 +184,7 @@ tripsRouter.put('/:id', requireRole('superadmin', 'editor'), (req, res) => {
       cargo !== undefined ? (cargo ? cargo.trim() : null) : existing.cargo,
       bl_number !== undefined ? (bl_number ? bl_number.trim().toUpperCase() : null) : existing.bl_number,
       container_number !== undefined ? (container_number ? container_number.trim().toUpperCase() : null) : existing.container_number,
+      client_name !== undefined ? (client_name ? client_name.trim() : null) : existing.client_name,
       notes !== undefined ? (notes ? notes.trim() : null) : existing.notes,
       id
     );

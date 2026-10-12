@@ -2885,6 +2885,7 @@
                 <tr>
                   <th>Date</th>
                   <th>Trajet</th>
+                  <th>Client</th>
                   <th>Camion</th>
                   <th>Recette</th>
                   <th>Carburant</th>
@@ -3295,6 +3296,7 @@
                 <th>Chauffeur</th>
                 <th>Camion</th>
                 <th>Trajet / Destination</th>
+                <th>Client</th>
                 <th>Marchandise</th>
                 <th>N° BL</th>
                 <th>N° Conteneur</th>
@@ -4042,6 +4044,7 @@
                 <th>Date</th>
                 <th>Chauffeur</th>
                 <th>Trajet</th>
+                <th>Client</th>
                 <th>Recette</th>
                 <th>Carb.</th>
                 <th>Pesée</th>
@@ -4051,7 +4054,7 @@
               </tr>
             </thead>
             <tbody id="truck-trips-tbody">
-              <tr><td colspan="9" style="text-align:center; color:var(--text-muted);">Aucun voyage.</td></tr>
+              <tr><td colspan="10" style="text-align:center; color:var(--text-muted);">Aucun voyage.</td></tr>
             </tbody>
           </table>
         </div>
@@ -4166,6 +4169,11 @@
           <div class="form-group">
             <label class="form-label" for="trip-route">Trajet / Destination *</label>
             <input type="text" id="trip-route" class="form-control" placeholder="ex: Douala - Yaoundé ou Abidjan - Bouaké" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="trip-client">Nom du client</label>
+            <input type="text" id="trip-client" class="form-control" placeholder="ex: MAERSK, BOLLORÉ, CMA-CGM, CASTEL...">
           </div>
 
           <div class="form-group">
@@ -5834,20 +5842,22 @@
           </div>
           <table style="width:100%; border-collapse:collapse; font-size:9px; table-layout:fixed;">
             <colgroup>
-              <col style="width:10%"><!-- Date -->
-              <col style="width:20%"><!-- Trajet -->
-              <col style="width:10%"><!-- Cargo/BL -->
-              <col style="width:12%"><!-- Recette -->
-              <col style="width:11%"><!-- Carburant -->
-              <col style="width:9%"><!-- Pesée -->
-              <col style="width:9%"><!-- Frais route -->
-              <col style="width:10%"><!-- Total Remis -->
-              <col style="width:9%"><!-- Marge -->
+              <col style="width:9%"><!-- Date -->
+              <col style="width:18%"><!-- Trajet -->
+              <col style="width:12%"><!-- Client -->
+              <col style="width:9%"><!-- Cargo/BL -->
+              <col style="width:11%"><!-- Recette -->
+              <col style="width:10%"><!-- Carburant -->
+              <col style="width:8%"><!-- Pesée -->
+              <col style="width:8%"><!-- Frais route -->
+              <col style="width:8%"><!-- Total Remis -->
+              <col style="width:7%"><!-- Marge -->
             </colgroup>
             <thead>
               <tr style="background:#f0fdf4; border-bottom:2px solid #059669;">
                 <th style="padding:5px 6px; text-align:left; font-size:8px; font-weight:800; color:#065f46;">DATE</th>
                 <th style="padding:5px 6px; text-align:left; font-size:8px; font-weight:800; color:#065f46;">TRAJET</th>
+                <th style="padding:5px 6px; text-align:left; font-size:8px; font-weight:800; color:#0284c7;">CLIENT</th>
                 <th style="padding:5px 6px; text-align:left; font-size:8px; font-weight:800; color:#065f46;">CARGO / BL</th>
                 <th style="padding:5px 6px; text-align:right; font-size:8px; font-weight:800; color:#059669;">RECETTE</th>
                 <th style="padding:5px 6px; text-align:right; font-size:8px; font-weight:800; color:#d97706;">CARBURANT</th>
@@ -5865,6 +5875,7 @@
                 return `<tr style="border-bottom:1px solid #e2e8f0; background:${rowBg};">
                   <td style="padding:4px 6px; font-size:8.5px; color:#475569;">${t.trip_date}</td>
                   <td style="padding:4px 6px; font-weight:700; font-size:8.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${t.route}</td>
+                  <td style="padding:4px 6px; font-weight:700; font-size:8.5px; color:#0284c7; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${t.client_name || '—'}</td>
                   <td style="padding:4px 6px; font-size:7.5px; color:#64748b; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${cargoLabel}</td>
                   <td style="padding:4px 6px; text-align:right; color:#059669; font-weight:700; font-size:8.5px;">${formatFCFA(t.recette||0)}</td>
                   <td style="padding:4px 6px; text-align:right; color:#d97706; font-size:8.5px;">${(t.dep_carburant||0)>0?formatFCFA(t.dep_carburant):'—'}</td>
@@ -5875,7 +5886,7 @@
                 </tr>`;
               }).join('')}
               <tr style="background:#ecfdf5; font-weight:900; border-top:2px solid #059669;">
-                <td colspan="3" style="padding:6px 6px; font-size:9px; font-weight:800;">TOTAUX PÉRIODE</td>
+                <td colspan="4" style="padding:6px 6px; font-size:9px; font-weight:800;">TOTAUX PÉRIODE</td>
                 <td style="padding:6px 6px; text-align:right; color:#059669; font-size:9px; font-weight:900;">${formatFCFA(s.totalRecette||0)}</td>
                 <td style="padding:6px 6px; text-align:right; color:#d97706; font-size:9px; font-weight:900;">${formatFCFA(s.totalDepCarburant||0)}</td>
                 <td style="padding:6px 6px; text-align:right; color:#0284c7; font-size:9px; font-weight:900;">${formatFCFA(s.totalPesee||0)}</td>
@@ -6353,7 +6364,7 @@
         const tripsTbody = document.getElementById('detail-trips-tbody');
         tripsTbody.innerHTML = '';
         if (!data.trips || data.trips.length === 0) {
-          tripsTbody.innerHTML = '<tr><td colspan="10" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Aucun voyage enregistré pour ce chauffeur.</td></tr>';
+          tripsTbody.innerHTML = '<tr><td colspan="11" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Aucun voyage enregistré pour ce chauffeur.</td></tr>';
         } else {
           data.trips.forEach(t => {
             const marge = Number(t.marge_nette || 0);
@@ -6362,6 +6373,7 @@
             tr.innerHTML = `
               <td data-label="Date">${t.trip_date}</td>
               <td data-label="Trajet"><strong>${t.route}</strong></td>
+              <td data-label="Client">${t.client_name ? `<span style="font-weight:600;">${t.client_name}</span>` : '<span class="text-muted">-</span>'}</td>
               <td data-label="Camion"><span class="badge badge-primary font-mono">${t.truck_id}</span></td>
               <td data-label="Recette" class="font-mono text-success"><strong>${formatFCFA(t.recette || 0)}</strong></td>
               <td data-label="Carburant" class="font-mono text-warning">${(t.dep_carburant||0) > 0 ? formatFCFA(t.dep_carburant) : '-'}</td>
@@ -6936,6 +6948,7 @@
                 <th style="padding:5px 6px; text-align:left; border-bottom:1px solid #bbf7d0;">Date</th>
                 <th style="padding:5px 6px; text-align:left; border-bottom:1px solid #bbf7d0;">Chauffeur</th>
                 <th style="padding:5px 6px; text-align:left; border-bottom:1px solid #bbf7d0;">Trajet</th>
+                <th style="padding:5px 6px; text-align:left; border-bottom:1px solid #bbf7d0;">Client</th>
                 <th style="padding:5px 6px; text-align:right; border-bottom:1px solid #bbf7d0;">Recette</th>
                 <th style="padding:5px 6px; text-align:right; border-bottom:1px solid #bbf7d0;">Carb.</th>
                 <th style="padding:5px 6px; text-align:right; border-bottom:1px solid #bbf7d0;">Pesée</th>
@@ -6950,6 +6963,7 @@
                 <td style="padding:4px 6px;">${t.trip_date}</td>
                 <td style="padding:4px 6px;">${t.driver_name}</td>
                 <td style="padding:4px 6px; font-weight:600;">${t.route}</td>
+                <td style="padding:4px 6px; font-weight:700; color:#0284c7;">${t.client_name || '—'}</td>
                 <td style="padding:4px 6px; text-align:right; color:#059669; font-weight:700;">${formatFCFA(t.recette||0)}</td>
                 <td style="padding:4px 6px; text-align:right; color:#d97706;">${(t.dep_carburant||0)>0?formatFCFA(t.dep_carburant):'—'}</td>
                 <td style="padding:4px 6px; text-align:right; color:#0284c7;">${(t.pesee||0)>0?formatFCFA(t.pesee):'—'}</td>
@@ -6958,7 +6972,7 @@
                 <td style="padding:4px 6px; text-align:right; font-weight:700; color:${(t.marge_nette||0)>=0?'#059669':'#e11d48'};">${formatFCFA(t.marge_nette||0)}</td>
               </tr>`).join('')}
               <tr style="background:#f0fdf4; font-weight:800; border-top:2px solid #059669;">
-                <td colspan="3" style="padding:5px 6px;">TOTAUX</td>
+                <td colspan="4" style="padding:5px 6px;">TOTAUX</td>
                 <td style="padding:5px 6px; text-align:right; color:#059669;">${formatFCFA(s.totalRecette)}</td>
                 <td style="padding:5px 6px; text-align:right; color:#d97706;">${formatFCFA(s.totalDepCarburant)}</td>
                 <td style="padding:5px 6px; text-align:right; color:#0284c7;">${formatFCFA(s.totalPesee)}</td>
@@ -7423,11 +7437,12 @@
         // Tableau voyages
         const tripsTbody = document.getElementById('truck-trips-tbody');
         tripsTbody.innerHTML = data.trips.length === 0
-          ? '<tr><td colspan="9" style="text-align:center;color:var(--text-muted);">Aucun voyage sur la période.</td></tr>'
+          ? '<tr><td colspan="10" style="text-align:center;color:var(--text-muted);">Aucun voyage sur la période.</td></tr>'
           : data.trips.map(t => `<tr>
               <td data-label="Date">${t.trip_date}</td>
               <td data-label="Chauffeur"><strong>${t.driver_name}</strong></td>
               <td data-label="Trajet">${t.route}</td>
+              <td data-label="Client">${t.client_name ? `<span style="font-weight:600;">${t.client_name}</span>` : '<span style="color:var(--text-muted);">-</span>'}</td>
               <td data-label="Recette" class="font-mono text-success"><strong>${formatFCFA(t.recette||0)}</strong></td>
               <td data-label="Carb." class="font-mono" style="color:#d97706;">${(t.dep_carburant||0)>0?formatFCFA(t.dep_carburant):'—'}</td>
               <td data-label="Pesée" class="font-mono" style="color:#0284c7;">${(t.pesee||0)>0?formatFCFA(t.pesee):'—'}</td>
@@ -7495,7 +7510,7 @@
         tbody.innerHTML = '';
 
         if (trips.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="14" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Aucun voyage enregistré sur la période.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="15" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Aucun voyage enregistré sur la période.</td></tr>';
           return;
         }
 
@@ -7514,6 +7529,7 @@
             <td data-label="Chauffeur"><strong>${t.driver_name}</strong></td>
             <td data-label="Camion"><span class="badge badge-primary font-mono">${t.truck_id}</span></td>
             <td data-label="Trajet">${t.route}</td>
+            <td data-label="Client">${t.client_name ? `<span style="font-weight:600; color:var(--text-primary);">${t.client_name}</span>` : '<span class="text-muted">-</span>'}</td>
             <td data-label="Marchandise" class="text-muted">${t.cargo || '-'}</td>
             <td data-label="N° BL" class="font-mono">${t.bl_number || '-'}</td>
             <td data-label="N° Conteneur" class="font-mono">${t.container_number || '-'}</td>
@@ -7535,7 +7551,7 @@
         const totalRow = document.createElement('tr');
         totalRow.style.cssText = 'background:var(--bg-subtle); font-weight:700; border-top:2px solid var(--border-color);';
         totalRow.innerHTML = `
-          <td colspan="7" style="text-align:right; padding:0.5rem 1rem; color:var(--text-muted); font-size:0.85rem;">TOTAUX (${trips.length} voyage${trips.length > 1 ? 's' : ''})</td>
+          <td colspan="8" style="text-align:right; padding:0.5rem 1rem; color:var(--text-muted); font-size:0.85rem;">TOTAUX (${trips.length} voyage${trips.length > 1 ? 's' : ''})</td>
           <td class="font-mono text-success" style="padding:0.5rem 1rem;">${formatFCFA(totalRecette)}</td>
           <td class="font-mono text-warning" style="padding:0.5rem 1rem;">${formatFCFA(totalCarburant)}</td>
           <td class="font-mono" style="padding:0.5rem 1rem;">${formatFCFA(totalPesee)}</td>
@@ -7892,6 +7908,7 @@
         cargo: document.getElementById('trip-cargo').value,
         bl_number: document.getElementById('trip-bl').value,
         container_number: document.getElementById('trip-container').value,
+        client_name: document.getElementById('trip-client').value,
         notes: document.getElementById('trip-notes').value
       };
 
@@ -7942,6 +7959,7 @@
         document.getElementById('trip-pesee').value = t.pesee || 0;
         document.getElementById('trip-peage').value = t.peage || 0;
         document.getElementById('trip-route').value = t.route || '';
+        document.getElementById('trip-client').value = t.client_name || '';
         document.getElementById('trip-cargo').value = t.cargo || '';
         document.getElementById('trip-bl').value = t.bl_number || '';
         document.getElementById('trip-container').value = t.container_number || '';
