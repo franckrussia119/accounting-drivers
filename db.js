@@ -172,6 +172,7 @@ export function initDatabase() {
 
   migrateAddColumnIfMissing('trips', 'bl_number', 'TEXT');
   migrateAddColumnIfMissing('trips', 'container_number', 'TEXT');
+  migrateAddColumnIfMissing('trips', 'client_name', 'TEXT');
   migrateAddColumnIfMissing('trips', 'recette', 'INTEGER DEFAULT 0');
   migrateAddColumnIfMissing('trips', 'marge_nette', 'INTEGER DEFAULT 0');
   migrateAddColumnIfMissing('trips', 'dep_carburant', 'INTEGER DEFAULT 0');
