@@ -3587,12 +3587,15 @@
           </div>
         </div>
 
-        <!-- Filtres -->
-        <div style="display:flex; gap:0.65rem; align-items:center; flex-wrap:wrap;">
-          <select id="docs-filter-entity-type" class="form-control" style="max-width:155px;" onchange="loadDocuments()">
+        <!-- Filtres ligne 1 -->
+        <div style="display:flex; gap:0.65rem; align-items:center; flex-wrap:wrap; margin-bottom:0.65rem;">
+          <select id="docs-filter-entity-type" class="form-control" style="max-width:145px;" onchange="onDocsEntityTypeChange()">
             <option value="">Toutes entités</option>
             <option value="truck">Camions</option>
             <option value="driver">Chauffeurs</option>
+          </select>
+          <select id="docs-filter-entity-id" class="form-control" style="max-width:155px;" onchange="loadDocuments()">
+            <option value="">Tous camions/chauffeurs</option>
           </select>
           <select id="docs-filter-doc-type" class="form-control" style="max-width:210px;" onchange="loadDocuments()">
             <option value="">Tous types</option>
@@ -3623,8 +3626,22 @@
             <option value="expiring">Expirent bientôt</option>
             <option value="expired">Expirés</option>
           </select>
-          <input type="text" id="docs-search-input" class="form-control" placeholder="Rechercher…" style="max-width:240px;" oninput="renderDocumentsTable()">
-          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('docs-filter-entity-type').value=''; document.getElementById('docs-filter-doc-type').value=''; document.getElementById('docs-filter-status').value=''; document.getElementById('docs-search-input').value=''; loadDocuments();">Réinitialiser</button>
+          <select id="docs-filter-year" class="form-control" style="max-width:130px;" onchange="loadDocuments()">
+            <option value="">Toutes années</option>
+          </select>
+          <input type="text" id="docs-search-input" class="form-control" placeholder="Rechercher…" style="max-width:200px;" oninput="renderDocumentsTable()">
+          <button class="btn btn-secondary btn-sm" onclick="resetDocsFilters()">Réinitialiser</button>
+        </div>
+        <!-- Export -->
+        <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+          <span style="font-size:0.78rem; color:var(--text-muted); font-weight:600;">Exporter :</span>
+          <button class="btn btn-secondary btn-sm" onclick="exportDocsCsv()" title="Exporter le tableau filtré en CSV Excel">
+            <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> CSV / Excel
+          </button>
+          <button class="btn btn-secondary btn-sm" onclick="exportDocsPdf()" title="Exporter le tableau filtré en PDF imprimable">
+            <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15h6m-6-4h6m-3-8v8"/></svg> PDF
+          </button>
+          <span id="docs-count-label" style="font-size:0.78rem; color:var(--text-muted); margin-left:0.25rem;"></span>
         </div>
       </div>
 
@@ -8515,51 +8532,131 @@
     }
 
     /** Charge les documents + KPIs comptables */
+    /** Peuple le select camion/chauffeur selon le type d'entité sélectionné */
+    function onDocsEntityTypeChange() {
+      const entityType = document.getElementById('docs-filter-entity-type')?.value || '';
+      const sel = document.getElementById('docs-filter-entity-id');
+      if (!sel) return;
+      sel.innerHTML = '<option value="">Tous</option>';
+      if (entityType === 'truck') {
+        (state.trucks || []).forEach(t => {
+          const opt = document.createElement('option');
+          opt.value = t.code;
+          opt.textContent = `${t.code} — ${t.brand_model}`;
+          sel.appendChild(opt);
+        });
+      } else if (entityType === 'driver') {
+        (state.drivers || []).filter(d => d.is_active).forEach(d => {
+          const opt = document.createElement('option');
+          opt.value = d.id;
+          opt.textContent = d.name;
+          sel.appendChild(opt);
+        });
+      }
+      loadDocuments();
+    }
+
+    /** Peuple le select des années disponibles à partir des docs chargés */
+    function populateDocsYearFilter(docs) {
+      const sel = document.getElementById('docs-filter-year');
+      if (!sel) return;
+      const current = sel.value;
+      const years = new Set();
+      docs.forEach(d => {
+        if (d.issue_date) years.add(d.issue_date.slice(0, 4));
+        if (d.expiry_date) years.add(d.expiry_date.slice(0, 4));
+      });
+      const sorted = [...years].sort((a, b) => b - a);
+      sel.innerHTML = '<option value="">Toutes années</option>';
+      sorted.forEach(y => {
+        const opt = document.createElement('option');
+        opt.value = y;
+        opt.textContent = y;
+        if (y === current) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
+
+    /** Réinitialise tous les filtres documents */
+    function resetDocsFilters() {
+      ['docs-filter-entity-type','docs-filter-entity-id','docs-filter-doc-type',
+       'docs-filter-status','docs-filter-year','docs-search-input'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      document.getElementById('docs-filter-entity-id').innerHTML = '<option value="">Tous</option>';
+      loadDocuments();
+    }
+
+    /** Recalcule les KPIs à partir des données filtrées affichées */
+    function updateDocsKpisFromRows(rows) {
+      const today = new Date(); today.setHours(0,0,0,0);
+      const in30 = new Date(today); in30.setDate(in30.getDate()+30);
+      let totalSpent = 0, totalRenewal = 0, truckDocs = 0, driverDocs = 0, expired = 0, expiring = 0;
+      rows.forEach(d => {
+        totalSpent += d.amount_fcfa || 0;
+        totalRenewal += d.renewal_cost || 0;
+        if (d.entity_type === 'truck') truckDocs++; else driverDocs++;
+        if (d.expiry_date) {
+          const exp = new Date(d.expiry_date);
+          if (exp < today) expired++;
+          else if (exp <= in30) expiring++;
+        }
+      });
+      const g = id => document.getElementById(id);
+      if (g('docs-kpi-total-spent')) g('docs-kpi-total-spent').textContent = formatFCFA(totalSpent);
+      if (g('docs-kpi-renewal')) g('docs-kpi-renewal').textContent = formatFCFA(totalRenewal);
+      if (g('docs-kpi-truck-count')) g('docs-kpi-truck-count').textContent = truckDocs + ' docs';
+      if (g('docs-kpi-driver-count')) g('docs-kpi-driver-count').textContent = driverDocs + ' docs';
+      if (g('docs-kpi-expired')) g('docs-kpi-expired').textContent = expired;
+      if (g('docs-kpi-expiring')) g('docs-kpi-expiring').textContent = expiring;
+    }
+
     async function loadDocuments() {
       try {
         const entityType = document.getElementById('docs-filter-entity-type')?.value || '';
-        const docType = document.getElementById('docs-filter-doc-type')?.value || '';
-        const status = document.getElementById('docs-filter-status')?.value || '';
+        const entityId   = document.getElementById('docs-filter-entity-id')?.value || '';
+        const docType    = document.getElementById('docs-filter-doc-type')?.value || '';
+        const status     = document.getElementById('docs-filter-status')?.value || '';
         let url = '/api/documents?';
         if (entityType) url += `entity_type=${encodeURIComponent(entityType)}&`;
-        if (docType) url += `doc_type=${encodeURIComponent(docType)}&`;
-        if (status) url += `status=${encodeURIComponent(status)}&`;
+        if (entityId)   url += `entity_id=${encodeURIComponent(entityId)}&`;
+        if (docType)    url += `doc_type=${encodeURIComponent(docType)}&`;
+        if (status)     url += `status=${encodeURIComponent(status)}&`;
 
-        const [docsRes, accRes, alertsRes] = await Promise.all([
+        const [docsRes, alertsRes] = await Promise.all([
           fetch(url),
-          fetch('/api/documents/accounting'),
           fetch('/api/documents/alerts')
         ]);
 
         if (!docsRes.ok) throw new Error('Erreur réseau');
         _docsData = await docsRes.json();
+
+        // Filtre local par année
+        const year = document.getElementById('docs-filter-year')?.value || '';
+        let filtered = _docsData;
+        if (year) {
+          filtered = filtered.filter(d =>
+            (d.issue_date && d.issue_date.startsWith(year)) ||
+            (d.expiry_date && d.expiry_date.startsWith(year))
+          );
+        }
+        _docsFiltered = filtered;
+
+        // Peuple le filtre année (sans changer la sélection)
+        populateDocsYearFilter(_docsData);
+
         renderDocumentsTable();
 
-        // KPIs comptables
-        if (accRes.ok) {
-          const acc = await accRes.json();
-          const s = acc.summary || {};
-          const el = id => document.getElementById(id);
-          if (el('docs-kpi-total-spent')) el('docs-kpi-total-spent').textContent = formatFCFA(s.total_spent || 0);
-          if (el('docs-kpi-renewal')) el('docs-kpi-renewal').textContent = formatFCFA(s.total_renewal_forecast || 0);
-          if (el('docs-kpi-truck-count')) el('docs-kpi-truck-count').textContent = (s.truck_docs || 0) + ' docs';
-          if (el('docs-kpi-driver-count')) el('docs-kpi-driver-count').textContent = (s.driver_docs || 0) + ' docs';
-        }
-
-        // KPIs alertes
+        // Badges alertes globaux (indépendants du filtre)
         if (alertsRes.ok) {
           const alerts = await alertsRes.json();
-          const el = id => document.getElementById(id);
-          if (el('docs-kpi-expired')) el('docs-kpi-expired').textContent = alerts.expired || 0;
-          if (el('docs-kpi-expiring')) el('docs-kpi-expiring').textContent = alerts.expiring || 0;
-          // Badge sidebar/nav
-          const badge = el('docs-alert-badge');
-          const badge2 = el('sidebar-docs-alert-badge');
           const total = (alerts.expired || 0) + (alerts.expiring || 0);
-          [badge, badge2].forEach(b => {
-            if (!b) return;
-            if (total > 0) { b.textContent = total; b.style.display = 'inline-block'; }
-            else b.style.display = 'none';
+          ['docs-alert-badge', 'sidebar-docs-alert-badge'].forEach(id => {
+            const badge = document.getElementById(id);
+            if (!badge) return;
+            if (total > 0) { badge.textContent = total; badge.style.display = 'inline-block'; }
+            else badge.style.display = 'none';
           });
         }
       } catch (err) {
@@ -8568,16 +8665,28 @@
       }
     }
 
-    /** Filtre côté client et affiche le tableau */
+    // Variable pour stocker les données filtrées (utilisées par export)
+    let _docsFiltered = [];
+
+    /** Filtre côté client (recherche texte) et affiche le tableau */
     function renderDocumentsTable() {
       const tbody = document.getElementById('docs-tbody');
       const emptyDiv = document.getElementById('docs-empty');
       const tableEl = document.getElementById('docs-table');
+      const countLabel = document.getElementById('docs-count-label');
       if (!tbody) return;
 
       const search = (document.getElementById('docs-search-input')?.value || '').toLowerCase().trim();
+      const year = document.getElementById('docs-filter-year')?.value || '';
 
+      // Applique filtre année sur _docsData puis recherche texte
       let rows = _docsData;
+      if (year) {
+        rows = rows.filter(d =>
+          (d.issue_date && d.issue_date.startsWith(year)) ||
+          (d.expiry_date && d.expiry_date.startsWith(year))
+        );
+      }
       if (search) {
         rows = rows.filter(d => {
           const label = DOC_TYPE_LABELS[d.doc_type] || d.doc_type;
@@ -8590,6 +8699,15 @@
           );
         });
       }
+
+      // Sauvegarde pour export
+      _docsFiltered = rows;
+
+      // KPIs dynamiques sur les lignes affichées
+      updateDocsKpisFromRows(rows);
+
+      // Compteur
+      if (countLabel) countLabel.textContent = rows.length > 0 ? `${rows.length} document${rows.length > 1 ? 's' : ''}` : '';
 
       if (rows.length === 0) {
         tbody.innerHTML = '';
@@ -8653,6 +8771,137 @@
       }).join('');
     }
 
+    /** Export CSV du tableau filtré */
+    function exportDocsCsv() {
+      const rows = _docsFiltered;
+      if (!rows || rows.length === 0) { showToast('Aucune donnée à exporter.', 'warning'); return; }
+      const today = new Date(); today.setHours(0,0,0,0); const in30 = new Date(today); in30.setDate(in30.getDate()+30);
+      const getStatus = expiry => {
+        if (!expiry) return 'Valide';
+        const exp = new Date(expiry);
+        if (exp < today) return 'Expiré';
+        if (exp <= in30) return 'Expire bientôt';
+        return 'Valide';
+      };
+      const headers = ['Entité','ID','Type de document','Nom/Référence','Chauffeur lié','Date émission','Date expiration','Statut','Coût établissement (FCFA)','Budget renouvellement (FCFA)','Notes'];
+      const csvRows = [headers.join(';')];
+      rows.forEach(d => {
+        csvRows.push([
+          d.entity_type === 'truck' ? 'Camion' : 'Chauffeur',
+          d.entity_id,
+          DOC_TYPE_LABELS[d.doc_type] || d.doc_type,
+          d.doc_name,
+          d.driver_name || '',
+          d.issue_date || '',
+          d.expiry_date || '',
+          getStatus(d.expiry_date),
+          d.amount_fcfa || 0,
+          d.renewal_cost || 0,
+          (d.notes || '').replace(/;/g, ',')
+        ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(';'));
+      });
+      // Totaux
+      const totalSpent = rows.reduce((s, d) => s + (d.amount_fcfa || 0), 0);
+      const totalRenewal = rows.reduce((s, d) => s + (d.renewal_cost || 0), 0);
+      csvRows.push(['','','','','','','','TOTAL',totalSpent, totalRenewal,''].map(v => `"${v}"`).join(';'));
+      const bom = '﻿';
+      const blob = new Blob([bom + csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      const dateStr = new Date().toISOString().slice(0,10);
+      link.download = `documents-flotte-${dateStr}.csv`;
+      link.click();
+      showToast('Export CSV téléchargé.', 'success');
+    }
+
+    /** Export PDF du tableau filtré (impression navigateur) */
+    function exportDocsPdf() {
+      const rows = _docsFiltered;
+      if (!rows || rows.length === 0) { showToast('Aucune donnée à exporter.', 'warning'); return; }
+      const today = new Date(); today.setHours(0,0,0,0); const in30 = new Date(today); in30.setDate(in30.getDate()+30);
+      const getStatus = expiry => {
+        if (!expiry) return 'Valide';
+        const exp = new Date(expiry);
+        if (exp < today) return '<span style="color:#ef4444;font-weight:700;">Expiré</span>';
+        if (exp <= in30) return '<span style="color:#f59e0b;font-weight:700;">Expire bientôt</span>';
+        return '<span style="color:#10b981;font-weight:700;">Valide</span>';
+      };
+      const fmt = n => n ? n.toLocaleString('fr-FR') + ' FCFA' : '—';
+      const totalSpent = rows.reduce((s, d) => s + (d.amount_fcfa || 0), 0);
+      const totalRenewal = rows.reduce((s, d) => s + (d.renewal_cost || 0), 0);
+      const dateStr = new Date().toLocaleDateString('fr-FR', {day:'2-digit',month:'long',year:'numeric'});
+      const filterDesc = (() => {
+        const parts = [];
+        const et = document.getElementById('docs-filter-entity-type')?.value;
+        const ei = document.getElementById('docs-filter-entity-id')?.value;
+        const dt = document.getElementById('docs-filter-doc-type')?.value;
+        const st = document.getElementById('docs-filter-status')?.value;
+        const yr = document.getElementById('docs-filter-year')?.value;
+        if (et) parts.push(et === 'truck' ? 'Camions' : 'Chauffeurs');
+        if (ei) parts.push(ei);
+        if (dt) parts.push(DOC_TYPE_LABELS[dt] || dt);
+        if (st) parts.push(st === 'valid' ? 'Valides' : st === 'expiring' ? 'Expirent bientôt' : 'Expirés');
+        if (yr) parts.push('Année ' + yr);
+        return parts.length ? parts.join(' · ') : 'Tous documents';
+      })();
+      const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+      <title>Documents administratifs — YM-TRANSIT</title>
+      <style>
+        body{font-family:Arial,sans-serif;font-size:11px;color:#111;margin:0;padding:1.5cm;}
+        h1{font-size:18px;margin:0 0 4px;}
+        .meta{color:#666;font-size:10px;margin-bottom:12px;}
+        .kpis{display:flex;gap:16px;margin-bottom:14px;flex-wrap:wrap;}
+        .kpi{border:1px solid #ddd;border-radius:4px;padding:8px 14px;min-width:120px;}
+        .kpi-label{font-size:9px;color:#888;text-transform:uppercase;font-weight:700;margin-bottom:2px;}
+        .kpi-val{font-size:14px;font-weight:800;color:#111;}
+        table{width:100%;border-collapse:collapse;font-size:10px;}
+        th{background:#0a0e1a;color:#f59e0b;padding:6px 8px;text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;}
+        td{padding:5px 8px;border-bottom:1px solid #eee;}
+        tr:nth-child(even) td{background:#f9f9f9;}
+        .tfoot td{background:#f0f0f0;font-weight:700;border-top:2px solid #ccc;}
+        @media print{body{margin:0;padding:1cm;} @page{margin:1cm;}}
+      </style></head><body>
+      <h1>Documents administratifs — YM-TRANSIT</h1>
+      <div class="meta">Exporté le ${dateStr} · Filtre : ${filterDesc} · ${rows.length} document${rows.length>1?'s':''}</div>
+      <div class="kpis">
+        <div class="kpi"><div class="kpi-label">Total dépensé</div><div class="kpi-val">${fmt(totalSpent)}</div></div>
+        <div class="kpi"><div class="kpi-label">Budget renouvellement</div><div class="kpi-val">${fmt(totalRenewal)}</div></div>
+        <div class="kpi"><div class="kpi-label">Documents</div><div class="kpi-val">${rows.length}</div></div>
+      </div>
+      <table>
+        <thead><tr>
+          <th>Entité</th><th>Type</th><th>Nom / Référence</th><th>Chauffeur lié</th>
+          <th>Émission</th><th>Expiration</th><th>Statut</th>
+          <th style="text-align:right;">Coût établ. (FCFA)</th>
+          <th style="text-align:right;">Budget renouvl. (FCFA)</th>
+        </tr></thead>
+        <tbody>
+          ${rows.map(d => `<tr>
+            <td><strong>${d.entity_type==='truck'?'🚛':'👤'} ${d.entity_id}</strong></td>
+            <td>${DOC_TYPE_LABELS[d.doc_type]||d.doc_type}</td>
+            <td>${d.doc_name}</td>
+            <td>${d.driver_name||'—'}</td>
+            <td>${d.issue_date ? new Date(d.issue_date).toLocaleDateString('fr-FR') : '—'}</td>
+            <td>${d.expiry_date ? new Date(d.expiry_date).toLocaleDateString('fr-FR') : '—'}</td>
+            <td>${getStatus(d.expiry_date)}</td>
+            <td style="text-align:right;">${d.amount_fcfa ? d.amount_fcfa.toLocaleString('fr-FR') : '—'}</td>
+            <td style="text-align:right;">${d.renewal_cost ? d.renewal_cost.toLocaleString('fr-FR') : '—'}</td>
+          </tr>`).join('')}
+        </tbody>
+        <tfoot><tr class="tfoot">
+          <td colspan="7" style="text-align:right;">TOTAL</td>
+          <td style="text-align:right;">${totalSpent.toLocaleString('fr-FR')}</td>
+          <td style="text-align:right;">${totalRenewal.toLocaleString('fr-FR')}</td>
+        </tr></tfoot>
+      </table>
+      </body></html>`;
+      const win = window.open('', '_blank');
+      win.document.write(html);
+      win.document.close();
+      win.focus();
+      setTimeout(() => win.print(), 600);
+    }
+
     /** Met à jour le badge d'alerte sur le nav item Documents */
     async function refreshDocAlertBadge() {
       try {
@@ -8671,15 +8920,8 @@
 
     /** Filtre rapide sur les alertes */
     function filterDocsByAlerts() {
-      const today = new Date(); today.setHours(0, 0, 0, 0);
-      const in30 = new Date(today); in30.setDate(in30.getDate() + 30);
-      _docsData = _docsData.filter(d => {
-        if (!d.expiry_date) return false;
-        const exp = new Date(d.expiry_date);
-        return exp <= in30;
-      });
-      document.getElementById('docs-filter-status').value = '';
-      renderDocumentsTable();
+      document.getElementById('docs-filter-status').value = 'expiring';
+      loadDocuments();
     }
 
     /** Remplit le select des chauffeurs dans la modale doc */
