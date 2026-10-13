@@ -3249,13 +3249,24 @@
 
     <!-- ==================== ONGLET 3 : CAMIONS & ENTRETIEN ==================== -->
     <section id="view-trucks" class="view-panel" style="display: none;">
-      <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; flex-wrap: wrap;">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
         <h2 style="font-size: 1.25rem; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
           <svg class="svg-icon" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> Flotte de Camions
         </h2>
         <button id="add-truck-btn" class="btn btn-primary btn-sm btn-write-only">
           <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Ajouter un camion
         </button>
+      </div>
+      <div style="display:flex; gap:0.55rem; align-items:center; flex-wrap:wrap; margin-bottom:1rem;">
+        <select id="trucks-filter-status" class="form-control form-control-sm" style="max-width:155px;" onchange="renderTrucksGrid()">
+          <option value="">Tous statuts</option>
+          <option value="actif">Actif</option>
+          <option value="en_maintenance">En maintenance</option>
+          <option value="inactif">Inactif</option>
+        </select>
+        <input type="text" id="trucks-search-input" class="form-control form-control-sm" placeholder="Code, marque, immat…" style="max-width:230px;" oninput="renderTrucksGrid()">
+        <button class="btn btn-secondary btn-sm" onclick="document.getElementById('trucks-filter-status').value=''; document.getElementById('trucks-search-input').value=''; renderTrucksGrid();">Réinitialiser</button>
+        <span id="trucks-count-label" style="font-size:0.78rem; color:var(--text-muted);"></span>
       </div>
       <div class="trucks-grid" id="trucks-cards-grid">
         <!-- Camions injectés -->
@@ -3281,12 +3292,24 @@
             </button>
           </div>
         </div>
-        <div style="display:flex; gap:0.75rem; align-items:center; padding:0.75rem 1rem; background:var(--bg-body); border-bottom:1px solid var(--border-color);">
-          <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">Période :</span>
-          <input type="date" class="form-control form-control-sm" id="trips-date-start" style="width:150px;" value="" onchange="state.startDate=this.value; loadTrips();">
-          <span style="font-size:0.85rem; color:var(--text-muted);">→</span>
-          <input type="date" class="form-control form-control-sm" id="trips-date-end" style="width:150px;" value="" onchange="state.endDate=this.value; loadTrips();">
-          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('trips-date-start').value=''; document.getElementById('trips-date-end').value=''; state.startDate=''; state.endDate=''; loadTrips();">Tout afficher</button>
+        <div style="padding:0.75rem 1rem; background:var(--bg-body); border-bottom:1px solid var(--border-color);">
+          <div style="display:flex; gap:0.65rem; align-items:center; flex-wrap:wrap; margin-bottom:0.55rem;">
+            <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">Période :</span>
+            <input type="date" class="form-control form-control-sm" id="trips-date-start" style="width:145px;" value="" onchange="state.startDate=this.value; loadTrips();">
+            <span style="font-size:0.85rem; color:var(--text-muted);">→</span>
+            <input type="date" class="form-control form-control-sm" id="trips-date-end" style="width:145px;" value="" onchange="state.endDate=this.value; loadTrips();">
+            <button class="btn btn-secondary btn-sm" onclick="resetTripsFilters()">Tout afficher</button>
+          </div>
+          <div style="display:flex; gap:0.55rem; align-items:center; flex-wrap:wrap;">
+            <select id="trips-filter-truck" class="form-control form-control-sm" style="max-width:140px;" onchange="renderTripsTable()">
+              <option value="">Tous camions</option>
+            </select>
+            <select id="trips-filter-driver" class="form-control form-control-sm" style="max-width:170px;" onchange="renderTripsTable()">
+              <option value="">Tous chauffeurs</option>
+            </select>
+            <input type="text" id="trips-search-input" class="form-control form-control-sm" placeholder="Trajet, client, BL, conteneur…" style="max-width:250px;" oninput="renderTripsTable()">
+            <span id="trips-count-label" style="font-size:0.78rem; color:var(--text-muted);"></span>
+          </div>
         </div>
         <div class="table-container">
           <table class="data-table mobile-collapse" id="trips-table">
@@ -3336,12 +3359,24 @@
             </button>
           </div>
         </div>
-        <div style="display:flex; gap:0.75rem; align-items:center; padding:0.75rem 1rem; background:var(--bg-body); border-bottom:1px solid var(--border-color);">
-          <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">Période :</span>
-          <input type="date" class="form-control form-control-sm" id="fuel-date-start" style="width:150px;" value="" onchange="state.startDate=this.value; loadFuel();">
-          <span style="font-size:0.85rem; color:var(--text-muted);">→</span>
-          <input type="date" class="form-control form-control-sm" id="fuel-date-end" style="width:150px;" value="" onchange="state.endDate=this.value; loadFuel();">
-          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('fuel-date-start').value=''; document.getElementById('fuel-date-end').value=''; state.startDate=''; state.endDate=''; loadFuel();">Tout afficher</button>
+        <div style="padding:0.75rem 1rem; background:var(--bg-body); border-bottom:1px solid var(--border-color);">
+          <div style="display:flex; gap:0.65rem; align-items:center; flex-wrap:wrap; margin-bottom:0.55rem;">
+            <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">Période :</span>
+            <input type="date" class="form-control form-control-sm" id="fuel-date-start" style="width:145px;" value="" onchange="state.startDate=this.value; loadFuel();">
+            <span style="font-size:0.85rem; color:var(--text-muted);">→</span>
+            <input type="date" class="form-control form-control-sm" id="fuel-date-end" style="width:145px;" value="" onchange="state.endDate=this.value; loadFuel();">
+            <button class="btn btn-secondary btn-sm" onclick="resetFuelFilters()">Tout afficher</button>
+          </div>
+          <div style="display:flex; gap:0.55rem; align-items:center; flex-wrap:wrap;">
+            <select id="fuel-filter-truck" class="form-control form-control-sm" style="max-width:140px;" onchange="renderFuelTable()">
+              <option value="">Tous camions</option>
+            </select>
+            <select id="fuel-filter-driver" class="form-control form-control-sm" style="max-width:170px;" onchange="renderFuelTable()">
+              <option value="">Tous chauffeurs</option>
+            </select>
+            <input type="text" id="fuel-search-input" class="form-control form-control-sm" placeholder="Station, notes…" style="max-width:220px;" oninput="renderFuelTable()">
+            <span id="fuel-count-label" style="font-size:0.78rem; color:var(--text-muted);"></span>
+          </div>
         </div>
         <div class="table-container">
           <table class="data-table mobile-collapse" id="fuel-table">
@@ -3414,12 +3449,32 @@
             </button>
           </div>
         </div>
-        <div style="display:flex; gap:0.75rem; align-items:center; padding:0.75rem 1rem; background:var(--bg-body); border-bottom:1px solid var(--border-color);">
-          <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">Période :</span>
-          <input type="date" class="form-control form-control-sm" id="maint-date-start" style="width:150px;" value="" onchange="state.startDate=this.value; loadMaintenance();">
-          <span style="font-size:0.85rem; color:var(--text-muted);">→</span>
-          <input type="date" class="form-control form-control-sm" id="maint-date-end" style="width:150px;" value="" onchange="state.endDate=this.value; loadMaintenance();">
-          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('maint-date-start').value=''; document.getElementById('maint-date-end').value=''; state.startDate=''; state.endDate=''; loadMaintenance();">Tout afficher</button>
+        <div style="padding:0.75rem 1rem; background:var(--bg-body); border-bottom:1px solid var(--border-color);">
+          <div style="display:flex; gap:0.65rem; align-items:center; flex-wrap:wrap; margin-bottom:0.55rem;">
+            <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">Période :</span>
+            <input type="date" class="form-control form-control-sm" id="maint-date-start" style="width:145px;" value="" onchange="state.startDate=this.value; loadMaintenance();">
+            <span style="font-size:0.85rem; color:var(--text-muted);">→</span>
+            <input type="date" class="form-control form-control-sm" id="maint-date-end" style="width:145px;" value="" onchange="state.endDate=this.value; loadMaintenance();">
+            <button class="btn btn-secondary btn-sm" onclick="resetMaintFilters()">Tout afficher</button>
+          </div>
+          <div style="display:flex; gap:0.55rem; align-items:center; flex-wrap:wrap;">
+            <select id="maint-filter-truck" class="form-control form-control-sm" style="max-width:140px;" onchange="renderMaintTable()">
+              <option value="">Tous camions</option>
+            </select>
+            <select id="maint-filter-type" class="form-control form-control-sm" style="max-width:160px;" onchange="renderMaintTable()">
+              <option value="">Tous types</option>
+              <option value="vidange">Vidange</option>
+              <option value="pneus">Pneus</option>
+              <option value="freins">Freins</option>
+              <option value="révision">Révision</option>
+              <option value="panne">Panne</option>
+              <option value="moteur">Moteur</option>
+              <option value="électricité">Électricité</option>
+              <option value="autre">Autre</option>
+            </select>
+            <input type="text" id="maint-search-input" class="form-control form-control-sm" placeholder="Garage, description…" style="max-width:220px;" oninput="renderMaintTable()">
+            <span id="maint-count-label" style="font-size:0.78rem; color:var(--text-muted);"></span>
+          </div>
         </div>
         <div class="table-container">
           <table class="data-table mobile-collapse" id="maint-table">
@@ -3463,12 +3518,32 @@
             </button>
           </div>
         </div>
-        <div style="display:flex; gap:0.75rem; align-items:center; padding:0.75rem 1rem; background:var(--bg-body); border-bottom:1px solid var(--border-color);">
-          <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">Période :</span>
-          <input type="date" class="form-control form-control-sm" id="expglobal-date-start" style="width:150px;" value="" onchange="state.startDate=this.value; loadExpensesGlobal();">
-          <span style="font-size:0.85rem; color:var(--text-muted);">→</span>
-          <input type="date" class="form-control form-control-sm" id="expglobal-date-end" style="width:150px;" value="" onchange="state.endDate=this.value; loadExpensesGlobal();">
-          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('expglobal-date-start').value=''; document.getElementById('expglobal-date-end').value=''; state.startDate=''; state.endDate=''; loadExpensesGlobal();">Tout afficher</button>
+        <div style="padding:0.75rem 1rem; background:var(--bg-body); border-bottom:1px solid var(--border-color);">
+          <div style="display:flex; gap:0.65rem; align-items:center; flex-wrap:wrap; margin-bottom:0.55rem;">
+            <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">Période :</span>
+            <input type="date" class="form-control form-control-sm" id="expglobal-date-start" style="width:145px;" value="" onchange="state.startDate=this.value; loadExpensesGlobal();">
+            <span style="font-size:0.85rem; color:var(--text-muted);">→</span>
+            <input type="date" class="form-control form-control-sm" id="expglobal-date-end" style="width:145px;" value="" onchange="state.endDate=this.value; loadExpensesGlobal();">
+            <button class="btn btn-secondary btn-sm" onclick="resetExpGlobalFilters()">Tout afficher</button>
+          </div>
+          <div style="display:flex; gap:0.55rem; align-items:center; flex-wrap:wrap;">
+            <select id="expg-filter-truck" class="form-control form-control-sm" style="max-width:140px;" onchange="renderExpGlobalTable()">
+              <option value="">Tous camions</option>
+            </select>
+            <select id="expg-filter-driver" class="form-control form-control-sm" style="max-width:170px;" onchange="renderExpGlobalTable()">
+              <option value="">Tous chauffeurs</option>
+            </select>
+            <select id="expg-filter-category" class="form-control form-control-sm" style="max-width:155px;" onchange="renderExpGlobalTable()">
+              <option value="">Toutes catégories</option>
+              <option value="péage">Péage</option>
+              <option value="amende">Amende</option>
+              <option value="assurance">Assurance</option>
+              <option value="parking">Parking</option>
+              <option value="autre">Autre</option>
+            </select>
+            <input type="text" id="expg-search-input" class="form-control form-control-sm" placeholder="Description, notes…" style="max-width:220px;" oninput="renderExpGlobalTable()">
+            <span id="expg-count-label" style="font-size:0.78rem; color:var(--text-muted);"></span>
+          </div>
         </div>
         <div class="table-container">
           <table class="data-table mobile-collapse" id="expenses-global-table">
@@ -5322,6 +5397,7 @@
         state.trucks = await trucksRes.json();
 
         populateSelectOptions();
+        populateFilterSelects();
         refreshDocAlertBadge();
       } catch (err) {
         console.error('Erreur initial data:', err);
@@ -7436,65 +7512,305 @@
       document.getElementById('bl-search-empty').style.display = 'none';
     };
 
+    // ============================================================
+    // DONNÉES BRUTES pour filtrage côté client
+    // ============================================================
+    let _tripsRaw = [], _fuelRaw = [], _maintRaw = [], _expGlobalRaw = [];
+
+    /** Peuple les selects camion/chauffeur dans les barres de filtre */
+    function populateFilterSelects() {
+      const trucks = state.trucks || [];
+      const drivers = (state.drivers || []).filter(d => d.is_active);
+      // IDs des selects à peupler : [selectId, dataArray, labelFn, valueFn]
+      const truckOpts = trucks.map(t => `<option value="${t.code}">${t.code} — ${t.brand_model}</option>`).join('');
+      const driverOpts = drivers.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+      [['trips-filter-truck', truckOpts], ['fuel-filter-truck', truckOpts], ['maint-filter-truck', truckOpts], ['expg-filter-truck', truckOpts]].forEach(([id, opts]) => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = '<option value="">Tous camions</option>' + truckOpts;
+      });
+      [['trips-filter-driver', driverOpts], ['fuel-filter-driver', driverOpts], ['expg-filter-driver', driverOpts]].forEach(([id, opts]) => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = '<option value="">Tous chauffeurs</option>' + opts;
+      });
+    }
+
+    // ── VOYAGES ──────────────────────────────────────────────────
+    function renderTripsTable() {
+      const tbody = document.getElementById('trips-tbody');
+      if (!tbody) return;
+      const truck  = (document.getElementById('trips-filter-truck')?.value || '').toLowerCase();
+      const driver = document.getElementById('trips-filter-driver')?.value || '';
+      const search = (document.getElementById('trips-search-input')?.value || '').toLowerCase().trim();
+      let rows = _tripsRaw;
+      if (truck)  rows = rows.filter(t => (t.truck_id || '').toLowerCase() === truck);
+      if (driver) rows = rows.filter(t => String(t.driver_id) === driver);
+      if (search) rows = rows.filter(t =>
+        (t.route||'').toLowerCase().includes(search) ||
+        (t.client_name||'').toLowerCase().includes(search) ||
+        (t.bl_number||'').toLowerCase().includes(search) ||
+        (t.container_number||'').toLowerCase().includes(search) ||
+        (t.cargo||'').toLowerCase().includes(search) ||
+        (t.driver_name||'').toLowerCase().includes(search)
+      );
+      const countLabel = document.getElementById('trips-count-label');
+      if (countLabel) countLabel.textContent = rows.length > 0 ? `${rows.length} voyage${rows.length>1?'s':''}` : '';
+      if (rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="15" style="text-align:center; color:var(--text-muted); padding:1.5rem;">Aucun voyage pour ce filtre.</td></tr>';
+        return;
+      }
+      let totalRecette=0, totalCarburant=0, totalPesee=0, totalPeage=0, totalRemis=0, totalMarge=0;
+      tbody.innerHTML = rows.map(t => {
+        totalRecette += Number(t.recette||0); totalCarburant += Number(t.dep_carburant||0);
+        totalPesee += Number(t.pesee||0); totalPeage += Number(t.peage||0);
+        totalRemis += Number(t.montant_remis||t.amount_fcfa||0); totalMarge += Number(t.marge_nette||0);
+        return `<tr>
+          <td data-label="Date">${t.trip_date}</td>
+          <td data-label="Chauffeur"><strong>${t.driver_name}</strong></td>
+          <td data-label="Camion"><span class="badge badge-primary font-mono">${t.truck_id}</span></td>
+          <td data-label="Trajet">${t.route}</td>
+          <td data-label="Client">${t.client_name ? `<span style="font-weight:600;">${t.client_name}</span>` : '<span class="text-muted">-</span>'}</td>
+          <td data-label="Marchandise" class="text-muted">${t.cargo||'-'}</td>
+          <td data-label="N° BL" class="font-mono">${t.bl_number||'-'}</td>
+          <td data-label="N° Conteneur" class="font-mono">${t.container_number||'-'}</td>
+          <td data-label="Recette" class="font-mono text-success"><strong>${formatFCFA(t.recette||0)}</strong></td>
+          <td data-label="Carburant" class="font-mono text-warning">${(t.dep_carburant||0)>0?formatFCFA(t.dep_carburant):'-'}</td>
+          <td data-label="Pesée" class="font-mono">${(t.pesee||0)>0?formatFCFA(t.pesee):'-'}</td>
+          <td data-label="Péage" class="font-mono">${(t.peage||0)>0?formatFCFA(t.peage):'-'}</td>
+          <td data-label="Total Remis" class="font-mono" style="color:var(--warning);font-weight:700;">${formatFCFA(t.montant_remis||t.amount_fcfa||0)}</td>
+          <td data-label="Marge" class="font-mono ${(t.marge_nette||0)>=0?'text-success':'text-danger'}" style="font-weight:700;">${formatFCFA(t.marge_nette||0)}</td>
+          <td data-label="Actions" style="white-space:nowrap;">
+            <button class="btn btn-secondary btn-sm" onclick="editTrip(${t.id})" style="margin-right:0.25rem;">${VECTORS.pencil}</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteTrip(${t.id})">${VECTORS.trash}</button>
+          </td>
+        </tr>`;
+      }).join('');
+      const totalRow = document.createElement('tr');
+      totalRow.style.cssText = 'background:var(--bg-subtle);font-weight:700;border-top:2px solid var(--border-color);';
+      totalRow.innerHTML = `<td colspan="8" style="text-align:right;padding:0.5rem 1rem;color:var(--text-muted);font-size:0.85rem;">TOTAUX (${rows.length} voyage${rows.length>1?'s':''})</td>
+        <td class="font-mono text-success" style="padding:0.5rem 1rem;">${formatFCFA(totalRecette)}</td>
+        <td class="font-mono text-warning" style="padding:0.5rem 1rem;">${formatFCFA(totalCarburant)}</td>
+        <td class="font-mono" style="padding:0.5rem 1rem;">${formatFCFA(totalPesee)}</td>
+        <td class="font-mono" style="padding:0.5rem 1rem;">${formatFCFA(totalPeage)}</td>
+        <td class="font-mono" style="padding:0.5rem 1rem;color:var(--warning);">${formatFCFA(totalRemis)}</td>
+        <td class="font-mono ${totalMarge>=0?'text-success':'text-danger'}" style="padding:0.5rem 1rem;">${formatFCFA(totalMarge)}</td>
+        <td></td>`;
+      tbody.appendChild(totalRow);
+    }
+    function resetTripsFilters() {
+      ['trips-date-start','trips-date-end','trips-filter-truck','trips-filter-driver','trips-search-input'].forEach(id => { const e=document.getElementById(id); if(e)e.value=''; });
+      state.startDate=''; state.endDate='';
+      loadTrips();
+    }
+
+    // ── CARBURANT ────────────────────────────────────────────────
+    function renderFuelTable() {
+      const tbody = document.getElementById('fuel-tbody');
+      if (!tbody) return;
+      const truck  = (document.getElementById('fuel-filter-truck')?.value||'').toLowerCase();
+      const driver = document.getElementById('fuel-filter-driver')?.value||'';
+      const search = (document.getElementById('fuel-search-input')?.value||'').toLowerCase().trim();
+      let rows = _fuelRaw;
+      if (truck)  rows = rows.filter(f => (f.truck_id||'').toLowerCase() === truck);
+      if (driver) rows = rows.filter(f => String(f.driver_id) === driver);
+      if (search) rows = rows.filter(f =>
+        (f.station||'').toLowerCase().includes(search) ||
+        (f.notes||'').toLowerCase().includes(search) ||
+        (f.driver_name||'').toLowerCase().includes(search)
+      );
+      const countLabel = document.getElementById('fuel-count-label');
+      if (countLabel) countLabel.textContent = rows.length > 0 ? `${rows.length} plein${rows.length>1?'s':''}` : '';
+      if (rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:1.5rem;">Aucun enregistrement pour ce filtre.</td></tr>';
+        return;
+      }
+      let totalLiters=0, totalAmount=0;
+      tbody.innerHTML = rows.map(f => {
+        totalLiters += Number(f.liters||0); totalAmount += Number(f.amount_fcfa||0);
+        return `<tr>
+          <td data-label="Date">${f.expense_date}</td>
+          <td data-label="Chauffeur"><strong>${f.driver_name}</strong></td>
+          <td data-label="Camion"><span class="badge badge-primary font-mono">${f.truck_id}</span></td>
+          <td data-label="Station">${f.station}</td>
+          <td data-label="Volume (L)" class="font-mono">${Number(f.liters).toLocaleString('fr-FR')} L</td>
+          <td data-label="Montant" class="font-mono text-warning"><strong>${formatFCFA(f.amount_fcfa)}</strong></td>
+          <td data-label="KM" class="font-mono">${f.km_at_fill?Number(f.km_at_fill).toLocaleString('fr-FR')+' km':'-'}</td>
+          <td data-label="Notes" style="color:var(--text-muted);font-size:0.82rem;">${f.notes||'-'}</td>
+          <td data-label="Actions"><button class="btn btn-danger btn-sm" onclick="deleteFuel(${f.id})">${VECTORS.trash}</button></td>
+        </tr>`;
+      }).join('');
+      const tr = document.createElement('tr');
+      tr.style.cssText = 'background:var(--bg-subtle);font-weight:700;border-top:2px solid var(--border-color);';
+      tr.innerHTML = `<td colspan="3" style="text-align:right;padding:0.5rem 1rem;color:var(--text-muted);font-size:0.85rem;">TOTAUX (${rows.length} plein${rows.length>1?'s':''})</td>
+        <td style="padding:0.5rem 1rem;"></td>
+        <td class="font-mono" style="padding:0.5rem 1rem;">${totalLiters.toLocaleString('fr-FR')} L</td>
+        <td class="font-mono text-warning" style="padding:0.5rem 1rem;">${formatFCFA(totalAmount)}</td>
+        <td colspan="3" style="padding:0.5rem 1rem;"></td>`;
+      tbody.appendChild(tr);
+    }
+    function resetFuelFilters() {
+      ['fuel-date-start','fuel-date-end','fuel-filter-truck','fuel-filter-driver','fuel-search-input'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+      state.startDate=''; state.endDate='';
+      loadFuel();
+    }
+
+    // ── ENTRETIEN ────────────────────────────────────────────────
+    function renderMaintTable() {
+      const tbody = document.getElementById('maint-tbody');
+      if (!tbody) return;
+      const truck  = (document.getElementById('maint-filter-truck')?.value||'').toLowerCase();
+      const type   = (document.getElementById('maint-filter-type')?.value||'').toLowerCase();
+      const search = (document.getElementById('maint-search-input')?.value||'').toLowerCase().trim();
+      let rows = _maintRaw;
+      if (truck)  rows = rows.filter(m => (m.truck_id||'').toLowerCase() === truck);
+      if (type)   rows = rows.filter(m => (m.service_type||'').toLowerCase() === type);
+      if (search) rows = rows.filter(m =>
+        (m.description||'').toLowerCase().includes(search) ||
+        (m.garage||'').toLowerCase().includes(search) ||
+        (m.driver_name||'').toLowerCase().includes(search)
+      );
+      const countLabel = document.getElementById('maint-count-label');
+      if (countLabel) countLabel.textContent = rows.length > 0 ? `${rows.length} intervention${rows.length>1?'s':''}` : '';
+      if (rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:1.5rem;">Aucune intervention pour ce filtre.</td></tr>';
+        return;
+      }
+      let total = 0;
+      tbody.innerHTML = rows.map(m => {
+        total += Number(m.amount_fcfa||0);
+        return `<tr>
+          <td data-label="Date">${m.record_date}</td>
+          <td data-label="Camion"><span class="badge badge-primary font-mono">${m.truck_id}</span></td>
+          <td data-label="Chauffeur">${m.driver_name||'<span class="text-muted">Atelier</span>'}</td>
+          <td data-label="Intervention"><span class="badge badge-${m.service_type.toLowerCase()}">${m.service_type}</span></td>
+          <td data-label="Description">${m.description}</td>
+          <td data-label="Garage">${m.garage}</td>
+          <td data-label="KM" class="font-mono">${m.km?m.km.toLocaleString('fr-FR')+' km':'-'}</td>
+          <td data-label="Coût" class="font-mono text-danger"><strong>${formatFCFA(m.amount_fcfa)}</strong></td>
+          <td data-label="Actions" style="display:flex;gap:4px;flex-wrap:wrap;">
+            <button class="btn btn-secondary btn-sm btn-write-only" onclick="editMaint(${m.id})">${VECTORS.pencil}</button>
+            <button class="btn btn-danger btn-sm btn-write-only" onclick="deleteMaint(${m.id})">${VECTORS.trash}</button>
+          </td>
+        </tr>`;
+      }).join('');
+      const tr = document.createElement('tr');
+      tr.style.cssText = 'background:var(--bg-subtle);font-weight:700;border-top:2px solid var(--border-color);';
+      tr.innerHTML = `<td colspan="7" style="text-align:right;padding:0.5rem 1rem;color:var(--text-muted);font-size:0.85rem;">TOTAL (${rows.length} intervention${rows.length>1?'s':''})</td>
+        <td class="font-mono text-danger" style="padding:0.5rem 1rem;">${formatFCFA(total)}</td><td></td>`;
+      tbody.appendChild(tr);
+    }
+    function resetMaintFilters() {
+      ['maint-date-start','maint-date-end','maint-filter-truck','maint-filter-type','maint-search-input'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+      state.startDate=''; state.endDate='';
+      loadMaintenance();
+    }
+
+    // ── AUTRES DÉPENSES ──────────────────────────────────────────
+    function renderExpGlobalTable() {
+      const tbody = document.getElementById('expenses-global-tbody');
+      if (!tbody) return;
+      const truckMap = {}; (state.trucks||[]).forEach(t => { truckMap[t.id]=t.code||t.id; });
+      const truck    = (document.getElementById('expg-filter-truck')?.value||'').toLowerCase();
+      const driver   = document.getElementById('expg-filter-driver')?.value||'';
+      const category = (document.getElementById('expg-filter-category')?.value||'').toLowerCase();
+      const search   = (document.getElementById('expg-search-input')?.value||'').toLowerCase().trim();
+      let rows = _expGlobalRaw;
+      if (truck)    rows = rows.filter(e => (truckMap[e.truck_id]||e.truck_id||'').toLowerCase() === truck);
+      if (driver)   rows = rows.filter(e => String(e.driver_id||'') === driver);
+      if (category) rows = rows.filter(e => (e.category||'').toLowerCase() === category);
+      if (search)   rows = rows.filter(e =>
+        (e.description||'').toLowerCase().includes(search) ||
+        (e.notes||'').toLowerCase().includes(search) ||
+        (e.driver_name||'').toLowerCase().includes(search)
+      );
+      const countLabel = document.getElementById('expg-count-label');
+      if (countLabel) countLabel.textContent = rows.length > 0 ? `${rows.length} dépense${rows.length>1?'s':''}` : '';
+      if (rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:1.5rem;">Aucune dépense pour ce filtre.</td></tr>';
+        return;
+      }
+      let total = 0;
+      tbody.innerHTML = rows.map(e => {
+        total += Number(e.amount_fcfa||0);
+        const truckLabel = e.truck_id ? (truckMap[e.truck_id]||e.truck_id) : '<span class="text-muted">—</span>';
+        return `<tr>
+          <td data-label="Date">${e.expense_date}</td>
+          <td data-label="Chauffeur">${e.driver_name||'<span class="text-muted">—</span>'}</td>
+          <td data-label="Camion"><span class="badge badge-primary font-mono">${truckLabel}</span></td>
+          <td data-label="Catégorie"><span class="badge badge-neutral">${e.category||'—'}</span></td>
+          <td data-label="Description">${e.description||'—'}</td>
+          <td data-label="Montant" class="font-mono text-violet"><strong>${formatFCFA(e.amount_fcfa)}</strong></td>
+          <td data-label="Notes" style="color:var(--text-muted);font-size:0.82rem;">${e.notes||'—'}</td>
+        </tr>`;
+      }).join('');
+      const tr = document.createElement('tr');
+      tr.style.cssText = 'background:var(--bg-subtle);font-weight:700;border-top:2px solid var(--border-color);';
+      tr.innerHTML = `<td colspan="5" style="text-align:right;padding:0.5rem 1rem;color:var(--text-muted);font-size:0.85rem;">TOTAL (${rows.length} dépense${rows.length>1?'s':''})</td>
+        <td class="font-mono text-violet" style="padding:0.5rem 1rem;">${formatFCFA(total)}</td><td></td>`;
+      tbody.appendChild(tr);
+    }
+    function resetExpGlobalFilters() {
+      ['expglobal-date-start','expglobal-date-end','expg-filter-truck','expg-filter-driver','expg-filter-category','expg-search-input'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+      state.startDate=''; state.endDate='';
+      loadExpensesGlobal();
+    }
+
+    // ── CAMIONS ──────────────────────────────────────────────────
+    function renderTrucksGrid() {
+      const grid = document.getElementById('trucks-cards-grid');
+      if (!grid) return;
+      const statusFilter = document.getElementById('trucks-filter-status')?.value || '';
+      const search = (document.getElementById('trucks-search-input')?.value || '').toLowerCase().trim();
+      let trucks = state.trucks || [];
+      if (statusFilter) trucks = trucks.filter(t => t.status === statusFilter);
+      if (search) trucks = trucks.filter(t =>
+        (t.code||'').toLowerCase().includes(search) ||
+        (t.brand_model||'').toLowerCase().includes(search) ||
+        (t.license_plate||'').toLowerCase().includes(search) ||
+        (t.driver_name||'').toLowerCase().includes(search)
+      );
+      const countLabel = document.getElementById('trucks-count-label');
+      if (countLabel) countLabel.textContent = trucks.length > 0 ? `${trucks.length} camion${trucks.length>1?'s':''}` : 'Aucun camion';
+      grid.innerHTML = '';
+      trucks.forEach(t => {
+        const card = document.createElement('div');
+        card.className = 'truck-card';
+        card.onclick = () => openTruckHistory(t.code);
+        const isNetPos = t.net_profit >= 0;
+        card.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <div>
+              <span class="badge badge-primary font-mono" style="font-size:0.85rem;font-weight:700;">${t.code}</span>
+              <h4 style="font-size:1rem;font-weight:700;margin-top:0.35rem;">${t.brand_model}</h4>
+              <div style="font-size:0.8rem;color:var(--text-muted);">${t.license_plate} ${t.year?'• '+t.year:''}</div>
+            </div>
+            <span class="badge ${t.status==='actif'?'badge-success':'badge-danger'}">${t.status}</span>
+          </div>
+          <div style="background:var(--bg-subtle);padding:0.65rem;border-radius:var(--radius-sm);font-size:0.8rem;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
+              <span class="text-muted">Chauffeur assigné :</span><strong>${t.driver_name||'Aucun'}</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;">
+              <span class="text-muted">Kilométrage :</span><span class="font-mono">${(t.current_km||0).toLocaleString('fr-FR')} km</span>
+            </div>
+          </div>
+          <div style="border-top:1px dashed var(--border-color);padding-top:0.65rem;display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;font-size:0.8rem;">
+            <div><div class="text-muted" style="font-size:0.7rem;">Entretien total</div><div class="font-mono text-danger" style="font-weight:700;">${formatFCFA(t.total_maintenance)}</div></div>
+            <div><div class="text-muted" style="font-size:0.7rem;">Bénéfice Net</div><div class="font-mono ${isNetPos?'text-success':'text-danger'}" style="font-weight:700;">${formatFCFA(t.net_profit)}</div></div>
+          </div>
+          <div style="display:flex;gap:0.5rem;margin-top:0.25rem;">
+            <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="event.stopPropagation();openEditTruckModal(${t.id});" title="Modifier">${VECTORS.folder} Modifier</button>
+            <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="event.stopPropagation();openTruckHistory('${t.code}');" title="Historique">${VECTORS.maintenance} Historique</button>
+          </div>`;
+        grid.appendChild(card);
+      });
+    }
+
     async function loadTrucks() {
       try {
         const res = await fetch('/api/trucks');
         state.trucks = await res.json();
-        const grid = document.getElementById('trucks-cards-grid');
-        grid.innerHTML = '';
-
-        state.trucks.forEach(t => {
-          const card = document.createElement('div');
-          card.className = 'truck-card';
-          card.onclick = () => openTruckHistory(t.code);
-
-          const isNetPos = t.net_profit >= 0;
-          card.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-              <div>
-                <span class="badge badge-primary font-mono" style="font-size: 0.85rem; font-weight: 700;">${t.code}</span>
-                <h4 style="font-size: 1rem; font-weight: 700; margin-top: 0.35rem;">${t.brand_model}</h4>
-                <div style="font-size: 0.8rem; color: var(--text-muted);">${t.license_plate} ${t.year ? '• ' + t.year : ''}</div>
-              </div>
-              <span class="badge ${t.status === 'actif' ? 'badge-success' : 'badge-danger'}">
-                ${t.status}
-              </span>
-            </div>
-
-            <div style="background: var(--bg-subtle); padding: 0.65rem; border-radius: var(--radius-sm); font-size: 0.8rem;">
-              <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
-                <span class="text-muted">Chauffeur assigné :</span>
-                <strong>${t.driver_name || 'Aucun'}</strong>
-              </div>
-              <div style="display: flex; justify-content: space-between;">
-                <span class="text-muted">Kilométrage :</span>
-                <span class="font-mono">${(t.current_km || 0).toLocaleString('fr-FR')} km</span>
-              </div>
-            </div>
-
-            <div style="border-top: 1px dashed var(--border-color); padding-top: 0.65rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.8rem;">
-              <div>
-                <div class="text-muted" style="font-size: 0.7rem;">Entretien total</div>
-                <div class="font-mono text-danger" style="font-weight: 700;">${formatFCFA(t.total_maintenance)}</div>
-              </div>
-              <div>
-                <div class="text-muted" style="font-size: 0.7rem;">Bénéfice Net</div>
-                <div class="font-mono ${isNetPos ? 'text-success' : 'text-danger'}" style="font-weight: 700;">${formatFCFA(t.net_profit)}</div>
-              </div>
-            </div>
-
-            <div style="display: flex; gap: 0.5rem; margin-top: 0.25rem;">
-              <button class="btn btn-secondary btn-sm" style="flex: 1;" onclick="event.stopPropagation(); openEditTruckModal(${t.id});" title="Modifier ce camion">
-                ${VECTORS.folder} Modifier
-              </button>
-              <button class="btn btn-secondary btn-sm" style="flex: 1;" onclick="event.stopPropagation(); openTruckHistory('${t.code}');" title="Voir l'historique d'entretien">
-                ${VECTORS.maintenance} Historique
-              </button>
-            </div>
-          `;
-          grid.appendChild(card);
-        });
-
+        populateFilterSelects();
+        renderTrucksGrid();
       } catch (err) {
         console.error('Erreur load trucks:', err);
       }
@@ -7627,63 +7943,8 @@
 
       try {
         const res = await fetch(url);
-        const trips = await res.json();
-        const tbody = document.getElementById('trips-tbody');
-        tbody.innerHTML = '';
-
-        if (trips.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="15" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Aucun voyage enregistré sur la période.</td></tr>';
-          return;
-        }
-
-        let totalRecette = 0, totalCarburant = 0, totalPesee = 0, totalPeage = 0, totalRemis = 0, totalMarge = 0;
-
-        trips.forEach(t => {
-          totalRecette += Number(t.recette || 0);
-          totalCarburant += Number(t.dep_carburant || 0);
-          totalPesee += Number(t.pesee || 0);
-          totalPeage += Number(t.peage || 0);
-          totalRemis += Number(t.montant_remis || t.amount_fcfa || 0);
-          totalMarge += Number(t.marge_nette || 0);
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td data-label="Date">${t.trip_date}</td>
-            <td data-label="Chauffeur"><strong>${t.driver_name}</strong></td>
-            <td data-label="Camion"><span class="badge badge-primary font-mono">${t.truck_id}</span></td>
-            <td data-label="Trajet">${t.route}</td>
-            <td data-label="Client">${t.client_name ? `<span style="font-weight:600; color:var(--text-primary);">${t.client_name}</span>` : '<span class="text-muted">-</span>'}</td>
-            <td data-label="Marchandise" class="text-muted">${t.cargo || '-'}</td>
-            <td data-label="N° BL" class="font-mono">${t.bl_number || '-'}</td>
-            <td data-label="N° Conteneur" class="font-mono">${t.container_number || '-'}</td>
-            <td data-label="Recette" class="font-mono text-success"><strong>${formatFCFA(t.recette || 0)}</strong></td>
-            <td data-label="Carburant" class="font-mono text-warning">${(t.dep_carburant||0) > 0 ? formatFCFA(t.dep_carburant) : '-'}</td>
-            <td data-label="Pesée" class="font-mono">${(t.pesee||0) > 0 ? formatFCFA(t.pesee) : '-'}</td>
-            <td data-label="Péage" class="font-mono">${(t.peage||0) > 0 ? formatFCFA(t.peage) : '-'}</td>
-            <td data-label="Total Remis" class="font-mono" style="color: var(--warning); font-weight: 700;">${formatFCFA(t.montant_remis || t.amount_fcfa || 0)}</td>
-            <td data-label="Marge" class="font-mono ${(t.marge_nette||0) >= 0 ? 'text-success' : 'text-danger'}" style="font-weight: 700;">${formatFCFA(t.marge_nette || 0)}</td>
-            <td data-label="Actions" style="white-space:nowrap;">
-              <button class="btn btn-secondary btn-sm" onclick="editTrip(${t.id})" title="Modifier ce voyage" style="margin-right:0.25rem;">${VECTORS.pencil}</button>
-              <button class="btn btn-danger btn-sm" onclick="deleteTrip(${t.id})" title="Supprimer">${VECTORS.trash}</button>
-            </td>
-          `;
-          tbody.appendChild(tr);
-        });
-
-        // Ligne de totaux
-        const totalRow = document.createElement('tr');
-        totalRow.style.cssText = 'background:var(--bg-subtle); font-weight:700; border-top:2px solid var(--border-color);';
-        totalRow.innerHTML = `
-          <td colspan="8" style="text-align:right; padding:0.5rem 1rem; color:var(--text-muted); font-size:0.85rem;">TOTAUX (${trips.length} voyage${trips.length > 1 ? 's' : ''})</td>
-          <td class="font-mono text-success" style="padding:0.5rem 1rem;">${formatFCFA(totalRecette)}</td>
-          <td class="font-mono text-warning" style="padding:0.5rem 1rem;">${formatFCFA(totalCarburant)}</td>
-          <td class="font-mono" style="padding:0.5rem 1rem;">${formatFCFA(totalPesee)}</td>
-          <td class="font-mono" style="padding:0.5rem 1rem;">${formatFCFA(totalPeage)}</td>
-          <td class="font-mono" style="padding:0.5rem 1rem; color:var(--warning);">${formatFCFA(totalRemis)}</td>
-          <td class="font-mono ${totalMarge >= 0 ? 'text-success' : 'text-danger'}" style="padding:0.5rem 1rem;">${formatFCFA(totalMarge)}</td>
-          <td></td>
-        `;
-        tbody.appendChild(totalRow);
-
+        _tripsRaw = await res.json();
+        renderTripsTable();
       } catch (err) {
         console.error('Erreur load trips:', err);
       }
@@ -7709,47 +7970,11 @@
 
       try {
         const [resFuel, resTrips] = await Promise.all([fetch(urlFuel), fetch(urlTrips)]);
-        const records = await resFuel.json();
+        _fuelRaw = await resFuel.json();
         const trips = await resTrips.json();
 
-        // ── Table 1 : Pleins station ──
-        const tbody = document.getElementById('fuel-tbody');
-        tbody.innerHTML = '';
-
-        if (records.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Aucun plein enregistré sur la période.</td></tr>';
-        } else {
-          let totalLiters = 0, totalAmount = 0;
-          records.forEach(f => {
-            totalLiters += Number(f.liters || 0);
-            totalAmount += Number(f.amount_fcfa || 0);
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td data-label="Date">${f.expense_date}</td>
-              <td data-label="Chauffeur"><strong>${f.driver_name}</strong></td>
-              <td data-label="Camion"><span class="badge badge-primary font-mono">${f.truck_id}</span></td>
-              <td data-label="Station / Lieu">${f.station}</td>
-              <td data-label="Volume (L)" class="font-mono">${Number(f.liters).toLocaleString('fr-FR')} L</td>
-              <td data-label="Montant (FCFA)" class="font-mono text-warning"><strong>${formatFCFA(f.amount_fcfa)}</strong></td>
-              <td data-label="KM relevé" class="font-mono">${f.km_at_fill ? Number(f.km_at_fill).toLocaleString('fr-FR') + ' km' : '-'}</td>
-              <td data-label="Notes" style="color:var(--text-muted); font-size:0.82rem;">${f.notes || '-'}</td>
-              <td data-label="Actions">
-                <button class="btn btn-danger btn-sm" onclick="deleteFuel(${f.id})" title="Supprimer">${VECTORS.trash}</button>
-              </td>
-            `;
-            tbody.appendChild(tr);
-          });
-          const totalRow = document.createElement('tr');
-          totalRow.style.cssText = 'background:var(--bg-subtle); font-weight:700; border-top:2px solid var(--border-color);';
-          totalRow.innerHTML = `
-            <td colspan="3" style="text-align:right; padding:0.5rem 1rem; color:var(--text-muted); font-size:0.85rem;">TOTAUX (${records.length} plein${records.length > 1 ? 's' : ''})</td>
-            <td style="padding:0.5rem 1rem;"></td>
-            <td class="font-mono" style="padding:0.5rem 1rem;">${totalLiters.toLocaleString('fr-FR')} L</td>
-            <td class="font-mono text-warning" style="padding:0.5rem 1rem;">${formatFCFA(totalAmount)}</td>
-            <td colspan="3" style="padding:0.5rem 1rem;"></td>
-          `;
-          tbody.appendChild(totalRow);
-        }
+        // ── Table 1 : Pleins station (filtrable) ──
+        renderFuelTable();
 
         // ── Table 2 : Carburant versé aux chauffeurs (dep_carburant des voyages) ──
         const tbody2 = document.getElementById('fuel-driver-tbody');
@@ -7759,18 +7984,16 @@
           tbody2.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:1.5rem;">Aucun carburant versé aux chauffeurs sur la période.</td></tr>';
         } else {
           let totalDriver = 0;
-          tripsWithFuel.forEach(t => {
+          tbody2.innerHTML = tripsWithFuel.map(t => {
             totalDriver += Number(t.dep_carburant || 0);
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
+            return `<tr>
               <td data-label="Date">${t.trip_date}</td>
               <td data-label="Chauffeur"><strong>${t.driver_name}</strong></td>
               <td data-label="Camion"><span class="badge badge-primary font-mono">${t.truck_id}</span></td>
               <td data-label="Trajet">${t.route}</td>
               <td data-label="Montant carburant" class="font-mono text-warning"><strong>${formatFCFA(t.dep_carburant)}</strong></td>
-            `;
-            tbody2.appendChild(tr);
-          });
+            </tr>`;
+          }).join('');
           const totalRow2 = document.createElement('tr');
           totalRow2.style.cssText = 'background:var(--bg-subtle); font-weight:700; border-top:2px solid var(--border-color);';
           totalRow2.innerHTML = `
@@ -7802,47 +8025,8 @@
 
       try {
         const res = await fetch(url);
-        const records = await res.json();
-        const tbody = document.getElementById('maint-tbody');
-        tbody.innerHTML = '';
-
-        if (records.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Aucune intervention enregistrée sur la période.</td></tr>';
-          return;
-        }
-
-        let totalMaintAmount = 0;
-
-        records.forEach(m => {
-          totalMaintAmount += Number(m.amount_fcfa || 0);
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td data-label="Date">${m.record_date}</td>
-            <td data-label="Camion"><span class="badge badge-primary font-mono">${m.truck_id}</span></td>
-            <td data-label="Chauffeur">${m.driver_name || '<span class="text-muted">Atelier</span>'}</td>
-            <td data-label="Intervention"><span class="badge badge-${m.service_type.toLowerCase()}">${m.service_type}</span></td>
-            <td data-label="Description">${m.description}</td>
-            <td data-label="Garage">${m.garage}</td>
-            <td data-label="Kilométrage" class="font-mono">${m.km ? m.km.toLocaleString('fr-FR') + ' km' : '-'}</td>
-            <td data-label="Coût (FCFA)" class="font-mono text-danger"><strong>${formatFCFA(m.amount_fcfa)}</strong></td>
-            <td data-label="Actions" style="display:flex;gap:4px;flex-wrap:wrap;">
-              <button class="btn btn-secondary btn-sm btn-write-only" onclick="editMaint(${m.id})" title="Modifier">${VECTORS.pencil}</button>
-              <button class="btn btn-danger btn-sm btn-write-only" onclick="deleteMaint(${m.id})" title="Supprimer">${VECTORS.trash}</button>
-            </td>
-          `;
-          tbody.appendChild(tr);
-        });
-
-        // Ligne de totaux
-        const totalMaintRow = document.createElement('tr');
-        totalMaintRow.style.cssText = 'background:var(--bg-subtle); font-weight:700; border-top:2px solid var(--border-color);';
-        totalMaintRow.innerHTML = `
-          <td colspan="7" style="text-align:right; padding:0.5rem 1rem; color:var(--text-muted); font-size:0.85rem;">TOTAL (${records.length} intervention${records.length > 1 ? 's' : ''})</td>
-          <td class="font-mono text-danger" style="padding:0.5rem 1rem;">${formatFCFA(totalMaintAmount)}</td>
-          <td style="padding:0.5rem 1rem;"></td>
-        `;
-        tbody.appendChild(totalMaintRow);
-
+        _maintRaw = await res.json();
+        renderMaintTable();
       } catch (err) {
         console.error('Erreur load maintenance:', err);
       }
@@ -7865,47 +8049,8 @@
 
       try {
         const res = await fetch(url);
-        const records = await res.json();
-        const tbody = document.getElementById('expenses-global-tbody');
-        tbody.innerHTML = '';
-
-        if (!records || records.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Aucune autre dépense enregistrée sur la période.</td></tr>';
-          return;
-        }
-
-        // Build a lookup for trucks from state
-        const truckMap = {};
-        (state.trucks || []).forEach(t => { truckMap[t.id] = t.code || t.id; });
-
-        let totalExpensesAmount = 0;
-
-        records.forEach(e => {
-          totalExpensesAmount += Number(e.amount_fcfa || 0);
-          const tr = document.createElement('tr');
-          const truckLabel = e.truck_id ? (truckMap[e.truck_id] || e.truck_id) : '<span class="text-muted">—</span>';
-          tr.innerHTML = `
-            <td data-label="Date">${e.expense_date}</td>
-            <td data-label="Chauffeur">${e.driver_name || '<span class="text-muted">—</span>'}</td>
-            <td data-label="Camion"><span class="badge badge-primary font-mono">${truckLabel}</span></td>
-            <td data-label="Catégorie"><span class="badge badge-neutral">${e.category || '—'}</span></td>
-            <td data-label="Description">${e.description || '—'}</td>
-            <td data-label="Montant (FCFA)" class="font-mono text-violet"><strong>${formatFCFA(e.amount_fcfa)}</strong></td>
-            <td data-label="Notes" style="color:var(--text-muted); font-size:0.82rem;">${e.notes || '—'}</td>
-          `;
-          tbody.appendChild(tr);
-        });
-
-        // Ligne de totaux
-        const totalExpRow = document.createElement('tr');
-        totalExpRow.style.cssText = 'background:var(--bg-subtle); font-weight:700; border-top:2px solid var(--border-color);';
-        totalExpRow.innerHTML = `
-          <td colspan="5" style="text-align:right; padding:0.5rem 1rem; color:var(--text-muted); font-size:0.85rem;">TOTAL (${records.length} dépense${records.length > 1 ? 's' : ''})</td>
-          <td class="font-mono text-violet" style="padding:0.5rem 1rem;">${formatFCFA(totalExpensesAmount)}</td>
-          <td style="padding:0.5rem 1rem;"></td>
-        `;
-        tbody.appendChild(totalExpRow);
-
+        _expGlobalRaw = await res.json();
+        renderExpGlobalTable();
       } catch (err) {
         console.error('Erreur load expenses global:', err);
       }
