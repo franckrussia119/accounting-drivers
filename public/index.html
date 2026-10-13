@@ -3538,66 +3538,124 @@
 
     <!-- ==================== ONGLET DOCUMENTS ADMINISTRATIFS ==================== -->
     <section id="view-documents" class="view-panel" style="display:none;">
-      <div style="background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:1.5rem; margin-bottom:1.5rem; box-shadow:var(--shadow-sm);">
+
+      <!-- ── En-tête + KPIs comptables ── -->
+      <div style="background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:1.5rem; margin-bottom:1.25rem; box-shadow:var(--shadow-sm);">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.25rem;">
           <div>
             <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;">
               <span class="badge badge-primary" style="font-size:0.75rem; font-weight:800; padding:0.25rem 0.6rem;">DOCUMENTS</span>
             </div>
             <h2 style="font-size:1.5rem; font-weight:900; margin:0; color:var(--text-main); letter-spacing:-0.02em;">Documents administratifs</h2>
-            <p style="color:var(--text-muted); font-size:0.9rem; margin-top:0.4rem;">Carte grise, assurance, visite technique, permis de conduire — suivez les dates d'expiration de toute la flotte.</p>
+            <p style="color:var(--text-muted); font-size:0.9rem; margin-top:0.4rem;">Assurance, visite technique, carte grise, licence transport, vignette — coûts, validités et alertes pour toute la flotte.</p>
           </div>
           <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
             <button id="btn-docs-alerts" class="btn btn-secondary btn-sm" onclick="filterDocsByAlerts()">
               <svg class="svg-icon" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Alertes
             </button>
             <button id="add-document-btn" class="btn btn-primary btn-write-only" style="font-weight:700;" onclick="openDocumentModal()">
-              <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> + Nouveau Document
+              <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> + Nouveau document
             </button>
           </div>
         </div>
 
+        <!-- KPIs comptables -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:0.75rem; margin-bottom:1.25rem;">
+          <div style="background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:1rem;">
+            <div style="font-size:0.72rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:0.35rem;">Total dépensé</div>
+            <div id="docs-kpi-total-spent" class="font-mono" style="font-size:1.15rem; font-weight:800; color:var(--primary);">—</div>
+          </div>
+          <div style="background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:1rem;">
+            <div style="font-size:0.72rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:0.35rem;">Budget renouvellement</div>
+            <div id="docs-kpi-renewal" class="font-mono" style="font-size:1.15rem; font-weight:800; color:var(--warning-text);">—</div>
+          </div>
+          <div style="background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:1rem;">
+            <div style="font-size:0.72rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:0.35rem;">Docs camions</div>
+            <div id="docs-kpi-truck-count" style="font-size:1.15rem; font-weight:800; color:var(--info-text);">—</div>
+          </div>
+          <div style="background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:1rem;">
+            <div style="font-size:0.72rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:0.35rem;">Docs chauffeurs</div>
+            <div id="docs-kpi-driver-count" style="font-size:1.15rem; font-weight:800; color:var(--violet-text);">—</div>
+          </div>
+          <div style="background:var(--danger-light); border:1px solid rgba(239,68,68,.2); border-radius:var(--radius-sm); padding:1rem;">
+            <div style="font-size:0.72rem; font-weight:700; color:var(--danger-text); text-transform:uppercase; letter-spacing:.05em; margin-bottom:0.35rem;">Expirés</div>
+            <div id="docs-kpi-expired" style="font-size:1.15rem; font-weight:800; color:var(--danger-text);">—</div>
+          </div>
+          <div style="background:var(--warning-light); border:1px solid rgba(245,158,11,.2); border-radius:var(--radius-sm); padding:1rem;">
+            <div style="font-size:0.72rem; font-weight:700; color:var(--warning-text); text-transform:uppercase; letter-spacing:.05em; margin-bottom:0.35rem;">Expirent &lt; 30j</div>
+            <div id="docs-kpi-expiring" style="font-size:1.15rem; font-weight:800; color:var(--warning-text);">—</div>
+          </div>
+        </div>
+
         <!-- Filtres -->
-        <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap; margin-bottom:1.25rem;">
-          <select id="docs-filter-entity-type" class="form-control" style="max-width:160px;" onchange="loadDocuments()">
+        <div style="display:flex; gap:0.65rem; align-items:center; flex-wrap:wrap;">
+          <select id="docs-filter-entity-type" class="form-control" style="max-width:155px;" onchange="loadDocuments()">
             <option value="">Toutes entités</option>
             <option value="truck">Camions</option>
             <option value="driver">Chauffeurs</option>
           </select>
-          <select id="docs-filter-status" class="form-control" style="max-width:180px;" onchange="loadDocuments()">
+          <select id="docs-filter-doc-type" class="form-control" style="max-width:210px;" onchange="loadDocuments()">
+            <option value="">Tous types</option>
+            <optgroup label="— Camion —">
+              <option value="assurance_rc">Assurance RC</option>
+              <option value="assurance_tous_risques">Assurance tous risques</option>
+              <option value="visite_technique">Visite technique</option>
+              <option value="carte_grise">Carte grise</option>
+              <option value="vignette">Vignette annuelle</option>
+              <option value="licence_transport">Licence de transport</option>
+              <option value="autorisation_transport">Autorisation de transport</option>
+              <option value="carte_bleue">Carte bleue / Carburant</option>
+              <option value="laissez_passer">Laissez-passer / Transit</option>
+              <option value="taxe_essieu">Taxe à l'essieu</option>
+              <option value="patente">Patente</option>
+            </optgroup>
+            <optgroup label="— Chauffeur —">
+              <option value="permis_conduire">Permis de conduire</option>
+              <option value="carte_professionnelle">Carte professionnelle</option>
+              <option value="contrat_chauffeur">Contrat chauffeur</option>
+              <option value="cni">CNI / Pièce d'identité</option>
+            </optgroup>
+            <option value="autre">Autre</option>
+          </select>
+          <select id="docs-filter-status" class="form-control" style="max-width:175px;" onchange="loadDocuments()">
             <option value="">Tous statuts</option>
             <option value="valid">Valides</option>
             <option value="expiring">Expirent bientôt</option>
             <option value="expired">Expirés</option>
           </select>
-          <input type="text" id="docs-search-input" class="form-control" placeholder="Rechercher (nom, type, entité)..." style="max-width:300px;" oninput="renderDocumentsTable()">
-          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('docs-filter-entity-type').value=''; document.getElementById('docs-filter-status').value=''; document.getElementById('docs-search-input').value=''; loadDocuments();">Réinitialiser</button>
+          <input type="text" id="docs-search-input" class="form-control" placeholder="Rechercher…" style="max-width:240px;" oninput="renderDocumentsTable()">
+          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('docs-filter-entity-type').value=''; document.getElementById('docs-filter-doc-type').value=''; document.getElementById('docs-filter-status').value=''; document.getElementById('docs-search-input').value=''; loadDocuments();">Réinitialiser</button>
         </div>
+      </div>
 
-        <!-- Tableau -->
+      <!-- ── Tableau ── -->
+      <div style="background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--radius-md); box-shadow:var(--shadow-sm); overflow:hidden;">
         <div class="table-container">
           <table class="data-table mobile-collapse" id="docs-table">
             <thead>
               <tr>
-                <th>Entité</th>
+                <th>Camion / Chauffeur</th>
                 <th>Type de document</th>
-                <th>Nom du document</th>
-                <th>Date émission</th>
-                <th>Date expiration</th>
+                <th>Nom / Référence</th>
+                <th>Chauffeur lié</th>
+                <th>Émission</th>
+                <th>Expiration</th>
+                <th style="text-align:right;">Coût établ.</th>
+                <th style="text-align:right;">Budget renouvl.</th>
                 <th>Statut</th>
                 <th>Fichier</th>
                 <th class="btn-write-only">Actions</th>
               </tr>
             </thead>
             <tbody id="docs-tbody">
-              <tr><td colspan="8" style="text-align:center; color:var(--text-muted); padding:2rem;">Chargement…</td></tr>
+              <tr><td colspan="11" style="text-align:center; color:var(--text-muted); padding:2rem;">Chargement…</td></tr>
             </tbody>
           </table>
         </div>
         <div id="docs-empty" style="display:none; text-align:center; padding:3rem 1rem; color:var(--text-muted);">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:0.75rem; opacity:0.4;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
           <div style="font-size:1rem; font-weight:600;">Aucun document trouvé</div>
-          <div style="font-size:0.85rem; margin-top:0.35rem;">Ajoutez un premier document en cliquant sur « + Nouveau Document ».</div>
+          <div style="font-size:0.85rem; margin-top:0.35rem;">Ajoutez un premier document en cliquant sur « + Nouveau document ».</div>
         </div>
       </div>
     </section>
@@ -4543,7 +4601,7 @@
 
   <!-- ==================== MODAL : DOCUMENT ADMINISTRATIF ==================== -->
   <div id="modal-document-form" class="modal-backdrop">
-    <div class="modal-card" style="max-width:600px;">
+    <div class="modal-card" style="max-width:640px;">
       <div class="modal-header">
         <h3 class="modal-title" id="doc-modal-title">Nouveau document</h3>
         <button class="btn-icon close-modal-btn" onclick="document.getElementById('modal-document-form').classList.remove('open')">&times;</button>
@@ -4551,6 +4609,7 @@
       <div class="modal-body">
         <input type="hidden" id="doc-edit-id">
 
+        <!-- Entité -->
         <div class="form-group">
           <label class="form-label">Entité concernée *</label>
           <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
@@ -4564,27 +4623,50 @@
           </div>
         </div>
 
+        <!-- Type de document -->
         <div class="form-group">
           <label class="form-label">Type de document *</label>
           <select id="doc-doc-type" class="form-control" onchange="onDocTypeChange()">
             <option value="">Choisir un type…</option>
-            <option value="carte_grise">Carte grise</option>
-            <option value="assurance_rc">Assurance RC</option>
-            <option value="assurance_tous_risques">Assurance tous risques</option>
-            <option value="visite_technique">Visite technique</option>
-            <option value="vignette">Vignette</option>
-            <option value="permis_conduire">Permis de conduire</option>
-            <option value="carte_professionnelle">Carte professionnelle</option>
-            <option value="contrat_chauffeur">Contrat chauffeur</option>
+            <optgroup label="Documents camion">
+              <option value="assurance_rc">Assurance Responsabilité Civile</option>
+              <option value="assurance_tous_risques">Assurance tous risques</option>
+              <option value="visite_technique">Visite technique</option>
+              <option value="carte_grise">Carte grise</option>
+              <option value="vignette">Vignette annuelle</option>
+              <option value="licence_transport">Licence de transport</option>
+              <option value="autorisation_transport">Autorisation de transport marchandises</option>
+              <option value="carte_bleue">Carte bleue / Carte carburant</option>
+              <option value="laissez_passer">Laissez-passer / Autorisation transit</option>
+              <option value="taxe_essieu">Taxe à l'essieu</option>
+              <option value="patente">Patente</option>
+            </optgroup>
+            <optgroup label="Documents chauffeur">
+              <option value="permis_conduire">Permis de conduire</option>
+              <option value="carte_professionnelle">Carte professionnelle transporteur</option>
+              <option value="contrat_chauffeur">Contrat de travail</option>
+              <option value="cni">CNI / Pièce d'identité</option>
+            </optgroup>
             <option value="autre">Autre</option>
           </select>
         </div>
 
+        <!-- Nom -->
         <div class="form-group">
-          <label class="form-label">Nom du document *</label>
-          <input type="text" id="doc-doc-name" class="form-control" placeholder="Ex: Carte grise TR-01 — Mercedes Actros">
+          <label class="form-label">Nom / Référence du document *</label>
+          <input type="text" id="doc-doc-name" class="form-control" placeholder="Ex: Assurance RC TR-01 — ACTIVA 2024-2025">
         </div>
 
+        <!-- Chauffeur lié (visible si entité = camion) -->
+        <div class="form-group" id="doc-driver-link-group">
+          <label class="form-label">Chauffeur lié <span style="color:var(--text-muted); font-weight:400;">(optionnel)</span></label>
+          <select id="doc-driver-id" class="form-control">
+            <option value="">Aucun</option>
+          </select>
+          <div style="font-size:0.77rem; color:var(--text-muted); margin-top:0.3rem;">Chauffeur responsable de ce document (utile pour la carte bleue, le laissez-passer…)</div>
+        </div>
+
+        <!-- Dates -->
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
           <div class="form-group">
             <label class="form-label">Date d'émission</label>
@@ -4596,6 +4678,27 @@
           </div>
         </div>
 
+        <!-- Comptabilité -->
+        <div style="background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:1rem; margin-bottom:1rem;">
+          <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-bottom:0.75rem; text-transform:uppercase; letter-spacing:.04em;">
+            <svg class="svg-icon" viewBox="0 0 24 24" style="width:14px;height:14px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+            Données comptables
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Coût d'établissement (FCFA)</label>
+              <input type="number" id="doc-amount-fcfa" class="form-control font-mono" min="0" step="500" placeholder="0">
+              <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">Montant payé pour obtenir ce document</div>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Budget renouvellement (FCFA)</label>
+              <input type="number" id="doc-renewal-cost" class="form-control font-mono" min="0" step="500" placeholder="0">
+              <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">Coût prévisionnel au prochain renouvellement</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fichier -->
         <div class="form-group">
           <label class="form-label">Fichier (PDF / Image)</label>
           <input type="file" id="doc-file-input" class="form-control" accept=".pdf,.jpg,.jpeg,.png,.webp">
@@ -4604,9 +4707,10 @@
           </div>
         </div>
 
+        <!-- Notes -->
         <div class="form-group">
           <label class="form-label">Notes</label>
-          <textarea id="doc-notes" class="form-control" rows="2" placeholder="Observations, numéro de référence…"></textarea>
+          <textarea id="doc-notes" class="form-control" rows="2" placeholder="Numéro police, organisme émetteur, remarques…"></textarea>
         </div>
       </div>
       <div class="modal-footer">
@@ -8371,14 +8475,23 @@
     let _docsData = []; // Cache des documents chargés
 
     const DOC_TYPE_LABELS = {
-      carte_grise: 'Carte grise',
+      // Camion
       assurance_rc: 'Assurance RC',
       assurance_tous_risques: 'Assurance tous risques',
       visite_technique: 'Visite technique',
-      vignette: 'Vignette',
+      carte_grise: 'Carte grise',
+      vignette: 'Vignette annuelle',
+      licence_transport: 'Licence de transport',
+      autorisation_transport: 'Autorisation de transport',
+      carte_bleue: 'Carte bleue / Carburant',
+      laissez_passer: 'Laissez-passer / Transit',
+      taxe_essieu: 'Taxe à l\'essieu',
+      patente: 'Patente',
+      // Chauffeur
       permis_conduire: 'Permis de conduire',
       carte_professionnelle: 'Carte professionnelle',
-      contrat_chauffeur: 'Contrat chauffeur',
+      contrat_chauffeur: 'Contrat de travail',
+      cni: 'CNI / Pièce d\'identité',
       autre: 'Autre'
     };
 
@@ -8393,20 +8506,62 @@
       return { label: 'Valide', cls: 'badge-success' };
     }
 
-    /** Charge les documents depuis l'API selon les filtres sélectionnés */
+    /** Calcule jours restants avant expiration */
+    function daysUntilExpiry(expiry_date) {
+      if (!expiry_date) return null;
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const exp = new Date(expiry_date);
+      return Math.round((exp - today) / 86400000);
+    }
+
+    /** Charge les documents + KPIs comptables */
     async function loadDocuments() {
       try {
         const entityType = document.getElementById('docs-filter-entity-type')?.value || '';
+        const docType = document.getElementById('docs-filter-doc-type')?.value || '';
         const status = document.getElementById('docs-filter-status')?.value || '';
         let url = '/api/documents?';
         if (entityType) url += `entity_type=${encodeURIComponent(entityType)}&`;
+        if (docType) url += `doc_type=${encodeURIComponent(docType)}&`;
         if (status) url += `status=${encodeURIComponent(status)}&`;
 
-        const res = await fetch(url);
-        if (!res.ok) throw new Error('Erreur réseau');
-        _docsData = await res.json();
+        const [docsRes, accRes, alertsRes] = await Promise.all([
+          fetch(url),
+          fetch('/api/documents/accounting'),
+          fetch('/api/documents/alerts')
+        ]);
+
+        if (!docsRes.ok) throw new Error('Erreur réseau');
+        _docsData = await docsRes.json();
         renderDocumentsTable();
-        await refreshDocAlertBadge();
+
+        // KPIs comptables
+        if (accRes.ok) {
+          const acc = await accRes.json();
+          const s = acc.summary || {};
+          const el = id => document.getElementById(id);
+          if (el('docs-kpi-total-spent')) el('docs-kpi-total-spent').textContent = formatFCFA(s.total_spent || 0);
+          if (el('docs-kpi-renewal')) el('docs-kpi-renewal').textContent = formatFCFA(s.total_renewal_forecast || 0);
+          if (el('docs-kpi-truck-count')) el('docs-kpi-truck-count').textContent = (s.truck_docs || 0) + ' docs';
+          if (el('docs-kpi-driver-count')) el('docs-kpi-driver-count').textContent = (s.driver_docs || 0) + ' docs';
+        }
+
+        // KPIs alertes
+        if (alertsRes.ok) {
+          const alerts = await alertsRes.json();
+          const el = id => document.getElementById(id);
+          if (el('docs-kpi-expired')) el('docs-kpi-expired').textContent = alerts.expired || 0;
+          if (el('docs-kpi-expiring')) el('docs-kpi-expiring').textContent = alerts.expiring || 0;
+          // Badge sidebar/nav
+          const badge = el('docs-alert-badge');
+          const badge2 = el('sidebar-docs-alert-badge');
+          const total = (alerts.expired || 0) + (alerts.expiring || 0);
+          [badge, badge2].forEach(b => {
+            if (!b) return;
+            if (total > 0) { b.textContent = total; b.style.display = 'inline-block'; }
+            else b.style.display = 'none';
+          });
+        }
       } catch (err) {
         console.error('Erreur loadDocuments:', err);
         showToast('Erreur lors du chargement des documents.', 'danger');
@@ -8429,7 +8584,9 @@
           return (
             d.doc_name.toLowerCase().includes(search) ||
             label.toLowerCase().includes(search) ||
-            d.entity_id.toLowerCase().includes(search)
+            (d.entity_id || '').toLowerCase().includes(search) ||
+            (d.driver_name || '').toLowerCase().includes(search) ||
+            (d.notes || '').toLowerCase().includes(search)
           );
         });
       }
@@ -8449,12 +8606,31 @@
       tbody.innerHTML = rows.map(d => {
         const { label, cls } = getDocStatus(d.expiry_date);
         const typeLabel = DOC_TYPE_LABELS[d.doc_type] || d.doc_type;
-        const entityLabel = d.entity_type === 'truck' ? `${VECTORS.truck} ${d.entity_id}` : `${VECTORS.user} ${d.entity_id}`;
+        const entityLabel = d.entity_type === 'truck'
+          ? `<span style="color:var(--primary); font-weight:700;">${d.entity_id}</span>`
+          : `<span style="color:var(--violet-text); font-weight:700;">${d.entity_id}</span>`;
+        const entityIcon = d.entity_type === 'truck' ? VECTORS.truck : VECTORS.user;
+
         const issueStr = d.issue_date ? new Date(d.issue_date).toLocaleDateString('fr-FR') : '—';
-        const expiryStr = d.expiry_date ? new Date(d.expiry_date).toLocaleDateString('fr-FR') : '—';
+        const days = daysUntilExpiry(d.expiry_date);
+        let expiryStr = d.expiry_date ? new Date(d.expiry_date).toLocaleDateString('fr-FR') : '—';
+        if (days !== null && days >= 0 && days <= 30) {
+          expiryStr += ` <span style="font-size:0.72rem; color:var(--warning-text); font-weight:700;">(${days}j)</span>`;
+        } else if (days !== null && days < 0) {
+          expiryStr += ` <span style="font-size:0.72rem; color:var(--danger-text); font-weight:700;">(${Math.abs(days)}j)</span>`;
+        }
+
+        const costStr = d.amount_fcfa ? `<span class="font-mono" style="font-size:0.85rem;">${formatFCFA(d.amount_fcfa)}</span>` : '<span style="color:var(--text-subtle);">—</span>';
+        const renewalStr = d.renewal_cost ? `<span class="font-mono" style="font-size:0.85rem; color:var(--warning-text);">${formatFCFA(d.renewal_cost)}</span>` : '<span style="color:var(--text-subtle);">—</span>';
+
+        const driverLinked = d.driver_name
+          ? `<span style="font-size:0.82rem; color:var(--violet-text); font-weight:600;">${d.driver_name}</span>`
+          : '<span style="color:var(--text-subtle); font-size:0.8rem;">—</span>';
+
         const fileBtn = d.file_url
           ? `<a href="${d.file_url}" target="_blank" class="btn btn-sm btn-secondary" title="Voir le fichier"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></a>`
           : '<span style="color:var(--text-subtle); font-size:0.8rem;">—</span>';
+
         const actionsBtn = canWrite ? `
           <div style="display:flex; gap:0.35rem;">
             <button class="btn btn-sm btn-secondary" onclick="openDocumentModal(${d.id})" title="Modifier">${VECTORS.pencil}</button>
@@ -8462,11 +8638,14 @@
           </div>` : '—';
 
         return `<tr>
-          <td data-label="Entité"><strong>${entityLabel}</strong></td>
-          <td data-label="Type">${typeLabel}</td>
+          <td data-label="Camion / Chauffeur"><span style="display:flex; align-items:center; gap:0.35rem;">${entityIcon}${entityLabel}</span></td>
+          <td data-label="Type"><span style="font-size:0.83rem; font-weight:600;">${typeLabel}</span></td>
           <td data-label="Nom">${d.doc_name}</td>
+          <td data-label="Chauffeur lié">${driverLinked}</td>
           <td data-label="Émission">${issueStr}</td>
           <td data-label="Expiration">${expiryStr}</td>
+          <td data-label="Coût établ." style="text-align:right;">${costStr}</td>
+          <td data-label="Budget renouvl." style="text-align:right;">${renewalStr}</td>
           <td data-label="Statut"><span class="badge ${cls}">${label}</span></td>
           <td data-label="Fichier">${fileBtn}</td>
           <td data-label="Actions" class="btn-write-only">${actionsBtn}</td>
@@ -8480,25 +8659,18 @@
         const res = await fetch('/api/documents/alerts');
         if (!res.ok) return;
         const data = await res.json();
-        const badge = document.getElementById('docs-alert-badge');
-        if (badge) {
-          if (data.total > 0) {
-            badge.textContent = data.total;
-            badge.style.display = 'inline-block';
-          } else {
-            badge.style.display = 'none';
-          }
-        }
+        const total = (data.expired || 0) + (data.expiring || 0);
+        ['docs-alert-badge', 'sidebar-docs-alert-badge'].forEach(id => {
+          const badge = document.getElementById(id);
+          if (!badge) return;
+          if (total > 0) { badge.textContent = total; badge.style.display = 'inline-block'; }
+          else badge.style.display = 'none';
+        });
       } catch (e) { /* silencieux */ }
     }
 
     /** Filtre rapide sur les alertes */
     function filterDocsByAlerts() {
-      document.getElementById('docs-filter-status').value = 'expiring';
-      loadDocuments();
-      // Afficher aussi les expirés
-      document.getElementById('docs-filter-status').value = '';
-      // On filtre manuellement
       const today = new Date(); today.setHours(0, 0, 0, 0);
       const in30 = new Date(today); in30.setDate(in30.getDate() + 30);
       _docsData = _docsData.filter(d => {
@@ -8506,7 +8678,26 @@
         const exp = new Date(d.expiry_date);
         return exp <= in30;
       });
+      document.getElementById('docs-filter-status').value = '';
       renderDocumentsTable();
+    }
+
+    /** Remplit le select des chauffeurs dans la modale doc */
+    async function populateDocDriverSelect(selectedId = null) {
+      const sel = document.getElementById('doc-driver-id');
+      if (!sel) return;
+      sel.innerHTML = '<option value="">Aucun</option>';
+      try {
+        const res = await fetch('/api/drivers');
+        const drivers = await res.json();
+        drivers.filter(d => d.is_active).forEach(d => {
+          const opt = document.createElement('option');
+          opt.value = d.id;
+          opt.textContent = `${d.name}${d.assigned_truck ? ' — ' + d.assigned_truck : ''}`;
+          if (selectedId && parseInt(selectedId) === d.id) opt.selected = true;
+          sel.appendChild(opt);
+        });
+      } catch (e) { console.error('populateDocDriverSelect:', e); }
     }
 
     /** Ouvre la modale en mode création ou édition */
@@ -8520,10 +8711,16 @@
       document.getElementById('doc-issue-date').value = '';
       document.getElementById('doc-expiry-date').value = '';
       document.getElementById('doc-notes').value = '';
+      document.getElementById('doc-amount-fcfa').value = '';
+      document.getElementById('doc-renewal-cost').value = '';
       document.getElementById('doc-file-input').value = '';
       document.getElementById('doc-file-preview').style.display = 'none';
 
-      await populateDocEntitySelect('truck');
+      await Promise.all([
+        populateDocEntitySelect('truck'),
+        populateDocDriverSelect()
+      ]);
+      document.getElementById('doc-driver-link-group').style.display = '';
 
       if (docId) {
         title.textContent = 'Modifier le document';
@@ -8540,10 +8737,14 @@
           document.getElementById('doc-issue-date').value = d.issue_date || '';
           document.getElementById('doc-expiry-date').value = d.expiry_date || '';
           document.getElementById('doc-notes').value = d.notes || '';
+          document.getElementById('doc-amount-fcfa').value = d.amount_fcfa || '';
+          document.getElementById('doc-renewal-cost').value = d.renewal_cost || '';
+          await populateDocDriverSelect(d.driver_id);
+          // Masquer chauffeur lié si entité est chauffeur
+          document.getElementById('doc-driver-link-group').style.display = d.entity_type === 'driver' ? 'none' : '';
           if (d.file_url) {
-            const preview = document.getElementById('doc-file-preview');
             document.getElementById('doc-file-current-link').href = d.file_url;
-            preview.style.display = 'block';
+            document.getElementById('doc-file-preview').style.display = 'block';
           }
         } catch (e) {
           showToast('Erreur lors du chargement.', 'danger');
@@ -8560,6 +8761,9 @@
     async function populateDocEntitySelect(entityType) {
       const sel = document.getElementById('doc-entity-id');
       sel.innerHTML = '<option value="">Choisir…</option>';
+      // Masquer/afficher le champ chauffeur lié
+      const driverLinkGroup = document.getElementById('doc-driver-link-group');
+      if (driverLinkGroup) driverLinkGroup.style.display = entityType === 'driver' ? 'none' : '';
       try {
         if (entityType === 'truck') {
           const res = await fetch('/api/trucks');
@@ -8610,6 +8814,9 @@
       const issue_date = document.getElementById('doc-issue-date').value;
       const expiry_date = document.getElementById('doc-expiry-date').value;
       const notes = document.getElementById('doc-notes').value.trim();
+      const amount_fcfa = document.getElementById('doc-amount-fcfa').value;
+      const renewal_cost = document.getElementById('doc-renewal-cost').value;
+      const driver_id = document.getElementById('doc-driver-id').value;
       const fileInput = document.getElementById('doc-file-input');
 
       if (!entity_id) { showToast('Veuillez choisir une entité.', 'danger'); return; }
@@ -8632,7 +8839,13 @@
           file_url = upData.url;
         }
 
-        const body = { entity_type, entity_id, doc_type, doc_name, issue_date, expiry_date, notes };
+        const body = {
+          entity_type, entity_id, doc_type, doc_name,
+          issue_date, expiry_date, notes,
+          amount_fcfa: amount_fcfa ? parseInt(amount_fcfa, 10) : 0,
+          renewal_cost: renewal_cost ? parseInt(renewal_cost, 10) : 0,
+          driver_id: driver_id ? parseInt(driver_id, 10) : null
+        };
         if (file_url) body.file_url = file_url;
 
         const url = id ? `/api/documents/${id}` : '/api/documents';

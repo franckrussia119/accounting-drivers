@@ -181,6 +181,9 @@ export function initDatabase() {
   migrateAddColumnIfMissing('trips', 'montant_remis', 'INTEGER DEFAULT 0');
   migrateAddColumnIfMissing('maintenance_records', 'document_url', 'TEXT');
   migrateAddColumnIfMissing('maintenance_records', 'line_items', 'TEXT');
+  migrateAddColumnIfMissing('fleet_documents', 'amount_fcfa', 'INTEGER DEFAULT 0');
+  migrateAddColumnIfMissing('fleet_documents', 'renewal_cost', 'INTEGER DEFAULT 0');
+  migrateAddColumnIfMissing('fleet_documents', 'driver_id', 'INTEGER');
 
   // ── Tables multi-utilisateurs ──────────────────────────────────────────────
   db.exec(`
