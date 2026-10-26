@@ -1,0 +1,17 @@
+{
+  "name": "YM-TRANSIT — Sorties port",
+  "short_name": "YMT Port",
+  "description": "Saisie des sorties de camions au port par l'agent YM-TRANSIT",
+  "start_url": "/port",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#13233f",
+  "theme_color": "#13233f",
+  "lang": "fr",
+  "icons": [
+    { "src": "/icons/port-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/port-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/port-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
