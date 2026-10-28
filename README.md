@@ -29,7 +29,7 @@ Conçue avec une interface moderne inspirée des applications Fintech, 100% en F
 ### 3. Assistant IA (français / anglais)
 - Bouton **Assistant** en bas à droite (raccourci **Ctrl K**), dictée vocale sur navigateur compatible.
 - Exemples : « combien de voyages a fait Eric cette semaine ? », « quel camion a rapporté le plus ce mois ? », « how many containers last week? ».
-- Fonctionne avec **Google Gemini (gratuit)** : le superadmin colle sa clé dans les réglages de l'assistant (ou variable `GEMINI_API_KEY`).
+- Fonctionne avec **Google Gemini (gratuit)** : le superadmin colle sa clé dans les réglages de l'assistant (ou variable `GEMINI_API_KEY`). Bouton « Enregistrer et tester » : si le modèle choisi est refusé par Google, l'assistant bascule tout seul sur un modèle autorisé.
 - Sécurité : l'assistant ne fait que **lire**, sur une connexion SQLite ouverte en lecture seule ; les tables utilisateurs et journal lui sont interdites. Chaque réponse est calculée sur les vraies données (tableau et export Excel disponibles).
 
 ---

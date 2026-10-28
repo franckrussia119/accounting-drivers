@@ -672,15 +672,27 @@
     body.innerHTML = `<div class="v4-ai-setup"><b>${s.configured && force ? 'Réglages de l\'assistant' : 'Activer l\'assistant (gratuit)'}</b>
       <ol><li>Ouvrez <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> avec un compte Google.</li><li>Cliquez sur <b>Create API key</b>, puis copiez la clé.</li><li>Collez-la ci-dessous et enregistrez.</li></ol>
       <label for="v4-ai-key">Clé API Gemini${s.key_hint ? ` (actuelle : ${esc(s.key_hint)})` : ''}</label><input type="password" class="form-control" id="v4-ai-key" placeholder="AIza…" autocomplete="off">
-      <label for="v4-ai-model">Modèle</label><input class="form-control" id="v4-ai-model" value="${esc(s.model || 'gemini-2.5-flash')}">
-      <div style="display:flex;gap:.5rem;margin-top:.9rem"><button class="btn btn-primary btn-sm" id="v4-ai-save">Enregistrer</button>${s.configured ? `<button class="btn btn-secondary btn-sm" id="v4-ai-back">Retour</button>` : ''}</div>
+      <label for="v4-ai-model">Modèle</label><input class="form-control" id="v4-ai-model" value="${esc(s.model || 'gemini-3.8-flash')}"><small style="color:var(--text-muted);font-size:.72rem">Si ce modèle est refusé, l'assistant en essaie automatiquement un autre.</small>
+      <div style="display:flex;gap:.5rem;margin-top:.9rem;flex-wrap:wrap"><button class="btn btn-primary btn-sm" id="v4-ai-save">Enregistrer et tester</button>${s.configured ? `<button class="btn btn-secondary btn-sm" id="v4-ai-back">Retour</button>` : ''}</div>
+      <div id="v4-ai-test" style="margin-top:.7rem;font-size:.8rem;line-height:1.45"></div>
       <p style="color:var(--text-muted);font-size:.74rem;margin:.8rem 0 0">L'offre gratuite de Google suffit pour un usage normal du bureau. La clé reste sur votre serveur ; les questions et les résultats nécessaires à la réponse sont envoyés à Google.</p></div>`;
     $('v4-ai-save').onclick = async () => {
       const key = $('v4-ai-key').value.trim();
       const body2 = { model: $('v4-ai-model').value.trim() };
       if (key) body2.api_key = key;
-      try { const r = await api('POST', '/api/assistant/settings', body2); AI.status = { ...AI.status, ...r }; toast('Assistant activé'); renderAI(); }
-      catch (e) { toast(e.message, 'danger'); }
+      const out = $('v4-ai-test');
+      try {
+        const r = await api('POST', '/api/assistant/settings', body2);
+        AI.status = { ...AI.status, ...r };
+        out.innerHTML = '<span style="color:var(--text-muted)">Test de la clé auprès de Google…</span>';
+        const t = await api('POST', '/api/assistant/test');
+        AI.status.model = t.model;
+        toast(`Assistant activé (modèle ${t.model})`);
+        renderAI();
+      } catch (e) {
+        if (out) out.innerHTML = `<div style="color:var(--danger-text);background:var(--danger-light);padding:.55rem .7rem;border-radius:8px">${esc(e.message)}</div>`;
+        else toast(e.message, 'danger');
+      }
     };
     if ($('v4-ai-back')) $('v4-ai-back').onclick = renderAI;
   }

@@ -18,7 +18,10 @@ import { todayISO } from '../lib/assignments.js';
 export const assistantRouter = express.Router();
 
 const BASE_URL = process.env.GEMINI_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta';
-const DEFAULT_MODEL = 'gemini-2.5-flash';
+const DEFAULT_MODEL = 'gemini-3.8-flash';
+// Si le modèle choisi est refusé ou retiré par Google, on essaie ceux-ci dans l'ordre
+// (gemini-2.5-* n'est plus ouvert aux nouveaux comptes, gemini-2.0-* est arrêté).
+const FALLBACK_MODELS = ['gemini-3.8-flash', 'gemini-3.6-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-2.5-flash'];
 const MAX_ROWS = 200;
 
 function apiKey() { return getSetting('gemini_api_key', process.env.GEMINI_API_KEY || null); }
@@ -70,6 +73,45 @@ function dateContext() {
 }
 
 // ── Appel Gemini ─────────────────────────────────────────────────────────────
+const KEY_PROBLEM = /api[ _]?key|API_KEY_INVALID|unregistered callers|ACCESS_TOKEN_TYPE_UNSUPPORTED|credential|unauthenticated/i;
+
+async function callModel(m, key, body) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 30000);
+  let resp;
+  try {
+    resp = await fetch(`${BASE_URL}/models/${encodeURIComponent(m)}:generateContent`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+      body: JSON.stringify(body),
+      signal: ctrl.signal
+    });
+  } catch (e) {
+    throw Object.assign(new Error('Impossible de joindre Google Gemini : le serveur n\'a pas accès à internet (ou délai dépassé).'), { code: 'NETWORK' });
+  } finally {
+    clearTimeout(timer);
+  }
+  const data = await resp.json().catch(() => ({}));
+  if (!resp.ok) {
+    const g = data?.error?.message || `HTTP ${resp.status}`;
+    const status = data?.error?.status || '';
+    const err = new Error(g);
+    err.http = resp.status;
+    err.google = `${resp.status} ${status} — ${g}`.trim();
+    if (resp.status === 429) err.code = 'QUOTA';
+    else if ((resp.status === 400 || resp.status === 401 || resp.status === 403) && KEY_PROBLEM.test(g + ' ' + status)) err.code = 'BAD_KEY';
+    else if (resp.status === 403 || resp.status === 404) err.code = 'MODEL'; // modèle non autorisé pour ce compte, ou retiré
+    else err.code = 'API';
+    throw err;
+  }
+  const text = (data?.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('').trim();
+  if (!text) {
+    const reason = data?.promptFeedback?.blockReason || data?.candidates?.[0]?.finishReason;
+    throw Object.assign(new Error(`Réponse vide de Gemini${reason ? ' (' + reason + ')' : ''}.`), { code: 'API' });
+  }
+  return text;
+}
+
 async function gemini(systemText, userText, { json = false, history = [] } = {}) {
   const key = apiKey();
   if (!key) throw Object.assign(new Error('NO_KEY'), { code: 'NO_KEY' });
@@ -82,33 +124,25 @@ async function gemini(systemText, userText, { json = false, history = [] } = {})
     contents,
     generationConfig: { temperature: json ? 0 : 0.3, ...(json ? { responseMimeType: 'application/json' } : {}) }
   };
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 30000);
-  let resp;
-  try {
-    resp = await fetch(`${BASE_URL}/models/${encodeURIComponent(model())}:generateContent`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
-      body: JSON.stringify(body),
-      signal: ctrl.signal
-    });
-  } catch (e) {
-    throw Object.assign(new Error('Impossible de joindre Google Gemini (connexion internet du serveur ?).'), { code: 'NETWORK' });
-  } finally {
-    clearTimeout(timer);
+  const first = model();
+  const candidates = [first, ...FALLBACK_MODELS.filter(m => m !== first)];
+  let lastErr = null;
+  for (const m of candidates) {
+    try {
+      const text = await callModel(m, key, body);
+      if (m !== first) { setSetting('gemini_model', m, 'auto'); console.log(`[Assistant] Modèle « ${first} » refusé → bascule automatique sur « ${m} ».`); }
+      return text;
+    } catch (e) {
+      lastErr = e;
+      if (e.code !== 'MODEL') break; // clé, quota ou réseau : changer de modèle n'y changera rien
+    }
   }
-  const data = await resp.json().catch(() => ({}));
-  if (!resp.ok) {
-    const msg = data?.error?.message || `HTTP ${resp.status}`;
-    if (resp.status === 400 && /api key/i.test(msg)) throw Object.assign(new Error('Clé API Gemini invalide.'), { code: 'BAD_KEY' });
-    if (resp.status === 403) throw Object.assign(new Error('Clé API Gemini refusée (vérifiez qu\'elle est active).'), { code: 'BAD_KEY' });
-    if (resp.status === 429) throw Object.assign(new Error('Quota gratuit Gemini atteint pour le moment — réessayez dans une minute.'), { code: 'QUOTA' });
-    if (resp.status === 404) throw Object.assign(new Error(`Modèle « ${model()} » introuvable — changez le modèle dans les réglages.`), { code: 'MODEL' });
-    throw Object.assign(new Error(`Erreur Gemini : ${msg}`), { code: 'API' });
-  }
-  const text = (data?.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('').trim();
-  if (!text) throw Object.assign(new Error('Réponse vide de Gemini.'), { code: 'API' });
-  return text;
+  const g = lastErr.google ? ` [Google : ${lastErr.google}]` : '';
+  if (lastErr.code === 'BAD_KEY') throw Object.assign(new Error(`Clé API refusée par Google.${g}`), { code: 'BAD_KEY' });
+  if (lastErr.code === 'QUOTA') throw Object.assign(new Error(`Quota gratuit Gemini atteint pour le moment : réessayez dans une minute.${g}`), { code: 'QUOTA' });
+  if (lastErr.code === 'MODEL') throw Object.assign(new Error(`Aucun modèle Gemini n'est autorisé pour cette clé.${g}`), { code: 'MODEL' });
+  if (lastErr.code === 'NETWORK') throw lastErr;
+  throw Object.assign(new Error(`Erreur Gemini.${g}`), { code: 'API' });
 }
 
 function parseJson(text) {
@@ -184,6 +218,17 @@ assistantRouter.post('/settings', requireRole('superadmin'), (req, res) => {
   logAudit({ username: req.user.username, role: req.user.role, action: 'UPDATE', entity: 'settings', detail: 'Réglages assistant IA modifiés', ip: req.ip });
   const key = apiKey();
   res.json({ configured: !!key, model: model(), key_hint: key ? `…${key.slice(-4)}` : null });
+});
+
+// Vérifier la clé : petite requête de test, renvoie le modèle qui fonctionne
+assistantRouter.post('/test', requireRole('superadmin'), async (req, res) => {
+  try {
+    const text = await gemini('Réponds uniquement par le mot OK.', 'Test de connexion');
+    res.json({ ok: true, model: model(), reply: text.slice(0, 40) });
+  } catch (err) {
+    if (err.code === 'NO_KEY') return res.status(412).json({ ok: false, error: 'Aucune clé enregistrée.' });
+    res.status(502).json({ ok: false, error: err.message, code: err.code });
+  }
 });
 
 assistantRouter.post('/ask', async (req, res) => {
