@@ -27,6 +27,8 @@ import { subcontractorsRouter } from './routes/subcontractors.js';
 import { assignmentsRouter } from './routes/assignments.js';
 import { portRouter } from './routes/port.js';
 import { assistantRouter } from './routes/assistant.js';
+import { pushRouter } from './routes/push.js';
+import { startReminders } from './lib/push.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -78,6 +80,7 @@ app.use('/api/subcontractors', requireStaff, subcontractorsRouter);
 app.use('/api/assignments', requireStaff, assignmentsRouter);
 app.use('/api/port', requireAuth, portRouter);          // agent_port autorisé (ses fiches uniquement)
 app.use('/api/assistant', requireStaff, assistantRouter);
+app.use('/api/push', requireAuth, pushRouter);           // v4.32 — notifications (agent + bureau)
 
 // === Upload de documents (PJ entretiens) ===
 const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
@@ -137,6 +140,8 @@ app.get('*', (req, res) => {
 });
 
 // Écoute sur port 3000 et host 0.0.0.0 (requis par conteneur et Coolify)
+startReminders(); // v4.32 — rappel du soir aux agents (fiche non envoyée)
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`[Serveur] Flotte & Chauffeurs en écoute sur http://0.0.0.0:${PORT}`);
 });

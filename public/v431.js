@@ -23,8 +23,15 @@
   const dFr = iso => { if (!iso) return '—'; const [y, m, d] = String(iso).slice(0, 10).split('-'); return `${d}/${m}/${y}`; };
   const cap = t => t ? t.charAt(0).toUpperCase() + t.slice(1) : t;
   const dLong = iso => iso ? new Date(String(iso).slice(0, 10) + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }) : '—';
-  const STATUS = { brouillon: 'Brouillon (chez l\'agent)', soumis: 'À traiter', valide: 'Validée' };
-  const ROW_STATUS = { en_attente: 'À importer', importe: 'Importée', rejete: 'Rejetée' };
+  const STATUS = { brouillon: 'Chez l\'agent', a_corriger: 'À corriger (chez l\'agent)', soumis: 'À traiter', valide: 'Validée', valide_partiel: 'Validée avec rejets', rejete: 'Rejetée' };
+  const ROW_STATUS = { en_attente: 'À importer', a_corriger: 'Renvoyée à l\'agent', importe: 'Importée', rejete: 'Rejetée' };
+  // Statut exact (une fiche avec des lignes rejetées n'est jamais affichée « Validée » tout court)
+  const dstat = s => s.display_status || s.status;
+  const sheetChip = s => {
+    const d = dstat(s), t = s.totals || {};
+    const extra = d === 'valide_partiel' ? ` · ${t.rows_imported} ok, ${t.rows_rejected} rejetée(s)` : d === 'a_corriger' && t.rows_to_fix ? ` · ${t.rows_to_fix} ligne(s)` : '';
+    return `<span class="v4-chip ${d}">${STATUS[d] || d}${extra}</span>`;
+  };
   const ICON = {
     back: '<svg class="v4-svg" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>',
     print: '<svg class="v4-svg" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>',
@@ -91,7 +98,7 @@
     if (!root) return;
     P.sheet = null;
     root.innerHTML = `<div class="v4-head"><div><h2>Sorties port</h2><p>Fiches remplies par l'agent au port sur son téléphone. Vérifiez chaque camion, complétez la recette et importez : le voyage est créé au bon chauffeur, avec l'échange de camion et l'avance.</p></div>
-      <div class="v4-actions"><button class="btn btn-secondary btn-sm" id="v4-agent-link">${ICON.phone} Application de l'agent</button>${canWrite() ? `<button class="btn btn-secondary btn-sm" id="v4-new-sheet">Saisir une fiche papier</button>` : ''}</div></div>
+      <div class="v4-actions"><button class="btn btn-secondary btn-sm" id="v4-notif-btn" title="Recevoir une notification quand une fiche arrive">Notifications…</button><button class="btn btn-secondary btn-sm" id="v4-agent-link">${ICON.phone} Application de l'agent</button>${canWrite() ? `<button class="btn btn-secondary btn-sm" id="v4-new-sheet">Saisir une fiche papier</button>` : ''}</div></div>
       <div class="data-card"><div class="v4-toolbar">
         <div class="v4-seg" id="v4-port-seg">
           <button data-f="soumis">À traiter</button><button data-f="brouillon">Chez l'agent</button><button data-f="valide">Validées</button><button data-f="">Toutes</button>
@@ -105,6 +112,7 @@
     let t;
     $('v4-port-q').oninput = e => { clearTimeout(t); t = setTimeout(() => { P.q = e.target.value; fetchSheets(); }, 250); };
     $('v4-agent-link').onclick = showAgentLink;
+    setupStaffNotif();
     if ($('v4-new-sheet')) $('v4-new-sheet').onclick = newPaperSheet;
     fetchSheets();
     refreshPortBadge();
@@ -130,14 +138,46 @@
         return `<button class="v4-sheet is-${s.status}" data-id="${s.id}">
           <div class="v4-date"><b>${dFr(s.sheet_date)}</b><span>${esc(cap(dLong(s.sheet_date).split(' ')[0]))}</span></div>
           <div class="who"><b>${esc(s.agent_name || s.created_by || '—')}</b> · <span style="display:inline">${esc(s.port || '')}</span><span>${esc(s.sheet_no)}</span></div>
-          <div class="v4-figs"><div><b>${t.rows_total || 0}</b>camions</div><div><b>${t.rows_pending || 0}</b>à importer</div><div><b>${num(t.total_carburant)}</b>carburant</div><div><b>${num(t.total_avance)}</b>avances</div></div>
-          <span class="v4-chip ${s.status}">${STATUS[s.status]}</span>
+          <div class="v4-figs"><div><b>${t.rows_total || 0}</b>camions</div><div><b>${t.rows_pending || 0}</b>à importer</div><div><b>${num((t.total_frais_route || 0) + (t.total_carburant || 0))}</b>frais route</div><div><b>${num(t.total_avance)}</b>avances</div></div>
+          ${sheetChip(s)}
         </button>`;
       }).join('');
       list.querySelectorAll('[data-id]').forEach(b => b.onclick = () => openPortSheet(+b.dataset.id));
     } catch (e) {
       list.innerHTML = `<div class="v4-empty"><b>Erreur</b>${esc(e.message)}</div>`;
     }
+  }
+
+  // ── Notifications du bureau (nouvelle fiche reçue) ──
+  const b64ToU8 = b64 => { const pad = '='.repeat((4 - b64.length % 4) % 4); const raw = atob((b64 + pad).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from([...raw].map(c => c.charCodeAt(0))); };
+  async function staffSubscription() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return null;
+    const reg = await navigator.serviceWorker.register('/port-sw.js');
+    await navigator.serviceWorker.ready;
+    return { reg, sub: await reg.pushManager.getSubscription() };
+  }
+  async function setupStaffNotif() {
+    const btn = $('v4-notif-btn');
+    if (!btn) return;
+    if (!('Notification' in window) || !('PushManager' in window)) { btn.style.display = 'none'; return; }
+    const paint = on => { btn.textContent = on ? 'Notifications activées' : 'Activer les notifications'; btn.dataset.on = on ? '1' : ''; };
+    try { const st = await staffSubscription(); paint(Notification.permission === 'granted' && !!(st && st.sub)); } catch (_) { paint(false); }
+    btn.onclick = async () => {
+      if (btn.dataset.on) {
+        const st = await staffSubscription();
+        if (st && st.sub) { await api('POST', '/api/push/unsubscribe', { endpoint: st.sub.endpoint }).catch(() => {}); await st.sub.unsubscribe(); }
+        paint(false); toast('Notifications désactivées sur cet ordinateur'); return;
+      }
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') return toast("Notifications bloquées : autorisez-les dans les réglages du navigateur (icône cadenas à gauche de l'adresse).", 'danger');
+      try {
+        const { publicKey } = await api('GET', '/api/push/vapid');
+        const st = await staffSubscription();
+        const sub = st.sub || await st.reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToU8(publicKey) });
+        await api('POST', '/api/push/subscribe', { subscription: sub.toJSON() });
+        paint(true); toast('Vous serez prévenu à chaque fiche envoyée par un agent');
+      } catch (e) { toast("Impossible d'activer les notifications : " + e.message, 'danger'); }
+    };
   }
 
   function showAgentLink() {
@@ -185,7 +225,7 @@
     const pendingRows = s.rows.filter(r => r.status === 'en_attente');
     const staff = canWrite();
     root.innerHTML = `<button class="v4-back" id="v4-back">${ICON.back} Toutes les fiches</button>
-      <div class="v4-head"><div><h2>${esc(cap(dLong(s.sheet_date)))}</h2><p>${esc(s.sheet_no)} · <span class="v4-chip ${s.status}">${STATUS[s.status]}</span></p></div>
+      <div class="v4-head"><div><h2>${esc(cap(dLong(s.sheet_date)))}</h2><p>${esc(s.sheet_no)} · ${sheetChip(s)}</p></div>
         <div class="v4-actions">
           <button class="btn btn-secondary btn-sm" id="v4-print">${ICON.print} PDF / Imprimer</button>
           ${staff && s.status !== 'brouillon' && !t.rows_imported ? `<button class="btn btn-secondary btn-sm" id="v4-reopen">Renvoyer à l'agent</button>` : ''}
@@ -194,15 +234,20 @@
         </div></div>
       <div class="data-card">
         <div class="v4-meta"><div><span>Agent au port</span><b>${esc(s.agent_name || s.created_by || '—')}</b></div><div><span>Téléphone</span><b>${s.agent_phone ? `<a href="tel:${esc(s.agent_phone)}" style="color:inherit">${esc(s.agent_phone)}</a>` : '—'}</b></div><div><span>Port / terminal</span><b>${esc(s.port || '—')}</b></div><div><span>Envoyée le</span><b>${s.submitted_at ? esc(String(s.submitted_at).slice(0, 16).replace('T', ' ')) : '—'}</b></div>${s.validated_by ? `<div><span>Validée par</span><b>${esc(s.validated_by)}</b></div>` : ''}</div>
-        <div class="v4-kpis"><div><b>${t.rows_total}</b><span>camions sortis</span></div><div><b>${t.containers}</b><span>conteneurs</span></div><div><b>${t.rows_external}</b><span>externes</span></div><div><b>${num(t.total_carburant)}</b><span>carburant (FCFA)</span></div><div><b>${num(t.total_avance)}</b><span>avances (FCFA)</span></div><div><b>${t.rows_imported}/${t.rows_total}</b><span>importées</span></div></div>
+        <div class="v4-kpis"><div><b>${t.rows_total}</b><span>camions sortis</span></div><div><b>${t.containers}</b><span>conteneurs</span></div><div><b>${t.rows_external}</b><span>externes</span></div><div><b>${num((t.total_frais_route || 0) + (t.total_carburant || 0))}</b><span>frais de route (FCFA)</span></div><div><b>${num(t.total_avance)}</b><span>avances (FCFA)</span></div><div><b>${t.rows_imported}/${t.rows_total}</b><span>importées</span></div></div>
         ${s.status === 'brouillon' ? `<div class="v4-warns" style="margin:1rem 1.1rem 0">L'agent n'a pas encore envoyé cette fiche : elle peut encore changer. L'import sera possible dès qu'elle sera envoyée${staff ? ' (ou marquée comme reçue)' : ''}.</div>` : ''}
         <div class="v4-rows">${s.rows.length ? s.rows.map(r => rowHtml(r, s)).join('') : '<div class="v4-empty"><b>Fiche vide</b></div>'}</div>
       </div>`;
     $('v4-back').onclick = loadPortExits;
     $('v4-print').onclick = () => YMTPortPrint.open(s);
-    if ($('v4-reopen')) $('v4-reopen').onclick = async () => {
-      if (!(await confirmV4("Renvoyer la fiche à l'agent ?", "L'agent pourra de nouveau la modifier sur son téléphone, puis la renvoyer.", 'Renvoyer'))) return;
-      try { P.sheet = await api('POST', `/api/port/sheets/${s.id}/reopen`); renderPortSheet(); refreshPortBadge(); } catch (e) { toast(e.message, 'danger'); }
+    if ($('v4-reopen')) $('v4-reopen').onclick = () => {
+      const m = modal("Renvoyer la fiche à l'agent", `<p style="font-size:.86rem;color:var(--text-main);margin:0 0 .8rem">L'agent reçoit une notification sur son téléphone, corrige la fiche, puis la renvoie.</p>
+        <div class="form-group"><label class="form-label">Ce qu'il doit corriger</label><textarea class="form-control" id="ro-reason" rows="3" placeholder="Ex : le conteneur de la ligne 3 est faux, vérifiez avec le BL."></textarea></div>`,
+        `<button class="btn btn-secondary" data-x>Annuler</button><button class="btn btn-primary" id="ro-ok">Renvoyer à l'agent</button>`);
+      m.querySelector('#ro-ok').onclick = async () => {
+        try { P.sheet = await api('POST', `/api/port/sheets/${s.id}/reopen`, { reason: m.querySelector('#ro-reason').value }); m.close(); toast("Fiche renvoyée : l'agent est prévenu"); renderPortSheet(); refreshPortBadge(); }
+        catch (e) { toast(e.message, 'danger'); }
+      };
     };
     if ($('v4-submit')) $('v4-submit').onclick = async () => {
       try { P.sheet = await api('POST', `/api/port/sheets/${s.id}/submit`); renderPortSheet(); refreshPortBadge(); } catch (e) { toast(e.message, 'danger'); }
@@ -221,7 +266,7 @@
         <div class="sub">${r.is_external ? esc(r.truck_code || '') : (r.is_exchange ? `<span class="v431-ex-pill" style="margin-left:0">échange</span> camion de ${esc(r.habitual_driver_name || r.usual_driver_name || '?')}` : (r.habitual_driver_name ? 'chauffeur habituel' : ''))}</div></div>
       <div><div class="lbl">CONTENEUR · BL</div><div class="val ctn">${esc(r.container_number || '—')} ${r.container_size ? `<span class="sub">${esc(r.container_size)}'</span>` : ''} ${ctnState}</div><div class="sub">BL ${esc(r.bl_number || '—')}</div></div>
       <div><div class="lbl">CLIENT → DESTINATION</div><div class="val">${esc(r.client_name || '—')}</div><div class="sub">${esc(r.destination || '—')}</div></div>
-      <div style="text-align:right"><span class="v4-chip ${r.status}">${ROW_STATUS[r.status]}</span><div class="sub" style="margin-top:.35rem">Carb. <b>${num(r.carburant)}</b> · Av. <b>${num(r.avance)}</b></div></div>
+      <div style="text-align:right"><span class="v4-chip ${r.status}">${ROW_STATUS[r.status]}</span><div class="sub" style="margin-top:.35rem">Frais route <b>${num(r.frais_route)}</b>${r.carburant ? ` · Carb. <b>${num(r.carburant)}</b>` : ''} · Av. <b>${num(r.avance)}</b></div></div>
     </div>`;
     const warn = r.status === 'en_attente' && r.warnings?.length ? `<div class="v4-warns">${r.warnings.map(esc).join('<br>')}</div>` : '';
     const obs = r.observations ? `<div style="padding:0 1rem .7rem;font-size:.8rem;color:var(--text-muted)">Observation agent : ${esc(r.observations)}</div>` : '';
@@ -230,6 +275,8 @@
       bottom = `<div class="v4-done">${r.trip_id ? `Voyage n°${r.trip_id} créé` : `Voyage sous-traité n°${r.sub_trip_id} créé`}${r.advance_id ? ` · avance de ${money(r.avance)} enregistrée` : ''}
         <span class="push">${r.trip_id ? `<button class="btn btn-secondary btn-sm" data-goto-trip="${r.trip_id}">Voir dans les voyages</button>` : `<button class="btn btn-secondary btn-sm" data-goto-sub>Voir les voyages sous-traités</button>`}
         ${role() === 'superadmin' ? `<button class="btn btn-secondary btn-sm" data-unimport="${r.id}">Annuler l'import</button>` : ''}</span></div>`;
+    } else if (r.status === 'a_corriger') {
+      bottom = `<div class="v4-done" style="color:var(--warning-text)">Renvoyée à l'agent pour correction : ${esc(r.reject_reason || '')} — elle reviendra ici dès qu'il l'aura corrigée.<span class="push">${canWrite() ? `<button class="btn btn-secondary btn-sm" data-restore="${r.id}">Annuler la demande</button>` : ''}</span></div>`;
     } else if (r.status === 'rejete') {
       bottom = `<div class="v4-done">Rejetée : ${esc(r.reject_reason || 'sans motif')}<span class="push">${canWrite() ? `<button class="btn btn-secondary btn-sm" data-restore="${r.id}">Restaurer</button>` : ''}</span></div>`;
     } else if (canWrite() && s.status !== 'brouillon') {
@@ -239,7 +286,7 @@
           <div><label>Recette client (FCFA)</label><input class="form-control num" data-f="recette" inputmode="numeric" placeholder="0"></div>
           <div><label>Coût sous-traitant (FCFA)</label><input class="form-control num" data-f="subcontractor_cost" inputmode="numeric" placeholder="0"></div>
           <div class="v4-acc-foot"><span class="v4-marge">Marge YM-TRANSIT : <b data-marge>—</b></span>
-            <span class="push"><button class="btn btn-secondary btn-sm" data-reject="${r.id}">Rejeter</button><button class="btn btn-primary btn-sm" data-import="${r.id}">Importer</button></span></div></div>`
+            <span class="push"><button class="btn btn-secondary btn-sm" data-reject="${r.id}">Rejeter</button><button class="btn btn-secondary btn-sm" data-return="${r.id}">Renvoyer pour correction</button><button class="btn btn-primary btn-sm" data-import="${r.id}">Importer</button></span></div></div>`
         : `<div class="v4-acc" data-acc="${r.id}">
           <div><label>Chauffeur</label><select class="form-control" data-f="driver_id">${driverOptions(r.driver_id)}</select></div>
           <div><label>Camion</label><select class="form-control" data-f="truck_code">${truckOptions(r.matched_truck || '')}</select></div>
@@ -247,10 +294,10 @@
           <div><label>Recette (FCFA)</label><input class="form-control num" data-f="recette" inputmode="numeric" placeholder="0"></div>
           <div><label>Carburant (FCFA)</label><input class="form-control num" data-f="dep_carburant" inputmode="numeric" value="${r.carburant ? num(r.carburant) : ''}" placeholder="0"></div>
           <div><label>Pesée (FCFA)</label><input class="form-control num" data-f="pesee" inputmode="numeric" placeholder="0"></div>
-          <div><label>Frais de route (FCFA)</label><input class="form-control num" data-f="peage" inputmode="numeric" placeholder="0"></div>
+          <div><label>Frais de route (FCFA)</label><input class="form-control num" data-f="peage" inputmode="numeric" value="${r.frais_route ? num(r.frais_route) : ''}" placeholder="0"></div>
           <div class="v4-acc-foot"><span class="v4-marge">Remis au chauffeur : <b data-remis>—</b> · Marge nette : <b data-marge>—</b></span>
             ${r.avance ? `<label class="v4-check"><input type="checkbox" data-f="create_advance" checked> Enregistrer l'avance de ${money(r.avance)} au compte du chauffeur</label>` : ''}
-            <span class="push"><button class="btn btn-secondary btn-sm" data-reject="${r.id}">Rejeter</button><button class="btn btn-primary btn-sm" data-import="${r.id}">Importer en voyage</button></span></div></div>`;
+            <span class="push"><button class="btn btn-secondary btn-sm" data-reject="${r.id}">Rejeter</button><button class="btn btn-secondary btn-sm" data-return="${r.id}">Renvoyer pour correction</button><button class="btn btn-primary btn-sm" data-import="${r.id}">Importer en voyage</button></span></div></div>`;
     } else if (canWrite() && s.status === 'brouillon') {
       bottom = `<div class="v4-done">En attente de l'envoi par l'agent<span class="push"><button class="btn btn-secondary btn-sm" data-delrow="${r.id}">Supprimer</button></span></div>`;
     }
@@ -310,6 +357,16 @@
         catch (err) { toast(err.message, 'danger'); }
       };
     };
+    if (q('[data-return]')) q('[data-return]').onclick = () => {
+      const m = modal('Renvoyer pour correction', `<p style="font-size:.86rem;color:var(--text-main);margin:0 0 .8rem">L'agent reçoit une notification, corrige cette sortie sur son téléphone, et elle revient ici automatiquement.</p>
+        <div class="form-group"><label class="form-label">Ce qu'il faut corriger</label><textarea class="form-control" id="rt-reason" rows="3" placeholder="Ex : le numéro de conteneur ne correspond pas au BL."></textarea></div>`,
+        `<button class="btn btn-secondary" data-x>Annuler</button><button class="btn btn-primary" id="rt-ok">Renvoyer à l'agent</button>`);
+      setTimeout(() => m.querySelector('#rt-reason').focus(), 50);
+      m.querySelector('#rt-ok').onclick = async () => {
+        try { P.sheet = await api('POST', `/api/port/rows/${r.id}/return`, { reason: m.querySelector('#rt-reason').value }); m.close(); toast("Sortie renvoyée : l'agent est prévenu"); renderPortSheet(); refreshPortBadge(); }
+        catch (err) { toast(err.message, 'danger'); }
+      };
+    };
     if (q('[data-restore]')) q('[data-restore]').onclick = async () => { try { P.sheet = await api('POST', `/api/port/rows/${r.id}/restore`); renderPortSheet(); refreshPortBadge(); } catch (err) { toast(err.message, 'danger'); } };
     if (q('[data-unimport]')) q('[data-unimport]').onclick = async () => {
       if (!(await confirmV4("Annuler l'import ?", 'Le voyage créé (et l\'avance associée) sera supprimé. La ligne repassera « à importer ».', "Annuler l'import", true))) return;
@@ -348,7 +405,7 @@
       <div class="form-grid-2"><div class="form-group"><label class="form-label">N° BL</label><input class="form-control" id="pr-bl" style="text-transform:uppercase"></div>
         <div class="form-group"><label class="form-label">Client</label><input class="form-control" id="pr-client"></div></div>
       <div class="form-group"><label class="form-label">Destination</label><input class="form-control" id="pr-dest"></div>
-      <div class="form-grid-2"><div class="form-group"><label class="form-label">Carburant (FCFA)</label><input class="form-control" id="pr-fuel" inputmode="numeric"></div>
+      <div class="form-grid-2"><div class="form-group"><label class="form-label">Frais de route (FCFA)</label><input class="form-control" id="pr-fuel" inputmode="numeric"></div>
         <div class="form-group"><label class="form-label">Avance (FCFA)</label><input class="form-control" id="pr-adv" inputmode="numeric"></div></div>`,
       `<button class="btn btn-secondary" data-x>Fermer</button><button class="btn btn-primary" id="pr-ok">Ajouter</button>`);
     const tr = m.querySelector('#pr-truck');
@@ -367,7 +424,7 @@
           exit_time: v('#pr-time'), is_external: ext, truck_code: ext ? '' : v('#pr-truck'), external_company: ext ? v('#pr-ext') : null,
           driver_id: ext ? null : v('#pr-driver'), driver_name: ext ? v('#pr-driver-txt') : null,
           container_number: v('#pr-ctn'), container_size: v('#pr-size'), bl_number: v('#pr-bl'), client_name: v('#pr-client'), destination: v('#pr-dest'),
-          carburant: digits(v('#pr-fuel')), avance: digits(v('#pr-adv'))
+          frais_route: digits(v('#pr-fuel')), avance: digits(v('#pr-adv'))
         });
         toast('Ligne ajoutée');
         m.querySelectorAll('input').forEach(i => { if (i.id !== 'pr-dest') i.value = ''; });
@@ -762,6 +819,16 @@
         if (!me || !me.authenticated || me.user.role === 'agent_port') return setTimeout(tryStart, 4000);
         buildAI();
         refreshPortBadge();
+        // Lien ouvert depuis une notification : /?tab=port-exits&sheet=12
+        const qp = new URLSearchParams(location.search);
+        if (qp.get('tab') === 'port-exits') {
+          setTimeout(() => { (window.switchTab || switchTab)('port-exits'); if (qp.get('sheet')) setTimeout(() => openPortSheet(+qp.get('sheet')), 400); history.replaceState(null, '', '/'); }, 1200);
+        }
+        if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', ev => {
+          const d = ev.data || {};
+          if (d.type === 'push') { refreshPortBadge(); if (ST().currentTab === 'port-exits' && !P.sheet) fetchSheets(); }
+          if (d.type === 'open' && d.url) { const u = new URL(d.url); const sh = u.searchParams.get('sheet'); (window.switchTab || switchTab)('port-exits'); if (sh) setTimeout(() => openPortSheet(+sh), 300); }
+        });
         setInterval(refreshPortBadge, 60000);
       } catch (_) { setTimeout(tryStart, 5000); }
     };

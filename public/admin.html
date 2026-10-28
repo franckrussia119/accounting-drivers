@@ -527,6 +527,18 @@
             <option value="agent_port">agent_port — agent au port (application /port uniquement)</option>
           </select>
         </div>
+        <div class="form-group">
+          <label class="form-label" for="f-fullname">Nom complet</label>
+          <input class="form-control" id="f-fullname" type="text" autocomplete="off" placeholder="Ex : Samuel Ekane">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="f-phone">Téléphone</label>
+          <input class="form-control" id="f-phone" type="tel" autocomplete="off" placeholder="Ex : 690 00 00 00">
+        </div>
+        <div class="form-group" id="f-port-wrap">
+          <label class="form-label" for="f-port">Port / terminal habituel <span class="text-subtle" style="font-weight:400; text-transform:none; letter-spacing:0;">(agent au port)</span></label>
+          <input class="form-control" id="f-port" type="text" autocomplete="off" value="Port Autonome de Douala">
+        </div>
         <label class="form-check">
           <input type="checkbox" id="f-active" name="is_active" checked>
           Compte actif
@@ -644,7 +656,7 @@
         tbody.innerHTML = users.map(u => `
           <tr>
             <td class="mono text-muted">${u.id}</td>
-            <td style="font-weight:600;">${escHtml(u.username)}</td>
+            <td style="font-weight:600;">${escHtml(u.username)}${u.full_name ? `<div class="text-muted" style="font-weight:400;font-size:.8rem">${escHtml(u.full_name)}${u.phone ? ' · ' + escHtml(u.phone) : ''}</div>` : ''}</td>
             <td>${roleBadge(u.role)}</td>
             <td>${u.is_active ? '<span class="badge badge-green">Actif</span>' : '<span class="badge badge-red">Inactif</span>'}</td>
             <td class="mono text-muted">${fmt(u.created_at)}</td>
@@ -663,6 +675,12 @@
       return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
+    // Le port habituel ne concerne que l'agent au port
+    function syncPortField() {
+      document.getElementById('f-port-wrap').style.display = document.getElementById('f-role').value === 'agent_port' ? '' : 'none';
+    }
+    document.getElementById('f-role').addEventListener('change', syncPortField);
+
     // Open modal for add
     document.getElementById('add-user-btn').addEventListener('click', () => {
       editingUserId = null;
@@ -673,6 +691,10 @@
       document.getElementById('f-password').value = '';
       document.getElementById('f-role').value = 'viewer';
       document.getElementById('f-active').checked = true;
+      document.getElementById('f-fullname').value = '';
+      document.getElementById('f-phone').value = '';
+      document.getElementById('f-port').value = 'Port Autonome de Douala';
+      syncPortField();
       hideInlineAlert(document.getElementById('modal-alert'));
       document.getElementById('user-modal-overlay').hidden = false;
       document.getElementById('f-username').focus();
@@ -693,6 +715,10 @@
         document.getElementById('f-password').value = '';
         document.getElementById('f-role').value = u.role;
         document.getElementById('f-active').checked = Boolean(u.is_active);
+        document.getElementById('f-fullname').value = u.full_name || '';
+        document.getElementById('f-phone').value = u.phone || '';
+        document.getElementById('f-port').value = u.default_port || 'Port Autonome de Douala';
+        syncPortField();
         hideInlineAlert(document.getElementById('modal-alert'));
         document.getElementById('user-modal-overlay').hidden = false;
         document.getElementById('f-username').focus();
@@ -725,7 +751,11 @@
       submitBtn.textContent = 'Enregistrement...';
 
       try {
-        const body = { username, role, is_active };
+        const body = { username, role, is_active,
+          full_name: document.getElementById('f-fullname').value.trim(),
+          phone: document.getElementById('f-phone').value.trim(),
+          default_port: role === 'agent_port' ? document.getElementById('f-port').value.trim() : '' };
+        if (role === 'agent_port' && (!body.full_name || !body.phone)) { showInlineAlert(alertEl, "Pour un agent au port, le nom complet et le téléphone sont obligatoires : l'application les reprend automatiquement."); return; }
         if (password) body.password = password;
 
         const url = editingUserId ? `/api/admin/users/${editingUserId}` : '/api/admin/users';

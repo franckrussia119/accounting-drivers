@@ -54,7 +54,7 @@ subcontractor_trips(id, subcontractor_id, trip_date, destination, goods, bl_numb
 truck_assignments(id, truck_code = trucks.code, driver_id, start_date, end_date NULL=en cours, reason 'maladie'|'panne'|'conge'|'remplacement'|'autre')
       → échanges temporaires : pendant la période, driver_id conduit truck_code à la place du chauffeur habituel
 port_sheets(id, sheet_no, sheet_date, port, agent_name, status 'brouillon'|'soumis'|'valide')  -- fiches de sortie port
-port_exit_rows(id, sheet_id, exit_time, truck_code, is_external, external_company, driver_id, driver_name, bl_number, container_number, container_size '20'|'40', client_name, destination, carburant, avance, status 'en_attente'|'importe'|'rejete')
+port_exit_rows(id, sheet_id, exit_time, truck_code, is_external, external_company, driver_id, driver_name, bl_number, container_number, container_size '20'|'40', client_name, destination, frais_route = frais de route remis par l'agent, avance, carburant (anciennes fiches), status 'en_attente'|'a_corriger'|'importe'|'rejete')
 fleet_documents(id, entity_type 'truck'|'driver', entity_id, doc_type, doc_name, issue_date, expiry_date, amount_fcfa)  -- assurance, visite technique, permis...
 `;
 

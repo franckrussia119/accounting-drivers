@@ -11,6 +11,7 @@ import { db } from '../db.js';
 import { requireRole, logAudit } from '../auth.js';
 import { habitualDriver, todayISO } from '../lib/assignments.js';
 import { exchangeInfo } from './trips.js';
+import { notifyUser, notifyRoles } from '../lib/push.js';
 
 export const portRouter = express.Router();
 
@@ -116,12 +117,28 @@ function sheetTotals(sheetId) {
       SUM(CASE WHEN status = 'en_attente' THEN 1 ELSE 0 END) AS rows_pending,
       SUM(CASE WHEN status = 'importe' THEN 1 ELSE 0 END) AS rows_imported,
       SUM(CASE WHEN status = 'rejete' THEN 1 ELSE 0 END) AS rows_rejected,
+      SUM(CASE WHEN status = 'a_corriger' THEN 1 ELSE 0 END) AS rows_to_fix,
       SUM(CASE WHEN is_external = 1 THEN 1 ELSE 0 END) AS rows_external,
       COUNT(DISTINCT CASE WHEN is_external = 0 THEN UPPER(truck_code) END) AS trucks_ymt,
       SUM(CASE WHEN container_number IS NOT NULL AND container_number <> '' THEN 1 ELSE 0 END) AS containers,
       COALESCE(SUM(carburant), 0) AS total_carburant,
-      COALESCE(SUM(avance), 0) AS total_avance
+      COALESCE(SUM(avance), 0) AS total_avance,
+      COALESCE(SUM(frais_route), 0) AS total_frais_route
     FROM port_exit_rows WHERE sheet_id = ?`).get(sheetId);
+}
+
+/**
+ * Statut EXACT affiché (agent, bureau, PDF) — une fiche n'est jamais « validée »
+ * si des lignes ont été rejetées sans le dire.
+ *   brouillon | a_corriger | soumis | valide | valide_partiel | rejete
+ */
+function displayStatus(sheet, t) {
+  t = t || sheetTotals(sheet.id);
+  if (sheet.status === 'brouillon') return sheet.return_reason ? 'a_corriger' : 'brouillon';
+  if (sheet.status === 'soumis') return (t.rows_to_fix || 0) > 0 ? 'a_corriger' : 'soumis';
+  if (t.rows_total > 0 && t.rows_rejected === t.rows_total) return 'rejete';
+  if ((t.rows_rejected || 0) > 0) return 'valide_partiel';
+  return 'valide';
 }
 
 function loadSheet(id) {
@@ -132,16 +149,36 @@ function loadSheet(id) {
     SELECT r.*, s.name AS subcontractor_name
     FROM port_exit_rows r LEFT JOIN subcontractors s ON s.id = r.subcontractor_id
     WHERE r.sheet_id = ? ORDER BY COALESCE(r.exit_time, '99:99'), r.id`).all(id);
-  return { ...sheet, totals: sheetTotals(id), rows: enrichRows(rows, sheet.sheet_date) };
+  const totals = sheetTotals(id);
+  return { ...sheet, totals, display_status: displayStatus(sheet, totals), rows: enrichRows(rows, sheet.sheet_date) };
 }
 
 function refreshSheetStatus(sheetId, username) {
   const t = sheetTotals(sheetId);
   const sheet = db.prepare('SELECT status FROM port_sheets WHERE id = ?').get(sheetId);
   if (!sheet) return;
-  if (username && sheet.status === 'soumis' && t.rows_total > 0 && t.rows_pending === 0) {
+  const open = (t.rows_pending || 0) + (t.rows_to_fix || 0);
+  if (username && sheet.status === 'soumis' && t.rows_total > 0 && open === 0) {
     db.prepare(`UPDATE port_sheets SET status = 'valide', validated_by = ?, validated_at = CURRENT_TIMESTAMP WHERE id = ?`).run(username, sheetId);
-  } else if (t.rows_pending > 0 && sheet.status === 'valide') {
+    const s2 = db.prepare('SELECT sheet_no, created_by FROM port_sheets WHERE id = ?').get(sheetId);
+    if (s2) {
+      const allRejected = t.rows_rejected === t.rows_total;
+      const reasons = db.prepare(`SELECT DISTINCT reject_reason FROM port_exit_rows WHERE sheet_id = ? AND status = 'rejete' AND reject_reason IS NOT NULL`).all(sheetId).map(r => r.reject_reason).slice(0, 3).join(' · ');
+      notifyUser(s2.created_by, allRejected ? {
+        title: 'Fiche rejetée par le bureau',
+        body: `${s2.sheet_no} : ${t.rows_rejected} sortie(s) rejetée(s)${reasons ? ' — ' + reasons : ''}.`,
+        url: `/port?sheet=${sheetId}`, tag: `sheet-${sheetId}`, urgency: 'high'
+      } : t.rows_rejected ? {
+        title: 'Fiche traitée : sorties rejetées',
+        body: `${s2.sheet_no} : ${t.rows_imported} enregistrée(s), ${t.rows_rejected} rejetée(s)${reasons ? ' — ' + reasons : ''}.`,
+        url: `/port?sheet=${sheetId}`, tag: `sheet-${sheetId}`, urgency: 'high'
+      } : {
+        title: 'Fiche validée par le bureau',
+        body: `${s2.sheet_no} : les ${t.rows_imported} sortie(s) sont enregistrées.`,
+        url: `/port?sheet=${sheetId}`, tag: `sheet-${sheetId}`
+      });
+    }
+  } else if (open > 0 && sheet.status === 'valide') {
     db.prepare(`UPDATE port_sheets SET status = 'soumis', validated_by = NULL, validated_at = NULL WHERE id = ?`).run(sheetId);
   }
 }
@@ -216,7 +253,8 @@ portRouter.get('/sheets', (req, res) => {
     sql += ` ORDER BY CASE status WHEN 'soumis' THEN 0 WHEN 'brouillon' THEN 1 ELSE 2 END, sheet_date DESC, id DESC LIMIT 300`;
     const sheets = db.prepare(sql).all(...p).map(s => {
       if (s.status === 'valide') { refreshSheetStatus(s.id, null); s = db.prepare('SELECT * FROM port_sheets WHERE id = ?').get(s.id); }
-      return { ...s, totals: sheetTotals(s.id) };
+      const totals = sheetTotals(s.id);
+      return { ...s, totals, display_status: displayStatus(s, totals) };
     });
     res.json(sheets);
   } catch (err) {
@@ -240,9 +278,16 @@ portRouter.post('/sheets', requireRole(...WRITERS), (req, res) => {
     const n = db.prepare('SELECT COUNT(*) AS c FROM port_sheets WHERE sheet_no LIKE ?').get(prefix + '%').c;
     let i = n + 1, sheetNo;
     do { sheetNo = prefix + String(i).padStart(2, '0'); i++; } while (db.prepare('SELECT 1 FROM port_sheets WHERE sheet_no = ?').get(sheetNo));
+    // v4.32 : nom, téléphone et port repris du compte de l'agent (plus de double saisie)
+    const prof = db.prepare('SELECT full_name, phone, default_port FROM users WHERE id = ?').get(req.user.id) || {};
+    const isAgent = req.user.role === 'agent_port';
     const r = db.prepare(`
       INSERT INTO port_sheets (sheet_no, sheet_date, port, agent_name, agent_phone, notes, created_by)
-      VALUES (?, ?, ?, ?, ?, ?, ?)`).run(sheetNo, date, clean(b.port), clean(b.agent_name) || req.user.username, clean(b.agent_phone), clean(b.notes), req.user.username);
+      VALUES (?, ?, ?, ?, ?, ?, ?)`).run(sheetNo, date,
+        clean(b.port) || prof.default_port || 'Port Autonome de Douala',
+        clean(b.agent_name) || (isAgent ? (prof.full_name || req.user.username) : null) || req.user.username,
+        clean(b.agent_phone) || (isAgent ? prof.phone : null),
+        clean(b.notes), req.user.username);
     logAudit({ username: req.user.username, role: req.user.role, action: 'CREATE', entity: 'port_sheet', entity_id: r.lastInsertRowid, detail: `Fiche sortie port ${sheetNo}`, ip: req.ip });
     res.status(201).json(loadSheet(r.lastInsertRowid));
   } catch (err) {
@@ -284,7 +329,14 @@ portRouter.post('/sheets/:id/submit', requireRole(...WRITERS), (req, res) => {
   if (denied) return res.status(denied.code).json({ error: denied.error });
   const count = db.prepare('SELECT COUNT(*) AS c FROM port_exit_rows WHERE sheet_id = ?').get(sheet.id).c;
   if (!count) return res.status(400).json({ error: 'La fiche est vide : ajoutez au moins un camion.' });
-  db.prepare(`UPDATE port_sheets SET status = 'soumis', submitted_at = CURRENT_TIMESTAMP WHERE id = ?`).run(sheet.id);
+  db.prepare(`UPDATE port_sheets SET status = 'soumis', submitted_at = CURRENT_TIMESTAMP, return_reason = NULL WHERE id = ?`).run(sheet.id);
+  if (req.user.role === 'agent_port') {
+    notifyRoles(['superadmin', 'editor'], {
+      title: 'Nouvelle fiche de sortie port',
+      body: `${sheet.agent_name || req.user.username} a envoyé ${count} sortie(s) — ${sheet.sheet_no}`,
+      url: `/?tab=port-exits&sheet=${sheet.id}`, tag: `sheet-${sheet.id}`
+    });
+  }
   logAudit({ username: req.user.username, role: req.user.role, action: 'UPDATE', entity: 'port_sheet', entity_id: sheet.id, detail: `Fiche ${sheet.sheet_no} soumise (${count} sortie(s))`, ip: req.ip });
   res.json(loadSheet(sheet.id));
 });
@@ -292,7 +344,13 @@ portRouter.post('/sheets/:id/submit', requireRole(...WRITERS), (req, res) => {
 portRouter.post('/sheets/:id/reopen', requireRole(...STAFF), (req, res) => {
   const sheet = db.prepare('SELECT * FROM port_sheets WHERE id = ?').get(req.params.id);
   if (!sheet) return res.status(404).json({ error: 'Fiche introuvable.' });
-  db.prepare(`UPDATE port_sheets SET status = 'brouillon', submitted_at = NULL WHERE id = ?`).run(sheet.id);
+  const reason = clean(req.body?.reason);
+  db.prepare(`UPDATE port_sheets SET status = 'brouillon', submitted_at = NULL, return_reason = ? WHERE id = ?`).run(reason, sheet.id);
+  notifyUser(sheet.created_by, {
+    title: 'Fiche renvoyée pour correction',
+    body: reason ? `${sheet.sheet_no} : ${reason}` : `Le bureau vous renvoie la fiche ${sheet.sheet_no}. Corrigez puis renvoyez-la.`,
+    url: `/port?sheet=${sheet.id}`, tag: `sheet-${sheet.id}`, urgency: 'high'
+  });
   logAudit({ username: req.user.username, role: req.user.role, action: 'UPDATE', entity: 'port_sheet', entity_id: sheet.id, detail: `Fiche ${sheet.sheet_no} renvoyée à l'agent`, ip: req.ip });
   res.json(loadSheet(sheet.id));
 });
@@ -326,6 +384,7 @@ function rowPayload(b, existing = {}) {
     client_name: pick('client_name'),
     destination: pick('destination'),
     carburant: b.carburant !== undefined ? toInt(b.carburant) : (existing.carburant || 0),
+    frais_route: b.frais_route !== undefined ? toInt(b.frais_route) : (existing.frais_route || 0),
     avance: b.avance !== undefined ? toInt(b.avance) : (existing.avance || 0),
     observations: pick('observations')
   };
@@ -346,11 +405,11 @@ portRouter.post('/sheets/:id/rows', requireRole(...WRITERS), (req, res) => {
     }
     db.prepare(`
       INSERT INTO port_exit_rows (sheet_id, exit_time, truck_code, is_external, subcontractor_id, external_company, driver_id, driver_name, usual_driver_name,
-        bl_number, container_number, container_size, client_name, destination, carburant, avance, observations, created_by, client_uid)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
+        bl_number, container_number, container_size, client_name, destination, carburant, avance, observations, created_by, client_uid, frais_route)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
       sheet.id, v.exit_time, v.truck_code, v.is_external, v.subcontractor_id, v.external_company, v.driver_id, v.driver_name, v.usual_driver_name,
       v.bl_number, v.container_number, v.container_size, v.client_name, v.destination, v.carburant, v.avance,
-      v.observations, req.user.username, uid);
+      v.observations, req.user.username, uid, v.frais_route);
     refreshSheetStatus(sheet.id, req.user.username);
     res.status(201).json(loadSheet(sheet.id));
   } catch (err) {
@@ -369,15 +428,27 @@ portRouter.put('/rows/:id', requireRole(...WRITERS), (req, res) => {
   try {
     const { row, sheet } = rowWithSheet(req.params.id);
     if (!row) return res.status(404).json({ error: 'Ligne introuvable.' });
-    const denied = sheetAccess(req, sheet, true);
+    // Ligne renvoyée pour correction : l'agent peut la modifier même si la fiche est envoyée
+    const fixing = req.user.role === 'agent_port' && row.status === 'a_corriger' && sheet.created_by === req.user.username;
+    const denied = fixing ? null : sheetAccess(req, sheet, true);
     if (denied) return res.status(denied.code).json({ error: denied.error });
     if (row.status === 'importe') return res.status(409).json({ error: 'Ligne déjà importée : modifiez le voyage créé, ou annulez l\'import.' });
+    if (row.status === 'rejete' && req.user.role === 'agent_port') return res.status(409).json({ error: 'Ligne rejetée par le bureau : elle ne peut plus être modifiée.' });
     const v = rowPayload(req.body || {}, row);
     db.prepare(`
       UPDATE port_exit_rows SET exit_time=?, truck_code=?, is_external=?, subcontractor_id=?, external_company=?, driver_id=?, driver_name=?, usual_driver_name=?,
-        bl_number=?, container_number=?, container_size=?, client_name=?, destination=?, carburant=?, avance=?, observations=? WHERE id=?`).run(
+        bl_number=?, container_number=?, container_size=?, client_name=?, destination=?, carburant=?, avance=?, observations=?, frais_route=? WHERE id=?`).run(
       v.exit_time, v.truck_code, v.is_external, v.subcontractor_id, v.external_company, v.driver_id, v.driver_name, v.usual_driver_name,
-      v.bl_number, v.container_number, v.container_size, v.client_name, v.destination, v.carburant, v.avance, v.observations, row.id);
+      v.bl_number, v.container_number, v.container_size, v.client_name, v.destination, v.carburant, v.avance, v.observations, v.frais_route, row.id);
+    if (row.status === 'a_corriger' && req.user.role === 'agent_port') {
+      db.prepare(`UPDATE port_exit_rows SET status = 'en_attente', reject_reason = NULL WHERE id = ?`).run(row.id);
+      notifyRoles(['superadmin', 'editor'], {
+        title: 'Sortie corrigée par l\'agent',
+        body: `${sheet.sheet_no} : ${v.container_number || v.truck_code || 'ligne'} est prête à être importée.`,
+        url: `/?tab=port-exits&sheet=${sheet.id}`, tag: `row-${row.id}`
+      });
+      logAudit({ username: req.user.username, role: req.user.role, action: 'UPDATE', entity: 'port_sheet', entity_id: sheet.id, detail: `Ligne corrigée (${v.container_number || v.truck_code})`, ip: req.ip });
+    }
     res.json(loadSheet(sheet.id));
   } catch (err) {
     console.error('Erreur put row:', err);
@@ -434,7 +505,8 @@ function importRow(row, sheet, b, user) {
       if (!truck) throw Object.assign(new Error(`Camion « ${truckInput || '?'} » introuvable : choisissez un camion de la flotte.`), { code: 400 });
       const depCarb = b.dep_carburant !== undefined ? toInt(b.dep_carburant) : toInt(row.carburant);
       const pesee = toInt(b.pesee);
-      const peage = toInt(b.peage);
+      // Frais de route notés par l'agent → frais de route du voyage (modifiables par le bureau)
+      const peage = b.peage !== undefined ? toInt(b.peage) : toInt(row.frais_route);
       const remis = depCarb + pesee + peage;
       const ex = exchangeInfo(truck.code, driverId);
       const r = db.prepare(`
@@ -509,15 +581,38 @@ portRouter.post('/rows/:id/reject', requireRole(...STAFF), (req, res) => {
   if (!row) return res.status(404).json({ error: 'Ligne introuvable.' });
   if (row.status === 'importe') return res.status(409).json({ error: 'Ligne importée : annulez l\'import d\'abord.' });
   db.prepare(`UPDATE port_exit_rows SET status = 'rejete', reject_reason = ? WHERE id = ?`).run(clean(req.body?.reason) || 'Sans motif', row.id);
+  notifyUser(sheet.created_by, {
+    title: 'Une sortie a été rejetée',
+    body: `${row.container_number || row.truck_code || 'Ligne'} : ${clean(req.body?.reason) || 'sans motif'}`,
+    url: `/port?sheet=${sheet.id}`, tag: `row-${row.id}`
+  });
   refreshSheetStatus(sheet.id, req.user.username);
   logAudit({ username: req.user.username, role: req.user.role, action: 'UPDATE', entity: 'port_sheet', entity_id: sheet.id, detail: `Ligne rejetée (${row.container_number || row.truck_code}) : ${clean(req.body?.reason) || 'sans motif'}`, ip: req.ip });
+  res.json(loadSheet(sheet.id));
+});
+
+// Renvoyer UNE ligne à l'agent pour correction (il la modifie sur son téléphone)
+portRouter.post('/rows/:id/return', requireRole(...STAFF), (req, res) => {
+  const { row, sheet } = rowWithSheet(req.params.id);
+  if (!row) return res.status(404).json({ error: 'Ligne introuvable.' });
+  if (row.status === 'importe') return res.status(409).json({ error: 'Ligne importée : annulez l\'import d\'abord.' });
+  const reason = clean(req.body?.reason);
+  if (!reason) return res.status(400).json({ error: 'Indiquez ce que l\'agent doit corriger.' });
+  db.prepare(`UPDATE port_exit_rows SET status = 'a_corriger', reject_reason = ? WHERE id = ?`).run(reason, row.id);
+  refreshSheetStatus(sheet.id, req.user.username);
+  notifyUser(sheet.created_by, {
+    title: 'Sortie à corriger',
+    body: `${row.container_number || row.truck_code || 'Ligne'} : ${reason}`,
+    url: `/port?sheet=${sheet.id}&row=${row.id}`, tag: `row-${row.id}`, urgency: 'high'
+  });
+  logAudit({ username: req.user.username, role: req.user.role, action: 'UPDATE', entity: 'port_sheet', entity_id: sheet.id, detail: `Ligne renvoyée pour correction (${row.container_number || row.truck_code}) : ${reason}`, ip: req.ip });
   res.json(loadSheet(sheet.id));
 });
 
 portRouter.post('/rows/:id/restore', requireRole(...STAFF), (req, res) => {
   const { row, sheet } = rowWithSheet(req.params.id);
   if (!row) return res.status(404).json({ error: 'Ligne introuvable.' });
-  if (row.status !== 'rejete') return res.status(409).json({ error: 'Seule une ligne rejetée peut être restaurée.' });
+  if (row.status !== 'rejete' && row.status !== 'a_corriger') return res.status(409).json({ error: 'Seule une ligne rejetée ou à corriger peut être remise en attente.' });
   db.prepare(`UPDATE port_exit_rows SET status = 'en_attente', reject_reason = NULL WHERE id = ?`).run(row.id);
   refreshSheetStatus(sheet.id, req.user.username);
   res.json(loadSheet(sheet.id));

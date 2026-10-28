@@ -337,6 +337,30 @@ export function initDatabase() {
   migrateAddColumnIfMissing('subcontractor_trips', 'port_row_id', 'INTEGER');
   migrateAddColumnIfMissing('port_exit_rows', 'advance_id', 'INTEGER');
   migrateAddColumnIfMissing('port_exit_rows', 'client_uid', 'TEXT');
+
+  // ── v4.32 : profil utilisateur (repris automatiquement par l'appli agent) ──
+  migrateAddColumnIfMissing('users', 'full_name', 'TEXT');
+  migrateAddColumnIfMissing('users', 'phone', 'TEXT');
+  migrateAddColumnIfMissing('users', 'default_port', 'TEXT');
+  migrateAddColumnIfMissing('port_sheets', 'return_reason', 'TEXT');
+  // v4.32 : l'agent note les frais de route remis au chauffeur (le carburant est saisi au bureau)
+  migrateAddColumnIfMissing('port_exit_rows', 'frais_route', 'INTEGER DEFAULT 0');
+
+  // ── v4.32 : abonnements aux notifications (Web Push) ──
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS push_subscriptions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      username TEXT NOT NULL,
+      role TEXT,
+      endpoint TEXT UNIQUE NOT NULL,
+      p256dh TEXT NOT NULL,
+      auth TEXT NOT NULL,
+      user_agent TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      last_ok_at TEXT
+    );
+    CREATE INDEX IF NOT EXISTS idx_push_user ON push_subscriptions(username);
+  `);
   // Rétro-remplissage : voyages existants sans chauffeur habituel connu →
   // on prend l'affectation actuelle du camion (meilleure information dispo).
   try {

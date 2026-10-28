@@ -16,7 +16,7 @@ adminRouter.use(requireRole('superadmin'));
 adminRouter.get('/users', (req, res) => {
   try {
     const users = db.prepare(`
-      SELECT id, username, role, is_active, created_at
+      SELECT id, username, role, is_active, created_at, full_name, phone, default_port
       FROM users
       ORDER BY id ASC
     `).all();
@@ -30,7 +30,7 @@ adminRouter.get('/users', (req, res) => {
 // POST /api/admin/users — créer un utilisateur
 adminRouter.post('/users', (req, res) => {
   try {
-    const { username, password, role } = req.body || {};
+    const { username, password, role, full_name, phone, default_port } = req.body || {};
     if (!username || !password || !role) {
       return res.status(400).json({ error: 'Nom d\'utilisateur, mot de passe et rôle sont obligatoires.' });
     }
@@ -44,11 +44,11 @@ adminRouter.post('/users', (req, res) => {
     }
 
     const result = db.prepare(`
-      INSERT INTO users (username, password, role, is_active)
-      VALUES (?, ?, ?, 1)
-    `).run(username.trim(), password, role);
+      INSERT INTO users (username, password, role, is_active, full_name, phone, default_port)
+      VALUES (?, ?, ?, 1, ?, ?, ?)
+    `).run(username.trim(), password, role, (full_name || '').trim() || null, (phone || '').trim() || null, (default_port || '').trim() || null);
 
-    const newUser = db.prepare('SELECT id, username, role, is_active, created_at FROM users WHERE id = ?').get(result.lastInsertRowid);
+    const newUser = db.prepare('SELECT id, username, role, is_active, created_at, full_name, phone, default_port FROM users WHERE id = ?').get(result.lastInsertRowid);
 
     logAudit({
       username: req.user.username,
@@ -76,7 +76,7 @@ adminRouter.put('/users/:id', (req, res) => {
       return res.status(404).json({ error: 'Utilisateur introuvable.' });
     }
 
-    const { username, password, role, is_active } = req.body || {};
+    const { username, password, role, is_active, full_name, phone, default_port } = req.body || {};
 
     const validRoles = ['superadmin', 'editor', 'viewer', 'agent_port'];
     if (role && !validRoles.includes(role)) {
@@ -90,11 +90,15 @@ adminRouter.put('/users/:id', (req, res) => {
 
     db.prepare(`
       UPDATE users
-      SET username = ?, password = ?, role = ?, is_active = ?
+      SET username = ?, password = ?, role = ?, is_active = ?, full_name = ?, phone = ?, default_port = ?
       WHERE id = ?
-    `).run(updatedUsername, updatedPassword, updatedRole, updatedActive, id);
+    `).run(updatedUsername, updatedPassword, updatedRole, updatedActive,
+      full_name !== undefined ? (String(full_name).trim() || null) : existing.full_name,
+      phone !== undefined ? (String(phone).trim() || null) : existing.phone,
+      default_port !== undefined ? (String(default_port).trim() || null) : existing.default_port,
+      id);
 
-    const updated = db.prepare('SELECT id, username, role, is_active, created_at FROM users WHERE id = ?').get(id);
+    const updated = db.prepare('SELECT id, username, role, is_active, created_at, full_name, phone, default_port FROM users WHERE id = ?').get(id);
 
     logAudit({
       username: req.user.username,

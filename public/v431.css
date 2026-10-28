@@ -45,6 +45,9 @@
 .v4-chip.importe { background: var(--success-light); color: var(--success-text); }
 .v4-chip.rejete { background: var(--danger-light); color: var(--danger-text); }
 .v4-chip.en_attente { background: var(--primary-light); color: var(--primary-text); }
+.v4-chip.a_corriger { background: var(--warning-light); color: var(--warning-text); border: 1px solid rgba(245,158,11,.35); }
+.v4-chip.valide_partiel { background: var(--warning-light); color: var(--warning-text); }
+.v4-row.st-a_corriger { border-color: rgba(245,158,11,.5); }
 @media (max-width: 860px) {
   .v4-sheet { grid-template-columns: 1fr auto; }
   .v4-sheet .v4-figs { grid-column: 1 / -1; }

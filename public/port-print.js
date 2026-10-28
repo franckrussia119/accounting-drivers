@@ -9,7 +9,7 @@
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const fcfa = n => (Number(n) || 0).toLocaleString('fr-FR').replace(/ | /g, ' ');
   const dateFr = d => { if (!d) return ''; const [y, m, j] = String(d).slice(0, 10).split('-'); return `${j}/${m}/${y}`; };
-  const STATUS = { brouillon: 'Brouillon', soumis: 'Envoyée au bureau', valide: 'Validée par le bureau' };
+  const STATUS = { brouillon: 'En cours', a_corriger: 'À corriger', soumis: 'Envoyée au bureau', valide: 'Validée par le bureau', valide_partiel: 'Validée avec rejets', rejete: 'Rejetée' };
 
   function build(sheet) {
     const rows = sheet.rows || [];
@@ -35,9 +35,9 @@
         <td class="c">${r.container_size ? esc(r.container_size) + "'" : ''}</td>
         <td>${esc(r.client_name)}</td>
         <td>${esc(r.destination)}</td>
-        <td class="r">${r.carburant ? fcfa(r.carburant) : ''}</td>
+        <td class="r">${(r.frais_route || r.carburant) ? fcfa((Number(r.frais_route) || 0) + (Number(r.carburant) || 0)) : ''}</td>
         <td class="r">${r.avance ? fcfa(r.avance) : ''}</td>
-        <td class="o">${esc(obs)}${r.status === 'rejete' ? ' <em>(rejetée)</em>' : ''}</td>
+        <td class="o">${esc(obs)}${r.status === 'rejete' ? ` <em>(rejetée${r.reject_reason ? ' : ' + esc(r.reject_reason) : ''})</em>` : r.status === 'a_corriger' ? ` <em>(à corriger : ${esc(r.reject_reason || '')})</em>` : ''}</td>
       </tr>`;
     }
     return `<!doctype html><html lang="fr"><head><meta charset="utf-8">
@@ -92,7 +92,7 @@
 <header>
   <div class="brand">YM-TRANSIT<small>Transport &amp; logistique — Douala</small></div>
   <div><h1>RAPPORT JOURNALIER DE SORTIE PORT</h1><p>Une ligne par camion sorti</p></div>
-  <div class="ref"><span>${esc(STATUS[sheet.status] || sheet.status)}</span>N° fiche : ${esc(sheet.sheet_no)}</div>
+  <div class="ref"><span>${esc(STATUS[sheet.display_status || sheet.status] || sheet.status)}${(sheet.display_status === 'valide_partiel') ? ` (${t.rows_imported} enregistrée(s), ${t.rows_rejected} rejetée(s))` : ''}</span>N° fiche : ${esc(sheet.sheet_no)}</div>
 </header>
 <div class="band">
   <div><b>Date :</b>${dateFr(sheet.sheet_date)}</div>
@@ -107,7 +107,7 @@
   </colgroup>
   <thead><tr>
     <th>N°</th><th>Heure sortie</th><th>Camion</th><th>YMT / Ext.</th><th>Chauffeur au volant</th><th>Échange ? chauffeur habituel</th>
-    <th>N° BL</th><th>N° Conteneur</th><th>20'/40'</th><th>Client</th><th>Destination</th><th>Carburant (FCFA)</th><th>Avance (FCFA)</th><th>Observations</th>
+    <th>N° BL</th><th>N° Conteneur</th><th>20'/40'</th><th>Client</th><th>Destination</th><th>Frais de route (FCFA)</th><th>Avance (FCFA)</th><th>Observations</th>
   </tr></thead>
   <tbody>${body}</tbody>
 </table>
@@ -117,7 +117,7 @@
     <div><span>Camions sortis</span><b>${rows.length}</b></div>
     <div><span>dont YM-TRANSIT / externes</span><b>${ymt} / ${ext}</b></div>
     <div><span>Conteneurs sortis</span><b>${t.containers ?? rows.filter(r => r.container_number).length}</b></div>
-    <div><span>Total carburant</span><b>${fcfa(t.total_carburant ?? rows.reduce((s, r) => s + (Number(r.carburant) || 0), 0))} FCFA</b></div>
+    <div><span>Total frais de route</span><b>${fcfa(rows.reduce((s, r) => s + (Number(r.frais_route) || 0) + (Number(r.carburant) || 0), 0))} FCFA</b></div>
     <div><span>Total avances</span><b>${fcfa(t.total_avance ?? rows.reduce((s, r) => s + (Number(r.avance) || 0), 0))} FCFA</b></div>
   </div>
   <div class="sigs">

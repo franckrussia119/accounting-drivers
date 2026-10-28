@@ -109,9 +109,11 @@ export const authController = {
   me(req, res) {
     const session = readSession(req);
     if (!session) return res.status(401).json({ authenticated: false });
+    const u = db.prepare('SELECT full_name, phone, default_port, is_active FROM users WHERE id = ?').get(session.id) || {};
+    if (u.is_active === 0) return res.status(401).json({ authenticated: false });
     return res.json({
       authenticated: true,
-      user: { id: session.id, username: session.user, role: session.role }
+      user: { id: session.id, username: session.user, role: session.role, full_name: u.full_name || null, phone: u.phone || null, default_port: u.default_port || null }
     });
   },
 };

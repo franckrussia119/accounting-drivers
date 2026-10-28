@@ -6,6 +6,21 @@ Conçue avec une interface moderne inspirée des applications Fintech, 100% en F
 
 ---
 
+## Nouveautés v4.32 : application de l'agent au port
+
+**Important : le site doit être servi en HTTPS** (c'est le cas avec Coolify et un nom de domaine). Sans HTTPS, les téléphones refusent l'installation et les notifications.
+
+- **Installation obligatoire** : ouverte dans le navigateur, `/port` affiche seulement les étapes d'installation (bouton « Installer » sur Android/Chrome, instructions Safari sur iPhone). L'appli ne fonctionne qu'une fois ouverte depuis l'icône de l'écran d'accueil.
+- **Notifications obligatoires** : après la connexion, l'agent doit autoriser les notifications. Tant qu'elles sont refusées, l'appli reste bloquée et lui explique comment les réactiver. Les iPhone doivent être sous iOS 16.4 ou plus récent.
+- **Profil sur le compte** : dans Administration, un compte `agent_port` porte le nom complet, le téléphone et le port habituel. L'appli les reprend : l'agent ouvre sa journée d'un seul geste, sans rien ressaisir.
+- **Frais de route au lieu du carburant** : l'agent note les frais de route et l'avance. Au bureau, les frais de route sont repris dans le voyage ; le carburant, la pesée et la recette sont saisis par le bureau.
+- **Statut exact** : une fiche affiche « Validée », « Validée avec rejets (x enregistrées, y rejetées) », « Rejetée » ou « À corriger », jamais « Validée » si des lignes ont été rejetées.
+- **Renvoyer pour correction** : sur chaque ligne, le bureau peut rejeter (définitif) ou renvoyer pour correction avec un motif. L'agent est notifié, corrige la ligne sur son téléphone (même si la fiche est déjà envoyée), et la ligne revient au bureau automatiquement. Le bureau peut aussi renvoyer toute la fiche avec un motif.
+- **Notifications envoyées** :
+  - à l'agent : fiche ou ligne à corriger, ligne rejetée, résultat de la fiche avec les chiffres exacts, rappel à 18 h si la fiche du jour n'est pas envoyée ;
+  - au bureau (bouton « Activer les notifications » dans Sorties port) : nouvelle fiche reçue, ligne corrigée par l'agent.
+- **Appli** : onglets Aujourd'hui, Historique et Profil ; camions en tuiles avec le chauffeur habituel choisi d'office ; recherche de chauffeur ; **scanner du numéro de conteneur** par l'appareil photo, avec contrôle ISO ; clients, destinations et montants récents proposés en un geste ; vibrations de confirmation ; fonctionnement hors ligne ; raccourci « Ajouter un camion » par appui long sur l'icône.
+
 ## Nouveautés v4.31
 
 ### 1. Sorties port : l'agent au port saisit sur son téléphone
